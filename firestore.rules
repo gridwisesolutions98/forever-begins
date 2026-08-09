@@ -1,0 +1,174 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isOwner(vendorId) {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/vendors/$(vendorId)).data.get('uid', '') == request.auth.uid;
+    }
+
+    function isCoupleOwner(coupleId) {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/couples/$(coupleId)).data.get('uid', '') == request.auth.uid;
+    }
+
+    // Doc names a couple can safely append a brand-new entry to without full
+    // write access to the vendor's document — a couple booking/messaging a
+    // vendor never gets to edit or remove existing entries, only add one of
+    // their own. These names are also never publicly readable (unlike
+    // profile/gallery/etc.) since they hold real customer PII (names,
+    // emails, phones, wedding dates) rather than public listing content.
+    function isAppendableList(name) {
+      return name in ['bookings', 'payments', 'inquiries', 'notifications', 'appointments'];
+    }
+    // Proves the new array is the old array plus exactly one more element:
+    // same-or-larger membership (hasAll) plus a size that only grew by one.
+    // Not a byte-for-byte positional diff (rules can't loop over lists), but
+    // it rules out truncation, reordering-with-edits, and bulk overwrites.
+    function isSingleAppend() {
+      return request.resource.data.value.size() == resource.data.get('value', []).size() + 1
+          && request.resource.data.value.hasAll(resource.data.get('value', []));
+    }
+
+    match /vendors/{vendorId} {
+      // A fresh signup never explicitly writes `status`/`frozen` (matches the
+      // app's own `app.status || 'Pending'` JS-side fallback convention) —
+      // reading them with dot-access throws a rules-evaluation error when
+      // absent, which fails the ENTIRE collection query, not just that one
+      // document. `get(field, default)` tolerates a missing field instead.
+      //
+      // IMPORTANT for the public branch: Firestore requires a `list`/query
+      // to have a `.where()` clause the rules engine can statically prove
+      // satisfies the rule — it does NOT run the query then filter results
+      // per-document. Keep this branch to a single simple equality check
+      // (matching data-shim.js's `.where('status', '==', 'Approved')` query)
+      // so the marketplace-listing query stays provably safe; "frozen" is a
+      // pure UI-level hide (handled where vendors are rendered), not folded
+      // into this security condition, and per-document nuance (owner/admin
+      // reading their own non-approved record) still works fine because
+      // single-document get()/onSnapshot(docRef) reads are evaluated
+      // directly against the full OR below, unaffected by the list restriction.
+      allow read: if resource.data.get('status', 'Pending') == 'Approved'
+                  || (request.auth != null && request.auth.uid == resource.data.get('uid', ''))
+                  || isAdmin();
+
+      // A vendor can create their own application record (uid must match the signed-in user).
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+
+      // A vendor can update their own record, but cannot self-approve or self-unfreeze —
+      // those fields must stay unchanged from the server's current value unless an admin is writing.
+      allow update: if (request.auth != null && request.auth.uid == resource.data.get('uid', '')
+                      && request.resource.data.get('status', 'Pending') == resource.data.get('status', 'Pending')
+                      && request.resource.data.get('frozen', false) == resource.data.get('frozen', false))
+                    || isAdmin();
+
+      allow delete: if isAdmin();
+
+      // Publicly readable by design — login needs to resolve "username" to
+      // the real email Firebase Auth actually has on file (the account's
+      // real email, not the vendor's other business/profile info), and
+      // Forgot Password needs to verify a claimed email/phone against it,
+      // both *before* the visitor is authenticated at all. This is a
+      // narrower, more specific path than the generic subcollection rule
+      // below, so it overrides that rule's Approved-only gate for this one
+      // small, single-purpose document. Exposes only email+phone, nothing
+      // else, even for a still-pending vendor.
+      match /authLookup/contact {
+        allow get: if true;
+        allow create: if request.auth != null && isOwner(vendorId);
+        allow update, delete: if false; // immutable once set — a changed contact email needs a proper re-verification flow, not in scope yet
+      }
+
+      // Single-blob data (profile, settings, availability) and list-shaped subcollections
+      // (bookings, gallery, catalog items, etc.) added phase by phase, same ownership rule.
+      match /{collection}/{docId} {
+        // bookings/payments/inquiries/notifications/appointments hold real
+        // customer PII, never public listing content — excluded from the
+        // Approved-vendor public-read branch even though everything else
+        // under this wildcard (profile, gallery, packages, reviews...) is
+        // meant to be publicly browsable.
+        allow read: if (!isAppendableList(docId)
+                        && get(/databases/$(database)/documents/vendors/$(vendorId)).data.get('status', 'Pending') == 'Approved')
+                    || isOwner(vendorId) || isAdmin();
+        allow create: if isOwner(vendorId) || isAdmin()
+                      || (request.auth != null && isAppendableList(docId) && request.resource.data.value.size() == 1);
+        allow update: if isOwner(vendorId) || isAdmin()
+                      || (request.auth != null && isAppendableList(docId) && isSingleAppend());
+        allow delete: if isOwner(vendorId) || isAdmin();
+      }
+    }
+
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /{collection}/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // A couple's planning data (checklist, budget, guests, messages...) is
+    // private — no public-read branch like vendors have, since this is
+    // never a marketplace listing. Doc ID is the couple's chosen username
+    // (matching the vendors/{username} pattern), not the Firebase Auth uid.
+    match /couples/{coupleId} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read, update: if request.auth != null && request.auth.uid == resource.data.get('uid', '');
+      allow delete: if false;
+
+      // Same reasoning as vendors/{vendorId}/authLookup/contact above —
+      // login (resolve username -> real email) and Forgot Password
+      // (verify a claimed contact) both need this readable pre-auth.
+      match /authLookup/contact {
+        allow get: if true;
+        allow create: if request.auth != null && isCoupleOwner(coupleId);
+        allow update, delete: if false;
+      }
+
+      match /{collection}/{docId} {
+        allow read, write: if request.auth != null &&
+          request.auth.uid == get(/databases/$(database)/documents/couples/$(coupleId)).data.get('uid', '');
+      }
+    }
+
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if resource.data.get('status', 'Pending') == 'Approved' || isAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
+    }
+
+    // A vendor's "Promote Your Service" request — not customer-facing (no
+    // public read branch like reviews have), only the admin moderation
+    // queue needs to see these.
+    match /promotions/{promoId} {
+      allow read: if isAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // admin accounts are provisioned manually via the Firebase console/admin SDK, never from the client
+    }
+
+    // Same pre-auth "resolve username -> real email" need as vendors/couples,
+    // for the single fixed admin account. Normally written only by
+    // scripts/provision_admin.js via the Admin SDK (which bypasses rules
+    // anyway) — the already-authenticated admin can also repoint this
+    // themselves when changing their username in Settings, always to their
+    // own real email (never someone else's).
+    match /adminLoginLookup/{username} {
+      allow get: if true;
+      allow write: if isAdmin() && request.resource.data.email == request.auth.token.email;
+    }
+  }
+}

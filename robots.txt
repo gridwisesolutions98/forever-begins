@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /index.html
+Allow: /venue.html
+Allow: /terms.html
+Allow: /privacy.html
+Allow: /refund.html
+Disallow: /vendor.html
+Disallow: /admin.html
+
+Sitemap: https://foreverbegins.pro/sitemap.xml

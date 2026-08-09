@@ -1,0 +1,53 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isOwner(vendorId) {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/vendors/$(vendorId)).data.uid == request.auth.uid;
+    }
+
+    function isApproved(vendorId) {
+      return firestore.get(/databases/(default)/documents/vendors/$(vendorId)).data.status == 'Approved';
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+        firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
+    // Admin-authored site-wide content — homepage hero, banner ads — not
+    // owned by any single vendor, so isOwner() below doesn't apply.
+    match /siteContent/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin()
+                   && request.resource.size < 15 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*|video/.*');
+    }
+
+    // A couple uploading a design file with their booking (e.g. Invitation
+    // Cards) isn't the vendor, so isOwner() below won't let them write —
+    // this narrower, more specific path lets any signed-in customer upload
+    // here (never overwrite/delete anyone else's — file names are unique
+    // per-upload already), while reads stay the same as the rest of the
+    // vendor's files (public once approved, always visible to the owner).
+    match /vendors/{vendorId}/customerUploads/{allPaths=**} {
+      allow read: if isApproved(vendorId) || isOwner(vendorId);
+      allow write: if request.auth != null
+                   && request.resource.size < 15 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*|video/.*|application/pdf');
+    }
+
+    match /vendors/{vendorId}/{allPaths=**} {
+      allow read: if isApproved(vendorId) || isOwner(vendorId);
+      allow write: if isOwner(vendorId)
+                   && request.resource.size < 15 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*|video/.*|application/pdf');
+    }
+
+    match /users/{uid}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid
+                          && request.resource.size < 15 * 1024 * 1024;
+    }
+  }
+}

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.pexels.com https://images.unsplash.com https://firebasestorage.googleapis.com http://localhost:9199; media-src 'self' data: https://firebasestorage.googleapis.com http://localhost:9199; font-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com http://localhost:9099 http://localhost:8080 http://localhost:9199 ws://localhost:8080; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title id="pageTitle">Forever Begins | Browse Wedding Vendors in Lebanon</title>
+<meta name="description" id="metaDescription" content="Browse trusted wedding venues, photographers, caterers and other vendors in Lebanon, and book directly with Forever Begins.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" id="canonicalLink" href="https://foreverbegins.pro/venue.html">
+<meta name="theme-color" content="#0F6A5B">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Forever Begins">
+<meta property="og:title" id="ogTitle" content="Forever Begins | Browse Wedding Vendors in Lebanon">
+<meta property="og:description" id="ogDescription" content="Browse trusted wedding venues, photographers, caterers and other vendors in Lebanon, and book directly with Forever Begins.">
+<meta property="og:url" id="ogUrl" content="https://foreverbegins.pro/venue.html">
+<meta property="og:image" id="ogImage" content="https://foreverbegins.pro/6.jpeg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twitterTitle" content="Forever Begins | Browse Wedding Vendors in Lebanon">
+<meta name="twitter:description" id="twitterDescription" content="Browse trusted wedding venues, photographers, caterers and other vendors in Lebanon, and book directly with Forever Begins.">
+
+<link rel="stylesheet" href="venue.css">
+</head>
+<body>
+
+<header class="venue-header">
+  <div class="container">
+    <a href="index.html" class="venue-brand">Forever Begins</a>
+    <a href="index.html#find-services" class="venue-back">← Back to Find Services</a>
+  </div>
+</header>
+
+<main class="venue-main">
+  <div class="container">
+
+    <!-- ===== LISTING VIEW ===== -->
+    <div id="listingView">
+      <div class="listing-header">
+        <p class="eyebrow" id="listingCategoryEyebrow">Category</p>
+        <h1 id="listingTitle">Wedding Venues</h1>
+        <p style="color:#777;" id="listingSubtitle">Browse trusted vendors and view their full profile.</p>
+      </div>
+
+      <form class="venue-search-form" id="venueSearchForm">
+        <div class="form-group">
+          <label for="searchVenueName" id="searchVenueNameLabel">Venue Name</label>
+          <input type="text" id="searchVenueName" placeholder="e.g. Le Jardin">
+        </div>
+        <div class="form-group">
+          <label for="searchVenueLocation">Location</label>
+          <input type="text" id="searchVenueLocation" placeholder="City or area">
+        </div>
+        <div class="form-group">
+          <label for="searchVenueRating">Rating</label>
+          <select id="searchVenueRating">
+            <option value="">Any Rating</option>
+            <option value="4.8">4.8+ Stars</option>
+            <option value="4.5">4.5+ Stars</option>
+            <option value="4">4+ Stars</option>
+          </select>
+        </div>
+        <div class="form-group" id="searchVenueTypeGroup">
+          <label for="searchVenueType">Indoor / Outdoor</label>
+          <select id="searchVenueType">
+            <option value="">Any</option>
+            <option value="Indoor">Indoor</option>
+            <option value="Outdoor">Outdoor</option>
+            <option value="Both">Both</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchVenuePrice">Average Price</label>
+          <select id="searchVenuePrice">
+            <option value="">Any Price</option>
+            <option value="0-2000">Under $2,000</option>
+            <option value="2000-5000">$2,000 – $5,000</option>
+            <option value="5000-10000">$5,000 – $10,000</option>
+            <option value="10000-999999999">$10,000+</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+      <p class="search-result-note" id="venueSearchNote"></p>
+
+      <div class="bulk-inquiry-bar hidden" id="bulkInquiryBar" style="display:flex;align-items:center;gap:1rem;background:var(--bg);border:1px solid #e5e0d5;border-radius:10px;padding:0.8rem 1.2rem;margin-bottom:1rem;">
+        <span id="bulkInquiryCount" style="font-weight:600;"></span>
+        <span style="color:#777;font-size:0.85rem;">Tick the checkbox on a vendor's photo to add them.</span>
+        <button type="button" class="btn btn-primary btn-sm" id="openBulkInquiryBtn" style="margin-left:auto;">Send Inquiry to Selected</button>
+        <button type="button" class="btn btn-outline btn-sm" id="clearBulkInquiryBtn">Clear</button>
+      </div>
+
+      <div class="vendor-grid" id="vendorGrid"></div>
+    </div>
+
+    <!-- ===== PROFILE VIEW ===== -->
+    <div id="profileView" class="hidden">
+
+      <div class="profile-cover-wrap">
+        <div id="profileCoverWrap"></div>
+        <img class="profile-logo" id="profileLogo" src="" alt="Logo">
+      </div>
+      <div class="profile-header-info">
+        <h1 id="profileName"></h1>
+        <div class="profile-meta">
+          <span class="vendor-rating" id="profileRating"></span>
+          <span id="profileCategory"></span>
+          <span id="profileLocation"></span>
+          <span id="profileVerifiedBadge"></span>
+        </div>
+      </div>
+
+      <div class="profile-layout">
+        <div>
+          <div class="profile-tabs" id="profileTabs">
+            <button class="profile-tab active" data-tab="overview">Overview</button>
+            <button class="profile-tab" data-tab="gallery">Gallery &amp; Videos</button>
+            <button class="profile-tab hidden" data-tab="portfolio">Portfolio</button>
+            <button class="profile-tab hidden" data-tab="dresscollection">Dress Collection</button>
+            <button class="profile-tab hidden" data-tab="suitcollection">Suit Collection</button>
+            <button class="profile-tab hidden" data-tab="vehiclemanagement">Vehicle Fleet</button>
+            <button class="profile-tab hidden" data-tab="menumanagement">Our Menu</button>
+            <button class="profile-tab hidden" data-tab="designcollection">Design Collection</button>
+            <button class="profile-tab hidden" data-tab="jewelrycollection">Jewelry Collection</button>
+            <button class="profile-tab hidden" data-tab="cakecollection">Cake Collection</button>
+            <button class="profile-tab hidden" data-tab="restaurantmenu">Menu</button>
+            <button class="profile-tab hidden" data-tab="entertainmentservices">Entertainment Services</button>
+            <button class="profile-tab" data-tab="packages">Packages</button>
+            <button class="profile-tab" data-tab="foodmenu">Food Menu</button>
+            <button class="profile-tab" data-tab="availability">Availability</button>
+            <button class="profile-tab" data-tab="reviews">Reviews</button>
+          </div>
+
+          <div class="profile-panel active" id="tab-overview">
+            <div class="card">
+              <h3>About</h3>
+              <p id="profileDescription" style="color:#555;"></p>
+              <div class="detail-grid" id="profileDetailGrid"></div>
+              <div class="amenity-tags" id="profileAmenities"></div>
+              <div id="profileTourLinkWrap" style="margin-top:1rem;"></div>
+            </div>
+            <div class="card hidden" id="profileVenueMapCard">
+              <h3>Venue Map</h3>
+              <div class="venue-map-canvas" id="profileVenueMapCanvas" style="position:relative;width:100%;height:360px;background:#f0ede4;border-radius:10px;overflow:hidden;background-size:cover;background-position:center;"></div>
+            </div>
+            <div class="card hidden" id="profileVenueSeatingCard">
+              <h3>Table Seating Layout</h3>
+              <div id="profileVenueSeatingLayout" style="display:flex;flex-wrap:wrap;gap:1rem;"></div>
+            </div>
+            <div class="card hidden" id="profileVirtualTourCard">
+              <h3>Virtual Tour</h3>
+              <div class="gallery-grid" id="profileVirtualTourGrid"></div>
+            </div>
+            <div class="card hidden" id="profileWeddingProjectsCard">
+              <h3>Previous Wedding Projects</h3>
+              <div id="profileWeddingProjectsList"></div>
+            </div>
+          </div>
+
+          <div class="profile-panel" id="tab-gallery">
+            <div class="card">
+              <h3>Gallery &amp; Videos</h3>
+              <div class="gallery-grid-view" id="profileGallery"></div>
+            </div>
+            <div class="card hidden" id="kitchenPhotosProfileCard">
+              <h3>Kitchen Photos</h3>
+              <div class="gallery-grid-view" id="profileKitchenPhotos"></div>
+            </div>
+            <div class="card hidden" id="previousDesignsProfileCard">
+              <h3>Previous Designs</h3>
+              <div class="gallery-grid-view" id="profilePreviousDesigns"></div>
+            </div>
+          </div>
+
+          <div class="profile-panel" id="tab-portfolio">
+            <div class="card" id="profileFeaturedCard">
+              <h3>Featured Work</h3>
+              <div class="gallery-grid-view" id="profileFeaturedGrid"></div>
+            </div>
+            <div class="card">
+              <h3>Albums</h3>
+              <div id="profileAlbumsList"></div>
+            </div>
+            <div class="card" id="profileHighlightReelsCard">
+              <h3>Highlight Reels</h3>
+              <div class="gallery-grid-view" id="profileHighlightReelsGrid"></div>
+            </div>
+            <div class="card" id="profileBeforeAfterCard">
+              <h3>Before &amp; After</h3>
+              <div id="profileBeforeAfterList"></div>
+            </div>
+          </div>
+
+          <div class="profile-panel" id="tab-dresscollection">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileDressFilterCategory">Filter by Category</label>
+              <select id="profileDressFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileDressCollection"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-suitcollection">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileSuitFilterCategory">Filter by Category</label>
+              <select id="profileSuitFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileSuitCollection"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-vehiclemanagement">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileVehicleFilterCategory">Filter by Category</label>
+              <select id="profileVehicleFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileVehicleManagement"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-menumanagement">
+            <div class="card">
+              <h3>Food Categories</h3>
+              <div class="gallery-grid-view" id="profileFoodCategories"></div>
+            </div>
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileMenuFilterCategory">Filter by Category</label>
+              <select id="profileMenuFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileMenuItems"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-designcollection">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileDesignFilterCategory">Filter by Category</label>
+              <select id="profileDesignFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileDesignCollection"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-jewelrycollection">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileJewelryFilterCategory">Filter by Category</label>
+              <select id="profileJewelryFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileJewelryCollection"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-cakecollection">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileCakeFilterCategory">Filter by Category</label>
+              <select id="profileCakeFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileCakeCollection"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-restaurantmenu">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileRestaurantMenuFilterCategory">Filter by Category</label>
+              <select id="profileRestaurantMenuFilterCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="package-grid-view" id="profileRestaurantMenu"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-entertainmentservices">
+            <div class="admin-form-group" style="max-width:280px;">
+              <label for="profileEntertainmentServicesFilterType">Filter by Type</label>
+              <select id="profileEntertainmentServicesFilterType"><option value="">All Types</option></select>
+            </div>
+            <div class="package-grid-view" id="profileEntertainmentServices"></div>
+          </div>
+
+          <div class="profile-panel" id="tab-packages">
+            <div class="card">
+              <h3>Packages &amp; Pricing</h3>
+              <div class="package-grid-view" id="profilePackages"></div>
+            </div>
+          </div>
+
+          <div class="profile-panel" id="tab-foodmenu">
+            <div class="card">
+              <h3>Food Menu</h3>
+              <div id="profileFoodMenu"></div>
+            </div>
+          </div>
+
+          <div class="profile-panel" id="tab-availability">
+            <div class="card">
+              <h3>Availability Calendar</h3>
+              <div id="profileAvailability"></div>
+            </div>
+          </div>
+
+          <div class="profile-panel" id="tab-reviews">
+            <div class="card">
+              <h3>Reviews</h3>
+              <p id="profileRatingBreakdown" style="color:#555;"></p>
+              <div id="profileReviewsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card">
+            <h3>Contact</h3>
+            <ul class="contact-list" id="profileContactList"></ul>
+            <div class="social-links" id="profileSocialLinks"></div>
+            <div class="sidebar-actions">
+              <button class="btn btn-outline btn-block" id="favoriteBtn">🤍 Add to Favorites</button>
+              <button class="btn btn-outline btn-block" id="addToChecklistBtn">📋 Add to Wedding Checklist</button>
+              <button class="btn btn-outline btn-block" id="openMessageBtn">✉️ Send Message</button>
+              <button class="btn btn-outline btn-block" id="openAppointmentBtn">🗓️ Book an Appointment</button>
+              <button class="btn btn-primary btn-block" id="openBookingBtn">💳 Reserve by Booking</button>
+            </div>
+            <p class="form-note" id="favoriteNote"></p>
+            <p class="form-note" id="checklistNote"></p>
+          </div>
+
+          <div class="card my-appts-panel" id="myAppointmentsPanel">
+            <h3>My Appointments</h3>
+            <div id="myAppointmentsList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state hidden" id="notFoundState">
+      <h2>Vendor not found</h2>
+      <p>This profile may have been removed or isn't approved yet.</p>
+      <a href="venue.html" class="btn btn-primary">Back to listings</a>
+    </div>
+
+  </div>
+</main>
+
+<!-- ===== SEND MESSAGE MODAL ===== -->
+<div class="modal-overlay hidden" id="messageModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close-modal="messageModal">×</button>
+    <h2>Send a Message</h2>
+    <form id="messageForm">
+      <div class="form-row-2">
+        <div class="form-group"><label for="msgName">Full Name</label><input type="text" id="msgName" required></div>
+        <div class="form-group"><label for="msgEmail">Email</label><input type="email" id="msgEmail" required></div>
+      </div>
+      <div class="form-group"><label for="msgPhone">Phone</label><input type="tel" id="msgPhone"></div>
+      <div class="form-group"><label for="msgText">Message</label><textarea id="msgText" rows="4" required></textarea></div>
+      <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+      <p class="form-note" id="msgNote"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ===== SEND GROUP INQUIRY MODAL ===== -->
+<div class="modal-overlay hidden" id="bulkInquiryModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close-modal="bulkInquiryModal">×</button>
+    <h2>Send Inquiry to Selected Vendors</h2>
+    <p style="color:#777;font-size:0.85rem;margin-bottom:0.8rem;">Sending to: <strong id="bulkInquiryVendorList"></strong></p>
+    <form id="bulkInquiryForm">
+      <div class="form-row-2">
+        <div class="form-group"><label for="bulkMsgName">Full Name</label><input type="text" id="bulkMsgName" required></div>
+        <div class="form-group"><label for="bulkMsgEmail">Email</label><input type="email" id="bulkMsgEmail" required></div>
+      </div>
+      <div class="form-group"><label for="bulkMsgPhone">Phone</label><input type="tel" id="bulkMsgPhone"></div>
+      <div class="form-group"><label for="bulkMsgText">Message</label><textarea id="bulkMsgText" rows="4" required placeholder="e.g. Wedding date, guest count and what you're looking for"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-block">Send to All Selected</button>
+      <p class="form-note" id="bulkInquiryNote"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ===== BOOK APPOINTMENT MODAL ===== -->
+<div class="modal-overlay hidden" id="appointmentModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close-modal="appointmentModal">×</button>
+    <h2>Book an Appointment</h2>
+    <p style="color:#777;font-size:0.85rem;">Free consultation or venue viewing — no payment required. The vendor will confirm or decline your request.</p>
+    <form id="appointmentForm">
+      <div class="form-row-2">
+        <div class="form-group"><label for="apptFullName">Full Name</label><input type="text" id="apptFullName" required></div>
+        <div class="form-group"><label for="apptEmail">Email</label><input type="email" id="apptEmail" required></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label for="apptPhone">Phone Number</label><input type="tel" id="apptPhone" required></div>
+        <div class="form-group"><label for="apptWeddingDate">Wedding Date</label><input type="date" id="apptWeddingDate"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label for="apptDate">Appointment Date</label><input type="date" id="apptDate" required></div>
+        <div class="form-group"><label for="apptTime">Appointment Time</label><input type="time" id="apptTime" required></div>
+      </div>
+      <div class="form-group hidden" id="apptPurposeGroup">
+        <label for="apptPurpose">What is this appointment for?</label>
+        <select id="apptPurpose"></select>
+      </div>
+      <div class="form-group hidden" id="apptDressGroup">
+        <label for="apptDress">Which dress are you interested in?</label>
+        <select id="apptDress"></select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Request Appointment</button>
+      <p class="form-note" id="apptNote"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ===== RESERVE BY BOOKING MODAL ===== -->
+<div class="modal-overlay hidden" id="bookingModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close-modal="bookingModal">×</button>
+    <h2>Reserve by Booking</h2>
+    <form id="bookingForm">
+      <div class="form-row-2">
+        <div class="form-group"><label for="bookFullName">Full Name</label><input type="text" id="bookFullName" required></div>
+        <div class="form-group"><label for="bookEmail">Email</label><input type="email" id="bookEmail" required></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label for="bookPhone">Phone Number</label><input type="tel" id="bookPhone" required></div>
+        <div class="form-group"><label for="bookWeddingDate">Wedding Date</label><input type="date" id="bookWeddingDate" required></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="bookPackage">Select Package / Service</label>
+          <select id="bookPackage" required></select>
+        </div>
+        <div class="form-group" id="bookGuestsGroup">
+          <label for="bookGuests" id="bookGuestsLabel">Number of Guests</label>
+          <input type="number" id="bookGuests" min="1" placeholder="e.g. 150">
+        </div>
+      </div>
+
+      <div class="form-group hidden" id="bookPurposeGroup">
+        <label for="bookPurpose">What is this reservation for?</label>
+        <select id="bookPurpose"></select>
+      </div>
+
+      <div class="form-group hidden" id="bookDressGroup">
+        <label for="bookDress">Which dress would you like to reserve?</label>
+        <select id="bookDress"></select>
+      </div>
+
+      <div class="form-group hidden" id="bookVehicleGroup">
+        <label for="bookVehicle">Which vehicle would you like to reserve?</label>
+        <select id="bookVehicle"></select>
+      </div>
+
+      <div class="form-group hidden" id="bookJewelryGroup">
+        <label for="bookJewelryItem">Which item would you like to reserve?</label>
+        <select id="bookJewelryItem"></select>
+      </div>
+
+      <div class="form-group hidden" id="bookJewelrySizeGroup">
+        <label for="bookJewelrySize" id="bookJewelrySizeLabel">Size</label>
+        <select id="bookJewelrySize"></select>
+      </div>
+
+      <div class="form-group hidden" id="bookEntranceStyleGroup">
+        <label for="bookEntranceStyle">Choose Entrance Style</label>
+        <select id="bookEntranceStyle"></select>
+      </div>
+
+      <div class="form-group hidden" id="bookMusicSelectionGroup">
+        <label for="bookMusicSelection">Music Selection — Entrance Song</label>
+        <select id="bookMusicSelection"></select>
+      </div>
+
+      <div class="form-row-2 hidden" id="bookCakeCategoryGroup">
+        <div class="form-group">
+          <label for="bookCakeCategory">Cake Collection Category</label>
+          <select id="bookCakeCategory"></select>
+        </div>
+        <div class="form-group">
+          <label for="bookCakeItem">Which cake would you like?</label>
+          <select id="bookCakeItem"></select>
+        </div>
+      </div>
+
+      <div class="form-group hidden" id="bookCakeServicesGroup">
+        <label>Services Needed</label>
+        <div class="amenity-grid" id="bookCakeServicesGrid"></div>
+      </div>
+
+      <div class="form-row-2 hidden" id="bookCakeFlavorsGroup">
+        <div class="form-group">
+          <label for="bookCakeFlavor1">Flavor Choice 1</label>
+          <select id="bookCakeFlavor1"><option value="">None</option></select>
+        </div>
+        <div class="form-group">
+          <label for="bookCakeFlavor2">Flavor Choice 2 (optional)</label>
+          <select id="bookCakeFlavor2"><option value="">None</option></select>
+        </div>
+      </div>
+      <div class="form-row-2 hidden" id="bookCakeFlavor3Group">
+        <div class="form-group">
+          <label for="bookCakeFlavor3">Flavor Choice 3 (optional)</label>
+          <select id="bookCakeFlavor3"><option value="">None</option></select>
+        </div>
+        <div class="form-group">
+          <label for="bookCakeDecorationStyle">Decoration Style</label>
+          <select id="bookCakeDecorationStyle"></select>
+        </div>
+      </div>
+
+      <div class="form-row-2 hidden" id="bookCakeFillingsGroup">
+        <div class="form-group">
+          <label for="bookCakeFilling1">Filling Choice 1</label>
+          <select id="bookCakeFilling1"><option value="">None</option></select>
+        </div>
+        <div class="form-group">
+          <label for="bookCakeFilling2">Filling Choice 2 (optional)</label>
+          <select id="bookCakeFilling2"><option value="">None</option></select>
+        </div>
+      </div>
+      <div class="form-group hidden" id="bookCakeFilling3Group">
+        <label for="bookCakeFilling3">Filling Choice 3 (optional)</label>
+        <select id="bookCakeFilling3"><option value="">None</option></select>
+      </div>
+
+      <div class="form-group hidden" id="bookRestaurantGroup">
+        <label>Decoration Options</label>
+        <div class="amenity-grid" id="bookRestaurantDecorationGrid"></div>
+        <label for="bookRestaurantEventDetails" style="margin-top:0.6rem;display:block;">Tell us everything you'd like for your event</label>
+        <textarea id="bookRestaurantEventDetails" rows="3" placeholder="e.g. Proposal at sunset, rooftop table for 2, a specific song playing when she says yes..."></textarea>
+      </div>
+
+      <div class="form-group hidden" id="bookEntertainmentServiceGroup">
+        <label for="bookEntertainmentService">Which entertainment service would you like to book?</label>
+        <select id="bookEntertainmentService"></select>
+      </div>
+
+      <div class="form-row-2 hidden" id="bookSuitOptionsGroup">
+        <div class="form-group">
+          <label for="bookPurchaseType">Buy or Rent?</label>
+          <select id="bookPurchaseType"><option>Rent</option><option>Buy</option></select>
+        </div>
+        <div class="form-group">
+          <label for="bookPickupDate">Pickup Date</label>
+          <input type="date" id="bookPickupDate">
+        </div>
+      </div>
+
+      <div class="form-group hidden" id="bookInvitationGroup">
+        <label for="bookInvitationQuantity">Quantity</label>
+        <input type="number" id="bookInvitationQuantity" min="1" placeholder="e.g. 150">
+        <label for="bookInvitationDesignUpload" style="margin-top:0.6rem;display:block;">Upload a Design (optional — inspiration or your own artwork)</label>
+        <input type="file" id="bookInvitationDesignUpload" accept="image/*">
+        <label for="bookInvitationNotes" style="margin-top:0.6rem;display:block;">Notes</label>
+        <textarea id="bookInvitationNotes" rows="2" placeholder="e.g. Wording, color preferences, deadline"></textarea>
+      </div>
+
+      <div class="form-group" id="bookFoodMenuGroup">
+        <label for="bookFoodMenu">Food Menu (optional)</label>
+        <select id="bookFoodMenu"><option value="">None</option></select>
+      </div>
+
+      <div class="form-group" id="bookAddonsGroup">
+        <label>Optional Add-ons</label>
+        <div id="bookAddonsList"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="bookCouponCode">Sponsor Coupon Code (optional)</label>
+        <input type="text" id="bookCouponCode" placeholder="e.g. LAYLA10" style="text-transform:uppercase;">
+        <p class="form-note" id="couponNote" style="min-height:auto;margin-top:0.3rem;"></p>
+      </div>
+
+      <div class="deposit-summary" id="depositSummary"></div>
+      <div class="policy-box" id="policyBox"></div>
+
+      <div class="form-group">
+        <label for="bookPaymentMethod">Payment Method</label>
+        <select id="bookPaymentMethod" required></select>
+      </div>
+
+      <!-- Shown for OMT / Whish Money / Western Union -->
+      <div id="payToNumberBox" class="policy-box hidden"></div>
+      <div class="form-group" id="transactionRefGroup">
+        <label for="bookTransactionRef">Transaction Reference Number</label>
+        <input type="text" id="bookTransactionRef" placeholder="e.g. WM123456">
+      </div>
+
+      <!-- Shown only for Credit/Debit Card — vendor never sees this data -->
+      <div id="cardFieldsGroup" class="hidden">
+        <p class="admin-hint" style="text-align:left;color:#777;font-size:0.8rem;">Your card details are used only to process this payment and are not shared with the vendor.</p>
+        <div class="form-group"><label for="cardName">Name on Card</label><input type="text" id="cardName"></div>
+        <div class="form-group"><label for="cardNumber">Card Number</label><input type="text" id="cardNumber" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456"></div>
+        <div class="form-row-2">
+          <div class="form-group"><label for="cardExpiry">Expiry (MM/YY)</label><input type="text" id="cardExpiry" maxlength="5" placeholder="MM/YY"></div>
+          <div class="form-group"><label for="cardCvc">CVC</label><input type="text" id="cardCvc" maxlength="4" placeholder="123"></div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Submit Reservation</button>
+      <p class="form-note" id="bookNote"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MEDIA LIGHTBOX ===== -->
+<div class="lightbox-overlay hidden" id="lightboxOverlay">
+  <button class="lightbox-close" id="lightboxCloseBtn" aria-label="Close">×</button>
+  <div class="lightbox-content" id="lightboxContent"></div>
+  <a class="btn btn-gold lightbox-save-btn" id="lightboxSaveBtn" download>💾 Save</a>
+</div>
+
+<script src="lib/firebase/firebase-app-compat.js"></script>
+<script src="lib/firebase/firebase-auth-compat.js"></script>
+<script src="lib/firebase/firebase-firestore-compat.js"></script>
+<script src="lib/firebase/firebase-storage-compat.js"></script>
+<script src="firebase-init.js"></script>
+<script src="data-shim.js"></script>
+<script src="venue.js"></script>
+</body>
+</html>

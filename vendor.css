@@ -1,0 +1,174 @@
+/* Extends admin.css (shared dashboard shell, tables, stat cards, buttons) */
+
+.locked-panel {
+  background: var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #777;
+}
+.locked-panel .lock-icon { font-size: 2.4rem; margin-bottom: 0.8rem; }
+.locked-panel h3 { color: var(--primary); }
+.upgrade-note {
+  display: inline-block;
+  margin-top: 1rem;
+  background: rgba(201,162,39,0.12);
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.plan-tag {
+  display: inline-block;
+  background: var(--secondary);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Gallery */
+.gallery-grid-vendor {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+.gallery-thumb { position: relative; border-radius: 8px; overflow: hidden; height: 90px; }
+.gallery-thumb img, .gallery-thumb video { width: 100%; height: 100%; object-fit: cover; }
+.gallery-thumb button {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%;
+  width: 22px; height: 22px; cursor: pointer; font-size: 0.75rem; line-height: 1;
+}
+.cover-preview { width: 100%; max-width: 320px; height: 160px; object-fit: cover; border-radius: var(--radius); margin: 0.6rem 0; box-shadow: var(--shadow); }
+.photo-flower-type-input { width: 100%; margin-top: 0.3rem; padding: 0.3rem 0.4rem; font-size: 0.72rem; border: 1px solid #ddd; border-radius: 6px; }
+
+/* Amenities */
+.amenity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.5rem;
+  margin: 0.8rem 0 1.2rem;
+}
+.amenity-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
+
+/* Package cards */
+.package-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1rem; }
+.package-card { background: var(--bg); border: 1px solid #e6e2d6; border-radius: var(--radius); padding: 1.2rem; }
+.package-card h4 { margin: 0 0 0.3rem; color: var(--primary); }
+.package-card .price { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.4rem; }
+.package-card .meta { font-size: 0.8rem; color: #777; margin-bottom: 0.5rem; }
+.package-card .note { font-size: 0.82rem; color: #555; margin-bottom: 0.3rem; }
+
+/* Calendar */
+.calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.calendar-header h3 { margin: 0; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.calendar-dow { text-align: center; font-size: 0.72rem; font-weight: 700; color: #999; padding-bottom: 4px; }
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; font-size: 0.82rem; cursor: pointer;
+  background: var(--bg); border: 1px solid #eee; user-select: none;
+}
+.calendar-day.empty { visibility: hidden; cursor: default; }
+.calendar-day.available { background: var(--bg); color: var(--text); }
+.calendar-day.blocked { background: #eee; color: #999; text-decoration: line-through; }
+.calendar-day.reserved { background: var(--primary); color: #fff; font-weight: 700; }
+.calendar-day.maintenance { background: var(--secondary); color: #fff; font-weight: 700; }
+.calendar-day.trial { background: #e8b4b8; color: #6b2737; font-weight: 700; }
+.calendar-day.wedding { background: #c9a15a; color: #4a3a10; font-weight: 700; }
+.calendar-day.pickup { background: #8fb996; color: #1f3d24; font-weight: 700; }
+.calendar-day.return { background: #7fa8c9; color: #1c3040; font-weight: 700; }
+.calendar-day.driverunavailable { background: #c97b7b; color: #3d1414; font-weight: 700; }
+.calendar-day.staffunavailable { background: #c97b7b; color: #3d1414; font-weight: 700; }
+.calendar-day.seasonaloffer { background: #e8cf7a; color: #4a3c0a; font-weight: 700; }
+
+.dashboard-search-result { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.4rem; border-bottom: 1px solid #eee; cursor: pointer; }
+.dashboard-search-result:last-child { border-bottom: none; }
+.dashboard-search-result:hover { background: var(--bg); }
+.calendar-legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.8rem; }
+.calendar-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+/* Star rating */
+.star-display { color: var(--secondary); font-weight: 700; }
+
+/* Documents */
+.doc-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--bg); border: 1px solid #e6e2d6; border-radius: 8px;
+  padding: 0.6rem 0.9rem; margin-bottom: 0.5rem; font-size: 0.88rem;
+}
+.doc-item a { flex: 1; }
+.doc-item button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.9rem; }
+
+/* Notification feed */
+.notif-feed-item {
+  padding: 0.7rem 0.5rem; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem;
+}
+.notif-feed-item.unread { background: #f7f4e9; font-weight: 700; }
+.notif-feed-item .notif-time { display: block; font-size: 0.75rem; color: #999; font-weight: 400; margin-top: 0.2rem; }
+
+/* Business hours */
+.hours-row { display: grid; grid-template-columns: 100px auto 1fr 1fr; align-items: center; gap: 0.6rem; padding: 0.4rem 0; }
+.hours-row input[type="time"] { padding: 0.4rem; border: 1px solid #ddd; border-radius: 6px; background: var(--bg); }
+@media (max-width: 600px) { .hours-row { grid-template-columns: 80px auto 1fr; } .hours-row input[type="time"]:last-child { grid-column: 2 / span 2; } }
+
+/* Team members */
+.team-member-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem;
+}
+.team-member-row button { background: none; border: none; color: var(--danger); cursor: pointer; }
+
+.qr-check-in-box { text-align: center; padding: 0.5rem; }
+.qr-check-in-box img { border-radius: 8px; }
+
+/* Marketing / promotions */
+.payment-instructions {
+  background: var(--bg);
+  border: 1px dashed var(--secondary);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+}
+.payment-instructions p { margin: 0 0 1rem; color: #444; }
+.payment-number-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.payment-number { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+.payment-methods-badges { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.payment-badge {
+  background: var(--accent); border: 1px solid var(--secondary); color: var(--primary);
+  font-size: 0.76rem; font-weight: 700; padding: 0.25rem 0.8rem; border-radius: 999px;
+}
+.promo-total { font-weight: 700; color: var(--primary); margin-top: 0.8rem; min-height: 1.2em; }
+.plan-tier-row { display: flex; align-items: baseline; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem; flex-wrap: wrap; }
+.plan-tier-row.current { font-weight: 700; color: var(--primary); }
+.plan-tier-name { flex: 0 0 150px; }
+.plan-tier-price { flex: 0 0 70px; text-align: left; }
+.plan-tier-features { flex: 1 1 200px; }
+
+.faq-item { border-bottom: 1px solid #f0f0f0; }
+.faq-item:last-child { border-bottom: none; }
+.faq-question {
+  width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.9rem 0; font-size: 0.95rem; font-weight: 700; color: var(--primary);
+}
+.faq-toggle-icon { font-size: 1.2rem; font-weight: 400; color: var(--secondary); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
+.faq-item.open .faq-answer { max-height: 200px; }
+.faq-answer p { margin: 0 0 1rem; color: #555; font-size: 0.9rem; }
+
+@media print {
+  .admin-sidebar, .admin-topbar button, .no-print { display: none !important; }
+  .admin-main { padding: 0; }
+  .admin-shell { display: block; }
+}

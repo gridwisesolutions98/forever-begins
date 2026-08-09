@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "demo-forever-begins",
+    "prod": "foreverbegins-f4d0f"
+  }
+}

@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.pexels.com https://images.unsplash.com https://firebasestorage.googleapis.com http://localhost:9199; media-src 'self' data: https://firebasestorage.googleapis.com http://localhost:9199; font-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com http://localhost:9099 http://localhost:8080 http://localhost:9199 ws://localhost:8080; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Forever Begins — Vendor Dashboard</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="vendor.css">
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div class="admin-login-wrap" id="loginWrap">
+  <div class="admin-login-card">
+    <h1>Forever Begins</h1>
+    <p class="admin-login-sub">Vendor Dashboard</p>
+    <form id="vendorLoginForm">
+      <div class="admin-form-group">
+        <label for="vendorUsername">Username</label>
+        <input type="text" id="vendorUsername" required>
+      </div>
+      <div class="admin-form-group">
+        <label for="vendorPasswordInput">Password</label>
+        <input type="password" id="vendorPasswordInput" required>
+      </div>
+      <button type="submit" class="admin-btn block">Login</button>
+      <p class="admin-note" id="vendorLoginNote" style="color:#c0392b;"></p>
+    </form>
+    <p style="text-align:center;margin-top:0.6rem;"><a href="#" id="vendorForgotPasswordLink" style="font-size:0.85rem;">Forgot password?</a></p>
+    <div class="hidden" id="vendorForgotPasswordWrap" style="margin-top:1rem;padding-top:1rem;border-top:1px solid #eee;">
+      <div id="vendorForgotStep1">
+        <div class="admin-form-group">
+          <label for="vendorForgotUsername">Username</label>
+          <input type="text" id="vendorForgotUsername">
+        </div>
+        <div class="admin-form-group">
+          <label for="vendorForgotContact">Email or WhatsApp number on file</label>
+          <input type="text" id="vendorForgotContact" placeholder="you@example.com or +961...">
+        </div>
+        <button type="button" class="admin-btn outline block" id="vendorSendCodeBtn">Send Reset Code</button>
+        <p class="admin-note" id="vendorForgotNote1"></p>
+      </div>
+      <div class="hidden" id="vendorForgotStep2">
+        <div class="admin-form-group">
+          <label for="vendorResetCode">Reset Code</label>
+          <input type="text" id="vendorResetCode">
+        </div>
+        <div class="admin-form-group">
+          <label for="vendorNewPasswordReset">New Password</label>
+          <input type="password" id="vendorNewPasswordReset">
+        </div>
+        <button type="button" class="admin-btn block" id="vendorResetPasswordBtn">Reset Password</button>
+        <p class="admin-note" id="vendorForgotNote2"></p>
+      </div>
+    </div>
+    <p class="admin-hint">Use the username &amp; password you created under "List Your Business" on the main site.</p>
+  </div>
+</div>
+
+<!-- ===== PENDING APPROVAL GATE ===== -->
+<div class="admin-login-wrap hidden" id="pendingWrap">
+  <div class="admin-login-card" style="max-width:460px;text-align:center;">
+    <h1>Almost there!</h1>
+    <p style="color:#666;">Your business application (<strong id="pendingBusinessName"></strong>) is still <span class="status-pill pending">Pending</span> review by our team. Your dashboard unlocks once it's approved.</p>
+    <button class="admin-btn outline block" id="pendingLogoutBtn" style="margin-top:1rem;">Logout</button>
+  </div>
+</div>
+
+<!-- ===== WRONG CATEGORY GATE ===== -->
+<div class="admin-login-wrap hidden" id="wrongCategoryWrap">
+  <div class="admin-login-card" style="max-width:460px;text-align:center;">
+    <h1>Coming Soon</h1>
+    <p style="color:#666;">The full management dashboard is currently built for <strong>Wedding Venues</strong>, <strong>Photographers &amp; Videographers</strong>, <strong>DJs &amp; Bands</strong>, <strong>Wedding Planners</strong>, <strong>Florists &amp; Decor</strong>, <strong>Makeup Artists</strong>, <strong>Hair Stylists</strong>, <strong>Bridal Dress Shops</strong>, <strong>Suit Rental</strong>, <strong>Vehicle Rental</strong>, <strong>Catering</strong>, <strong>Honeymoon Agency</strong>, <strong>Invitation Cards</strong>, <strong>Bridal Stylist</strong>, <strong>Jewelry</strong>, <strong>Zaffeh</strong>, <strong>Cake Designers</strong> and <strong>Restaurants</strong>. A tailored dashboard for <strong id="wrongCategoryName"></strong> vendors is on its way — for now you can still edit your basic info from the "List Your Business" form.</p>
+    <button class="admin-btn outline block" id="wrongCategoryLogoutBtn" style="margin-top:1rem;">Logout</button>
+  </div>
+</div>
+
+<!-- ===== FROZEN ACCOUNT GATE ===== -->
+<div class="admin-login-wrap hidden" id="frozenWrap">
+  <div class="admin-login-card" style="max-width:460px;text-align:center;">
+    <h1>🧊 Account Frozen</h1>
+    <p style="color:#666;">Your account has been frozen, usually because your subscription renewal is overdue. Please contact us to renew your subscription and regain access to your dashboard and public listing.</p>
+    <button class="admin-btn outline block" id="frozenLogoutBtn" style="margin-top:1rem;">Logout</button>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="admin-shell hidden" id="dashboardShell">
+  <aside class="admin-sidebar">
+    <div class="admin-brand">Forever Begins</div>
+    <div class="admin-brand-sub" id="vendorPlanLabel">Vendor Dashboard</div>
+    <nav class="admin-nav" id="vendorNav">
+      <button class="active" data-panel="overview">📊 Overview</button>
+      <button data-panel="venue">🏛️ My Venue</button>
+      <button data-panel="portfolio" class="hidden">🖼️ Portfolio</button>
+      <button data-panel="designgallery" class="hidden">🎨 Design Gallery</button>
+      <button data-panel="makeupportfolio" class="hidden">🖼️ Portfolio</button>
+      <button data-panel="clientmanagement" class="hidden">👰 Client Management</button>
+      <button data-panel="hairportfolio" class="hidden">🖼️ Portfolio</button>
+      <button data-panel="hairclientmanagement" class="hidden">👰 Client Management</button>
+      <button data-panel="dresscollection" class="hidden">👗 Dress Collection</button>
+      <button data-panel="inventory" class="hidden">📦 Inventory Management</button>
+      <button data-panel="bridalclientmanagement" class="hidden">👰 Customer Management</button>
+      <button data-panel="suitcollection" class="hidden">🤵 Suit Collection</button>
+      <button data-panel="suitinventory" class="hidden">📦 Inventory Management</button>
+      <button data-panel="suitclientmanagement" class="hidden">🤵 Customer Management</button>
+      <button data-panel="vehiclemanagement" class="hidden">🚗 Vehicle Management</button>
+      <button data-panel="drivermanagement" class="hidden">🧑‍✈️ Driver Management</button>
+      <button data-panel="vehicleclientmanagement" class="hidden">💑 Customer Management</button>
+      <button data-panel="menumanagement" class="hidden">🍴 Menu Management</button>
+      <button data-panel="eventmanagement" class="hidden">📅 Event Management</button>
+      <button data-panel="cateringclientmanagement" class="hidden">💑 Customer Management</button>
+      <button data-panel="customhoneymoonplanning" class="hidden">🧳 Custom Honeymoon Planning</button>
+      <button data-panel="honeymoonclientmanagement" class="hidden">💑 Customer Management</button>
+      <button data-panel="designcollection" class="hidden">🎨 Design Collection</button>
+      <button data-panel="invitationclientmanagement" class="hidden">💑 Customer Management</button>
+      <button data-panel="deliverymanagement" class="hidden">🚚 Delivery Management</button>
+      <button data-panel="servicemanagement" class="hidden">🛠️ Services</button>
+      <button data-panel="bridalstylistportfolio" class="hidden">🖼️ Portfolio</button>
+      <button data-panel="brideprofiles" class="hidden">👰 Bride Profiles</button>
+      <button data-panel="zaffehgallery" class="hidden">🖼️ Performance Gallery</button>
+      <button data-panel="zaffehteam" class="hidden">🧑‍🤝‍🧑 Team Management</button>
+      <button data-panel="cakecollection" class="hidden">🎂 Cake Collection</button>
+      <button data-panel="cakeclientmanagement" class="hidden">💑 Customer Management</button>
+      <button data-panel="jewelrycollection" class="hidden">💎 Jewelry Collection</button>
+      <button data-panel="jewelryreservations" class="hidden">📦 Reservation Management</button>
+      <button data-panel="jewelryinventory" class="hidden">📊 Inventory Management</button>
+      <button data-panel="jewelryclientmanagement" class="hidden">👰 Customer Management</button>
+      <button data-panel="restaurantmenu" class="hidden">🍽️ Food &amp; Beverage Menu</button>
+      <button data-panel="entertainmentservices" class="hidden">🎪 Entertainment Services</button>
+      <button data-panel="entertainmentgallery" class="hidden">🖼️ Gallery</button>
+      <button data-panel="entertainmentclientmanagement" class="hidden">💑 Customer Management</button>
+      <button data-panel="packages">💰 Packages &amp; Pricing</button>
+      <button data-panel="timeline" class="hidden">🗓️ Wedding Timeline</button>
+      <button data-panel="budget" class="hidden">🧾 Budget Management</button>
+      <button data-panel="foodmenu">🍽️ Food Menu</button>
+      <button data-panel="venueseating" class="hidden">🪑 Table Seating Planner</button>
+      <button data-panel="venuemap" class="hidden">🗺️ Interactive Venue Map</button>
+      <button data-panel="availability">📅 Availability Calendar</button>
+      <button data-panel="appointments">🗓️ Appointments</button>
+      <button data-panel="bookings">📖 Booking Management</button>
+      <button data-panel="payments">💳 Payments</button>
+      <button data-panel="inquiries">✉️ Customer Inquiries</button>
+      <button data-panel="reviews">⭐ Reviews</button>
+      <button data-panel="blog">📰 Blog</button>
+      <button data-panel="analytics" class="hidden">📈 Analytics</button>
+      <button data-panel="documents">📄 Documents &amp; Verification</button>
+      <button data-panel="notifications">🔔 Notifications <span class="badge" id="vendorNotifBadge" style="position:static;margin-left:4px;"></span></button>
+      <button data-panel="settings">⚙️ Settings</button>
+      <button data-panel="marketing">📣 Marketing</button>
+      <button data-panel="help">❓ Help &amp; Support</button>
+    </nav>
+    <button class="admin-btn outline admin-logout" id="vendorLogoutBtn">Logout</button>
+  </aside>
+
+  <main class="admin-main">
+
+    <!-- Overview -->
+    <section class="admin-panel active" id="panel-overview">
+      <div class="admin-topbar">
+        <h2>Dashboard Overview — <span id="overviewBusinessName"></span></h2>
+        <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="dashboardSearchInput" placeholder="🔍 Search bookings, appointments, clients…" style="padding:0.55rem 0.9rem;border-radius:8px;border:1px solid #ddd;min-width:260px;font-family:inherit;font-size:0.9rem;">
+          <button class="admin-btn outline" id="printReportBtn">🖨 Print Report</button>
+        </div>
+      </div>
+      <div class="admin-card hidden" id="dashboardSearchResults"></div>
+      <div class="admin-card hidden" id="renewalAlertWrap" style="background:#fdf1d6;border:1px solid #e8cf7a;"></div>
+      <div class="stat-grid" id="overviewStats"></div>
+      <div class="admin-card hidden" id="overviewConfirmedFittingsWrap">
+        <h3>Confirmed Fittings</h3>
+        <div id="overviewConfirmedFittingsList"></div>
+      </div>
+      <div class="admin-card">
+        <h3>Couples Reviews Summary</h3>
+        <p id="overviewReviewsSummary" style="color:#666;"></p>
+      </div>
+    </section>
+
+    <!-- My Venue -->
+    <section class="admin-panel" id="panel-venue">
+      <div class="admin-topbar"><h2 id="venuePanelTitle">My Venue</h2></div>
+
+      <div class="admin-card">
+        <h3>Business Information</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="venueBusinessName">Business Name</label><input type="text" id="venueBusinessName"></div>
+          <div class="admin-form-group"><label for="venuePhone">Phone</label><input type="text" id="venuePhone"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="venueEmail">Email</label><input type="email" id="venueEmail"></div>
+          <div class="admin-form-group"><label for="venueLocation">Location / Address</label><input type="text" id="venueLocation"></div>
+        </div>
+        <div class="admin-form-group"><label for="venueMapsLink">Google Maps Link</label><input type="url" id="venueMapsLink" placeholder="https://maps.google.com/..."></div>
+        <div class="admin-form-group"><label for="venueWebsite">Website</label><input type="url" id="venueWebsite" placeholder="https://yourvenue.com"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="venueInstagram">Instagram</label><input type="url" id="venueInstagram" placeholder="https://instagram.com/yourvenue"></div>
+          <div class="admin-form-group"><label for="venueFacebook">Facebook</label><input type="url" id="venueFacebook" placeholder="https://facebook.com/yourvenue"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="venueTiktok">TikTok</label><input type="url" id="venueTiktok" placeholder="https://tiktok.com/@yourvenue"></div>
+          <div class="admin-form-group"><label for="venueWhatsapp">WhatsApp Business Number</label><input type="text" id="venueWhatsapp" placeholder="+961 3 123 456"></div>
+        </div>
+        <div class="admin-form-group"><label for="venueDescription" id="descriptionLabel">Venue Description</label><textarea id="venueDescription" rows="4"></textarea></div>
+        <button class="admin-btn" id="saveVenueInfoBtn">Save Business Info</button>
+        <p class="admin-note" id="venueInfoNote"></p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Cover Photo / Video</h3>
+        <p class="admin-hint" style="text-align:left;">Shown above your business name on the listing and profile pages — upload a photo or a short video.</p>
+        <div id="coverPreviewWrap"></div>
+        <input type="file" id="coverPhotoInput" accept="image/*,video/*">
+      </div>
+
+      <div class="admin-card">
+        <h3>Business Logo</h3>
+        <p class="admin-hint" style="text-align:left;">Shown on your listing card and profile page.</p>
+        <div id="logoPreviewWrap"></div>
+        <input type="file" id="logoInput" accept="image/*">
+      </div>
+
+      <div class="admin-card">
+        <h3 id="galleryHeading">Gallery Photos <span id="galleryLimitNote" style="color:#999;font-size:0.8rem;font-weight:400;"></span></h3>
+        <input type="file" id="galleryPhotoInput" accept="image/*" multiple>
+        <div class="gallery-grid-vendor" id="galleryGridVendor"></div>
+      </div>
+
+      <div class="admin-card" id="videosCard">
+        <h3 id="videosHeading">Videos <span class="plan-tag">Professional+</span></h3>
+        <div id="videosLockNote"></div>
+        <input type="file" id="videosInput" accept="video/*" multiple>
+        <div class="gallery-grid-vendor" id="videosGridVendor"></div>
+      </div>
+
+      <div class="admin-card hidden" id="kitchenPhotosCard">
+        <h3>Kitchen Photos</h3>
+        <p class="admin-hint" style="text-align:left;">Show couples your kitchen and food prep facilities — builds trust in your hygiene and professionalism.</p>
+        <input type="file" id="kitchenPhotoInput" accept="image/*" multiple>
+        <div class="gallery-grid-vendor" id="kitchenPhotosGridVendor"></div>
+      </div>
+
+      <div class="admin-card hidden" id="previousDesignsCard">
+        <h3>Previous Designs</h3>
+        <p class="admin-hint" style="text-align:left;">Showcase specific past invitation designs you've created for couples — separate from your general portfolio gallery below.</p>
+        <input type="file" id="previousDesignsPhotoInput" accept="image/*" multiple>
+        <div class="gallery-grid-vendor" id="previousDesignsGridVendor"></div>
+      </div>
+
+      <div class="admin-card" id="tourCard">
+        <h3>Virtual 360° Tour <span class="plan-tag">Professional+</span></h3>
+        <div id="tourLockNote"></div>
+        <div class="admin-form-group">
+          <label for="tourLinkInput">360° Tour Link (e.g. Matterport, Kuula, YouTube 360)</label>
+          <input type="url" id="tourLinkInput" placeholder="https://...">
+        </div>
+        <button class="admin-btn small" id="saveTourBtn">Save Tour Link</button>
+        <div id="tourPreview" style="margin-top:0.8rem;"></div>
+      </div>
+
+      <div class="admin-card" id="venueDetailsCard">
+        <h3>Venue Details</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="venueCapacity">Venue Capacity (guests)</label><input type="number" id="venueCapacity" min="0"></div>
+          <div class="admin-form-group">
+            <label for="venueIndoorOutdoor">Indoor / Outdoor</label>
+            <select id="venueIndoorOutdoor">
+              <option value="Indoor">Indoor Only</option>
+              <option value="Outdoor">Outdoor Only</option>
+              <option value="Both">Both Indoor &amp; Outdoor</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-form-group"><label for="venueParking">Parking Information</label><textarea id="venueParking" rows="2"></textarea></div>
+        <div class="admin-form-group"><label for="venueAccessibility">Accessibility</label><textarea id="venueAccessibility" rows="2"></textarea></div>
+        <h4>Amenities</h4>
+        <div class="amenity-grid" id="amenityGrid"></div>
+        <button class="admin-btn" id="saveVenueDetailsBtn">Save Venue Details</button>
+        <p class="admin-note" id="venueDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="photographerDetailsCard">
+        <h3>Services &amp; Expertise</h3>
+        <h4>Services Offered</h4>
+        <div class="amenity-grid" id="servicesGrid"></div>
+        <div class="admin-form-group" style="margin-top:1rem;">
+          <label for="equipmentUsed">Equipment Used (optional)</label>
+          <textarea id="equipmentUsed" rows="2" placeholder="e.g. Canon R5, DJI Mavic 3 drone, Sony FX3 cinema camera"></textarea>
+        </div>
+        <h4>Awards &amp; Certifications</h4>
+        <div class="admin-inline-form">
+          <input type="text" id="awardInput" placeholder="e.g. Best Wedding Photographer 2025">
+          <button type="button" class="admin-btn small outline" id="addAwardBtn">Add</button>
+        </div>
+        <div id="awardsList"></div>
+        <button class="admin-btn" id="savePhotographerDetailsBtn" style="margin-top:1rem;">Save Services &amp; Expertise</button>
+        <p class="admin-note" id="photographerDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="djBandDetailsCard">
+        <h3>Performance Details</h3>
+        <div class="admin-form-group"><label for="djYearsExperience">Years of Experience</label><input type="number" id="djYearsExperience" min="0"></div>
+        <h4>Services Offered</h4>
+        <div class="amenity-grid" id="djServicesGrid"></div>
+        <h4>Music Library</h4>
+        <div class="amenity-grid" id="musicGenresGrid"></div>
+        <h4>Languages Performed</h4>
+        <div class="amenity-grid" id="languagesGrid"></div>
+        <button class="admin-btn" id="saveDjBandDetailsBtn" style="margin-top:1rem;">Save Performance Details</button>
+        <p class="admin-note" id="djBandDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="weddingPlannerDetailsCard">
+        <h3>Planning Services</h3>
+        <div class="amenity-grid" id="plannerServicesGrid"></div>
+        <button class="admin-btn" id="saveWeddingPlannerDetailsBtn" style="margin-top:1rem;">Save Planning Services</button>
+        <p class="admin-note" id="weddingPlannerDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="floristDetailsCard">
+        <h3>Floral Services</h3>
+        <div class="amenity-grid" id="floralServicesGrid"></div>
+        <h3 style="margin-top:1.5rem;">Decoration Services</h3>
+        <div class="amenity-grid" id="decorationServicesGrid"></div>
+        <h3 style="margin-top:1.5rem;">Service Areas</h3>
+        <div class="amenity-grid" id="serviceAreasGrid"></div>
+        <button class="admin-btn" id="saveFloristDetailsBtn" style="margin-top:1rem;">Save Services &amp; Areas</button>
+        <p class="admin-note" id="floristDetailsNote"></p>
+
+        <h3 style="margin-top:1.5rem;">Previous Wedding Projects</h3>
+        <p class="admin-hint" style="text-align:left;">Showcase completed decor projects with photos from past weddings.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="projectTitle">Project Title / Couple Name</label><input type="text" id="projectTitle" placeholder="e.g. Sarah &amp; Karim — Garden Wedding"></div>
+          <div class="admin-form-group"><label for="projectVenue">Venue (optional)</label><input type="text" id="projectVenue" placeholder="e.g. Le Jardin Wedding Venue"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="projectDate">Date (optional)</label><input type="date" id="projectDate"></div>
+          <div class="admin-form-group"><label for="projectDescription">Description (optional)</label><input type="text" id="projectDescription" placeholder="e.g. Blush and gold garden theme"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addProjectBtn">Add Project</button>
+        <div id="projectsList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card hidden" id="makeupArtistDetailsCard">
+        <div class="admin-form-group"><label for="artistName">Artist Name</label><input type="text" id="artistName" placeholder="e.g. Maya Khalil Makeup"></div>
+
+        <h3 style="margin-top:1rem;">Certifications</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="certificationInput" placeholder="e.g. MAC Pro Certified">
+          <button type="button" class="admin-btn small outline" id="addCertificationBtn">Add</button>
+        </div>
+        <div id="certificationsList"></div>
+
+        <h3 style="margin-top:1.5rem;">Bridal Makeup</h3>
+        <div class="amenity-grid" id="bridalMakeupGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Additional Services</h3>
+        <div class="amenity-grid" id="additionalMakeupGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Beauty Services (optional)</h3>
+        <div class="amenity-grid" id="beautyServicesGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Beauty Style</h3>
+        <div class="amenity-grid" id="beautyStyleGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Service Areas</h3>
+        <div class="amenity-grid" id="makeupServiceAreasGrid"></div>
+
+        <button class="admin-btn" id="saveMakeupDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="makeupDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="hairStylistDetailsCard">
+        <div class="admin-form-group"><label for="stylistName">Stylist Name</label><input type="text" id="stylistName" placeholder="e.g. Layla Haddad Hair Studio"></div>
+
+        <h3 style="margin-top:1rem;">Certifications</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="hairCertificationInput" placeholder="e.g. L'Oréal Professional Certified">
+          <button type="button" class="admin-btn small outline" id="addHairCertificationBtn">Add</button>
+        </div>
+        <div id="hairCertificationsList"></div>
+
+        <h3 style="margin-top:1.5rem;">Services</h3>
+        <div class="amenity-grid" id="bridalHairGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Additional Services</h3>
+        <div class="amenity-grid" id="additionalHairGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Hair Style</h3>
+        <div class="amenity-grid" id="hairStyleGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Service Areas</h3>
+        <div class="amenity-grid" id="hairServiceAreasGrid"></div>
+
+        <button class="admin-btn" id="saveHairStylistDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="hairStylistDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="bridalShopDetailsCard">
+        <div class="admin-form-group"><label for="shopName">Shop Name</label><input type="text" id="shopName" placeholder="e.g. Maison Blanche Bridal"></div>
+
+        <h3 style="margin-top:1rem;">Designer Brands Carried</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="designerBrandInput" placeholder="e.g. Pronovias">
+          <button type="button" class="admin-btn small outline" id="addDesignerBrandBtn">Add</button>
+        </div>
+        <div id="designerBrandsList"></div>
+
+        <h3 style="margin-top:1.5rem;">Services</h3>
+        <div class="amenity-grid" id="bridalShopServicesGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Service Areas</h3>
+        <div class="amenity-grid" id="bridalServiceAreasGrid"></div>
+
+        <button class="admin-btn" id="saveBridalShopDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="bridalShopDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="suitRentalDetailsCard">
+        <div class="admin-form-group"><label for="suitShopName">Shop Name</label><input type="text" id="suitShopName" placeholder="e.g. Bespoke Groom Suit Rental"></div>
+
+        <h3 style="margin-top:1rem;">Designer Brands Carried</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="suitDesignerBrandInput" placeholder="e.g. Hugo Boss">
+          <button type="button" class="admin-btn small outline" id="addSuitDesignerBrandBtn">Add</button>
+        </div>
+        <div id="suitDesignerBrandsList"></div>
+
+        <h3 style="margin-top:1.5rem;">Services</h3>
+        <div class="amenity-grid" id="suitRentalServicesGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Service Areas</h3>
+        <div class="amenity-grid" id="suitServiceAreasGrid"></div>
+
+        <button class="admin-btn" id="saveSuitRentalDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="suitRentalDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="vehicleRentalDetailsCard">
+        <div class="admin-form-group"><label for="vehicleCompanyName">Company Name</label><input type="text" id="vehicleCompanyName" placeholder="e.g. Elite Wedding Cars"></div>
+
+        <h3 style="margin-top:1rem;">Vehicle Brands Carried</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="vehicleBrandInput" placeholder="e.g. Rolls-Royce">
+          <button type="button" class="admin-btn small outline" id="addVehicleBrandBtn">Add</button>
+        </div>
+        <div id="vehicleBrandsList"></div>
+
+        <h3 style="margin-top:1.5rem;">Services</h3>
+        <div class="amenity-grid" id="vehicleRentalServicesGrid"></div>
+
+        <h3 style="margin-top:1.5rem;">Service Areas</h3>
+        <div class="amenity-grid" id="vehicleServiceAreasGrid"></div>
+
+        <button class="admin-btn" id="saveVehicleRentalDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="vehicleRentalDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="cateringDetailsCard">
+        <h3>Catering Services</h3>
+        <div class="amenity-grid" id="cateringServicesGrid"></div>
+
+        <button class="admin-btn" id="saveCateringDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="cateringDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="honeymoonAgencyDetailsCard">
+        <div class="admin-form-group"><label for="honeymoonYearsExperience">Years of Experience</label><input type="number" id="honeymoonYearsExperience" min="0"></div>
+
+        <h3 style="margin-top:1rem;">Travel Licenses &amp; Certifications</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="travelCertificationInput" placeholder="e.g. IATA Certified Travel Agent">
+          <button type="button" class="admin-btn small outline" id="addTravelCertificationBtn">Add</button>
+        </div>
+        <div id="travelCertificationsList"></div>
+
+        <h3 style="margin-top:1.5rem;">Team Members</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="teamMemberInput" placeholder="e.g. Layla Haddad — Honeymoon Consultant">
+          <button type="button" class="admin-btn small outline" id="addTeamMemberBtn">Add</button>
+        </div>
+        <div id="teamMembersList"></div>
+
+        <div class="admin-form-group" style="margin-top:1.5rem;"><label for="honeymoonWorkingHours">Working Hours</label><input type="text" id="honeymoonWorkingHours" placeholder="e.g. Mon–Sat, 9am–6pm"></div>
+
+        <h3 style="margin-top:1.5rem;">Services</h3>
+        <div class="amenity-grid" id="honeymoonServicesGrid"></div>
+
+        <button class="admin-btn" id="saveHoneymoonAgencyDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="honeymoonAgencyDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="invitationCardsDetailsCard">
+        <div class="admin-form-group"><label for="invitationYearsExperience">Years of Experience</label><input type="number" id="invitationYearsExperience" min="0"></div>
+        <div class="admin-form-group"><label for="invitationDesignerInfo">Designer Information</label><textarea id="invitationDesignerInfo" rows="2" placeholder="e.g. Lead designer Maya Khoury, 10+ years in calligraphy and custom stationery design"></textarea></div>
+        <div class="admin-form-group"><label for="invitationWorkingHours">Working Hours</label><input type="text" id="invitationWorkingHours" placeholder="e.g. Mon–Sat, 10am–7pm"></div>
+
+        <h3 style="margin-top:1.5rem;">Services</h3>
+        <div class="amenity-grid" id="invitationServicesGrid"></div>
+
+        <button class="admin-btn" id="saveInvitationCardsDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="invitationCardsDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="bridalStylistDetailsCard">
+        <div class="admin-form-group"><label for="bridalStylistName">Stylist Name</label><input type="text" id="bridalStylistName" placeholder="e.g. Layla Haddad"></div>
+
+        <h3 style="margin-top:1.5rem;">Languages Spoken</h3>
+        <div class="amenity-grid" id="bridalStylistLanguagesGrid"></div>
+
+        <button class="admin-btn" id="saveBridalStylistDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="bridalStylistDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="jewelryDetailsCard">
+        <div class="admin-form-group"><label for="jewelryDesignerInfo">Designer Information</label><textarea id="jewelryDesignerInfo" rows="2" placeholder="e.g. Lead designer Nour Fakhoury, 12+ years in fine bridal jewelry"></textarea></div>
+
+        <h3 style="margin-top:1.5rem;">Services</h3>
+        <div class="amenity-grid" id="jewelryServicesGrid"></div>
+
+        <button class="admin-btn" id="saveJewelryDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="jewelryDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="zaffehDetailsCard">
+        <h3>Performance Types</h3>
+        <div class="amenity-grid" id="zaffehServicesGrid"></div>
+
+        <button class="admin-btn" id="saveZaffehDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="zaffehDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="cakeDesignerDetailsCard">
+        <h3>Services</h3>
+        <div class="amenity-grid" id="cakeDesignerServicesGrid"></div>
+
+        <button class="admin-btn" id="saveCakeDesignerDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="cakeDesignerDetailsNote"></p>
+      </div>
+
+      <div class="admin-card hidden" id="restaurantDetailsCard">
+        <h3>Restaurant Details</h3>
+        <div class="admin-form-group"><label for="restaurantCuisineType">Cuisine Type</label><input type="text" id="restaurantCuisineType" placeholder="e.g. Lebanese, Italian, Fusion"></div>
+
+        <h4 style="margin-top:1rem;">Services</h4>
+        <div class="amenity-grid" id="restaurantServicesGrid"></div>
+
+        <h4 style="margin-top:1rem;">Venue Spaces</h4>
+        <div class="amenity-grid" id="restaurantVenueSpacesGrid"></div>
+
+        <button class="admin-btn" id="saveRestaurantDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="restaurantDetailsNote"></p>
+
+        <h4 style="margin-top:1.2rem;">Virtual Tour</h4>
+        <p class="admin-hint" style="text-align:left;">Upload photos or a short video walkthrough of your indoor hall, garden, rooftop, terrace, private room and VIP area so couples can preview the space before booking.</p>
+        <input type="file" id="virtualTourInput" accept="image/*,video/*" multiple>
+        <div class="gallery-grid-vendor" id="virtualTourGridVendor"></div>
+      </div>
+
+      <div class="admin-card hidden" id="entertainmentDetailsCard">
+        <h3>Entertainment Details</h3>
+        <h4 style="margin-top:1rem;">Services Offered</h4>
+        <div class="amenity-grid" id="entertainmentServiceTypesGrid"></div>
+
+        <button class="admin-btn" id="saveEntertainmentDetailsBtn" style="margin-top:1rem;">Save Profile Details</button>
+        <p class="admin-note" id="entertainmentDetailsNote"></p>
+      </div>
+    </section>
+
+    <!-- Portfolio (Photographers & Videographers only) -->
+    <section class="admin-panel" id="panel-portfolio">
+      <div class="admin-topbar"><h2>Portfolio</h2></div>
+
+      <div class="admin-card">
+        <h3>Photo Albums <span id="portfolioLimitNote" style="color:#999;font-size:0.8rem;font-weight:400;"></span></h3>
+        <div class="admin-inline-form">
+          <input type="text" id="newAlbumName" placeholder="Album name (e.g. Sarah &amp; Karim — Beirut)">
+          <button type="button" class="admin-btn small outline" id="createAlbumBtn">Create Album</button>
+        </div>
+        <div id="albumsList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card" id="portfolioVideosCard">
+        <h3>Videos / Highlight Reels <span class="plan-tag">Professional+</span></h3>
+        <div id="portfolioVideosLockNote"></div>
+        <input type="file" id="portfolioVideosInput" accept="video/*" multiple>
+        <div class="gallery-grid-vendor" id="portfolioVideosGrid"></div>
+      </div>
+
+      <div class="admin-card" id="featuredPortfolioCard">
+        <h3>Featured Portfolio <span class="plan-tag">Professional+</span></h3>
+        <div id="featuredPortfolioLockNote"></div>
+        <p class="admin-hint" style="text-align:left;">Star your best shots in any album below — they'll appear here and at the top of your public profile gallery.</p>
+        <div class="gallery-grid-vendor" id="featuredPortfolioGrid"></div>
+      </div>
+
+      <div class="admin-card" id="beforeAfterCard">
+        <h3>Before &amp; After Editing <span class="plan-tag">Premium Featured</span></h3>
+        <div id="beforeAfterLockNote"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="beforeImageInput">Before Photo</label><input type="file" id="beforeImageInput" accept="image/*"></div>
+          <div class="admin-form-group"><label for="afterImageInput">After Photo</label><input type="file" id="afterImageInput" accept="image/*"></div>
+        </div>
+        <div class="admin-form-group"><label for="beforeAfterLabel">Label (optional)</label><input type="text" id="beforeAfterLabel" placeholder="e.g. Color grading &amp; retouching"></div>
+        <button class="admin-btn small" id="addBeforeAfterBtn">Add Before/After Pair</button>
+        <div id="beforeAfterList" style="margin-top:1rem;"></div>
+      </div>
+    </section>
+
+    <!-- Design Gallery (Florists & Decor only) -->
+    <section class="admin-panel" id="panel-designgallery">
+      <div class="admin-topbar"><h2>Design Gallery</h2></div>
+
+      <div class="admin-card">
+        <h3>Create an Album</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="newDesignAlbumName">Album Name</label><input type="text" id="newDesignAlbumName" placeholder="e.g. Spring Garden Collection"></div>
+          <div class="admin-form-group">
+            <label for="newDesignAlbumCategory">Design Category</label>
+            <select id="newDesignAlbumCategory">
+              <option>Romantic</option>
+              <option>Luxury</option>
+              <option>Classic</option>
+              <option>Modern</option>
+              <option>Outdoor</option>
+              <option>Lebanese Style</option>
+              <option>Minimalist</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="createDesignAlbumBtn">Create Album</button>
+      </div>
+
+      <div id="designAlbumsList"></div>
+
+      <div class="admin-card">
+        <h3>Design Videos</h3>
+        <input type="file" id="designVideosInput" accept="video/*" multiple>
+        <div class="gallery-grid-vendor" id="designVideosGrid"></div>
+      </div>
+    </section>
+
+    <!-- Portfolio (Makeup Artists only) -->
+    <section class="admin-panel" id="panel-makeupportfolio">
+      <div class="admin-topbar"><h2>Portfolio</h2></div>
+
+      <div class="admin-card">
+        <h3>Create an Album</h3>
+        <p class="admin-hint" style="text-align:left;">Upload makeup photos and bridal looks, grouped by style.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="newMakeupAlbumName">Album Name</label><input type="text" id="newMakeupAlbumName" placeholder="e.g. Sarah's Bridal Look"></div>
+          <div class="admin-form-group">
+            <label for="newMakeupAlbumCategory">Look Category</label>
+            <select id="newMakeupAlbumCategory">
+              <option>Natural Look</option>
+              <option>Glam Look</option>
+              <option>Luxury Look</option>
+              <option>Traditional Look</option>
+              <option>Modern Look</option>
+              <option>Bridal Look</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="createMakeupAlbumBtn">Create Album</button>
+      </div>
+
+      <div id="makeupAlbumsList"></div>
+
+      <div class="admin-card">
+        <h3>Before &amp; After Photos</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="makeupBeforeImageInput">Before Photo</label><input type="file" id="makeupBeforeImageInput" accept="image/*"></div>
+          <div class="admin-form-group"><label for="makeupAfterImageInput">After Photo</label><input type="file" id="makeupAfterImageInput" accept="image/*"></div>
+        </div>
+        <div class="admin-form-group"><label for="makeupBeforeAfterLabel">Label (optional)</label><input type="text" id="makeupBeforeAfterLabel" placeholder="e.g. Soft glam transformation"></div>
+        <button class="admin-btn small" id="addMakeupBeforeAfterBtn">Add Before/After Pair</button>
+        <div id="makeupBeforeAfterList" style="margin-top:1rem;"></div>
+      </div>
+    </section>
+
+    <!-- Portfolio (Hair Stylists only) -->
+    <section class="admin-panel" id="panel-hairportfolio">
+      <div class="admin-topbar"><h2>Portfolio</h2></div>
+
+      <div class="admin-card">
+        <h3>Create an Album</h3>
+        <p class="admin-hint" style="text-align:left;">Upload hairstyle photos, grouped by style.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="newHairAlbumName">Album Name</label><input type="text" id="newHairAlbumName" placeholder="e.g. Sarah's Bridal Updo"></div>
+          <div class="admin-form-group">
+            <label for="newHairAlbumCategory">Style Category</label>
+            <select id="newHairAlbumCategory">
+              <option>Classic Bridal</option>
+              <option>Modern Bridal</option>
+              <option>Luxury Style</option>
+              <option>Simple &amp; Elegant</option>
+              <option>Curly Hairstyles</option>
+              <option>Hair Accessories</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="createHairAlbumBtn">Create Album</button>
+      </div>
+
+      <div id="hairAlbumsList"></div>
+
+      <div class="admin-card">
+        <h3>Before &amp; After Photos</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="hairBeforeImageInput">Before Photo</label><input type="file" id="hairBeforeImageInput" accept="image/*"></div>
+          <div class="admin-form-group"><label for="hairAfterImageInput">After Photo</label><input type="file" id="hairAfterImageInput" accept="image/*"></div>
+        </div>
+        <div class="admin-form-group"><label for="hairBeforeAfterLabel">Label (optional)</label><input type="text" id="hairBeforeAfterLabel" placeholder="e.g. Blowout transformation"></div>
+        <button class="admin-btn small" id="addHairBeforeAfterBtn">Add Before/After Pair</button>
+        <div id="hairBeforeAfterList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Videos</h3>
+        <input type="file" id="hairVideosInput" accept="video/*" multiple>
+        <div class="gallery-grid-vendor" id="hairVideosGrid"></div>
+      </div>
+    </section>
+
+    <!-- Client Management (Hair Stylists only) -->
+    <section class="admin-panel" id="panel-hairclientmanagement">
+      <div class="admin-topbar"><h2>Client Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Bride Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="hairClientBrideName">Bride Name</label><input type="text" id="hairClientBrideName" placeholder="e.g. Sarah Haddad"></div>
+          <div class="admin-form-group"><label for="hairClientWeddingDate">Wedding Date</label><input type="date" id="hairClientWeddingDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="hairClientContact">Contact</label><input type="text" id="hairClientContact" placeholder="Phone or email"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="hairClientHairType">Hair Type</label><input type="text" id="hairClientHairType" placeholder="e.g. Fine, wavy"></div>
+          <div class="admin-form-group"><label for="hairClientHairLength">Hair Length</label><input type="text" id="hairClientHairLength" placeholder="e.g. Shoulder-length"></div>
+        </div>
+        <div class="admin-form-group"><label for="hairClientPreferredStyle">Preferred Style</label><input type="text" id="hairClientPreferredStyle" placeholder="e.g. Soft romantic waves"></div>
+        <div class="admin-form-group"><label for="hairClientPreviousAppointments">Previous Appointments</label><input type="text" id="hairClientPreviousAppointments" placeholder="e.g. Trial on May 3, loved the look"></div>
+        <div class="admin-form-group"><label for="hairClientNotes">Notes</label><textarea id="hairClientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addHairClientBtn">Add Bride Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="hairClientSearchInput">Search by Name</label><input type="text" id="hairClientSearchInput" placeholder="e.g. Sarah"></div>
+      <div id="hairClientsList"></div>
+    </section>
+
+    <!-- Dress Collection (Bridal Dress Shops only) -->
+    <section class="admin-panel" id="panel-dresscollection">
+      <div class="admin-topbar"><h2>Dress Collection</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Dress</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="dressCategory">Category</label>
+            <select id="dressCategory"></select>
+          </div>
+          <div class="admin-form-group"><label for="dressName">Dress Name</label><input type="text" id="dressName" placeholder="e.g. Celeste"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="dressDesignerName">Designer Name</label><input type="text" id="dressDesignerName" placeholder="e.g. Pronovias"></div>
+          <div class="admin-form-group"><label for="dressCollectionName">Collection Name</label><input type="text" id="dressCollectionName" placeholder="e.g. Atelier 2026"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="dressStyle">Style</label>
+            <select id="dressStyle"></select>
+          </div>
+          <div class="admin-form-group">
+            <label for="dressAvailability">Availability Status</label>
+            <select id="dressAvailability"><option>Available</option><option>Reserved</option><option>Rented</option><option>Sold</option><option>Maintenance/Cleaning</option></select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="dressSizes">Sizes Available</label><input type="text" id="dressSizes" placeholder="e.g. XS, S, M, L, XL"></div>
+          <div class="admin-form-group"><label for="dressColors">Colors Available</label><input type="text" id="dressColors" placeholder="e.g. Ivory, White, Champagne"></div>
+        </div>
+        <div class="admin-form-group"><label for="dressFabricType">Fabric Type</label><input type="text" id="dressFabricType" placeholder="e.g. Silk, Lace, Tulle"></div>
+        <div class="admin-form-group"><label for="dressBarcode">Barcode Number</label><input type="text" id="dressBarcode" placeholder="e.g. 8901234567"></div>
+
+        <h4 style="margin-top:1rem;">Buy or Rent</h4>
+        <label class="amenity-item"><input type="checkbox" id="dressBuyCheck"> Available to Buy</label>
+        <div class="admin-form-group hidden" id="dressBuyPriceGroup"><label for="dressBuyPrice">Buy Price ($)</label><input type="number" id="dressBuyPrice" min="0"></div>
+        <label class="amenity-item"><input type="checkbox" id="dressRentCheck"> Available to Rent</label>
+        <div class="admin-form-group hidden" id="dressRentPriceGroup"><label for="dressRentPrice">Rental Price ($)</label><input type="number" id="dressRentPrice" min="0"></div>
+
+        <button type="button" class="admin-btn small outline" id="addDressBtn" style="margin-top:0.6rem;">Add Dress</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelDressEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="dressFilterCategory">Filter by Category</label><select id="dressFilterCategory"></select></div>
+          <div class="admin-form-group"><label for="dressBarcodeSearch">Search by Barcode</label><input type="text" id="dressBarcodeSearch" placeholder="e.g. 8901234567"></div>
+        </div>
+      </div>
+
+      <div id="dressCollectionList"></div>
+    </section>
+
+    <!-- Suit Collection (Suit Rental only) -->
+    <section class="admin-panel" id="panel-suitcollection">
+      <div class="admin-topbar"><h2>Suit Collection</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Suit</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="suitCategory">Category</label>
+            <select id="suitCategory"></select>
+          </div>
+          <div class="admin-form-group"><label for="suitName">Suit Name</label><input type="text" id="suitName" placeholder="e.g. Windsor"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="suitCollectionName">Collection</label><input type="text" id="suitCollectionName" placeholder="e.g. Atelier 2026"></div>
+          <div class="admin-form-group"><label for="suitBrand">Brand/Designer</label><input type="text" id="suitBrand" placeholder="e.g. Hugo Boss"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="suitStyle">Style</label>
+            <select id="suitStyle"></select>
+          </div>
+          <div class="admin-form-group">
+            <label for="suitAvailability">Availability Status</label>
+            <select id="suitAvailability"></select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="suitSizes">Sizes Available</label><input type="text" id="suitSizes" placeholder="e.g. 38, 40, 42, 44"></div>
+          <div class="admin-form-group"><label for="suitColors">Colors Available</label><input type="text" id="suitColors" placeholder="e.g. Black, Navy, Charcoal"></div>
+        </div>
+        <div class="admin-form-group"><label for="suitFabricType">Fabric Type</label><input type="text" id="suitFabricType" placeholder="e.g. Wool, Linen, Velvet"></div>
+        <div class="admin-form-group"><label for="suitBarcode">Barcode Number</label><input type="text" id="suitBarcode" placeholder="e.g. 8901234567"></div>
+
+        <button type="button" class="admin-btn small outline" id="addSuitBtn" style="margin-top:0.6rem;">Add Suit</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelSuitEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-form-group"><label for="suitFilterCategory">Filter by Category</label><select id="suitFilterCategory"></select></div>
+      </div>
+
+      <div id="suitCollectionList"></div>
+    </section>
+
+    <!-- Vehicle Management (Vehicle Rental only) -->
+    <section class="admin-panel" id="panel-vehiclemanagement">
+      <div class="admin-topbar"><h2>Vehicle Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Vehicle</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="vehicleCategory">Vehicle Category</label>
+            <select id="vehicleCategory"></select>
+          </div>
+          <div class="admin-form-group"><label for="vehicleName">Vehicle Name</label><input type="text" id="vehicleName" placeholder="e.g. The Royal Phantom"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="vehicleBrandModel">Brand &amp; Model</label><input type="text" id="vehicleBrandModel" placeholder="e.g. Rolls-Royce Phantom"></div>
+          <div class="admin-form-group"><label for="vehicleYear">Year</label><input type="number" id="vehicleYear" min="1900" max="2100" placeholder="e.g. 2024"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="vehicleColor">Color</label><input type="text" id="vehicleColor" placeholder="e.g. Pearl White"></div>
+          <div class="admin-form-group"><label for="vehiclePassengerCapacity">Passenger Capacity</label><input type="number" id="vehiclePassengerCapacity" min="1" placeholder="e.g. 4"></div>
+        </div>
+        <div class="admin-form-group"><label for="vehicleDescription">Vehicle Description</label><textarea id="vehicleDescription" rows="2" placeholder="e.g. Chauffeured luxury sedan with red carpet arrival"></textarea></div>
+
+        <h4 style="margin-top:1rem;">Features</h4>
+        <div class="amenity-grid" id="vehicleFeaturesGrid"></div>
+
+        <button type="button" class="admin-btn small outline" id="addVehicleBtn" style="margin-top:0.6rem;">Add Vehicle</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelVehicleEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-form-group"><label for="vehicleFilterCategory">Filter by Category</label><select id="vehicleFilterCategory"></select></div>
+      </div>
+
+      <div id="vehicleManagementList"></div>
+    </section>
+
+    <!-- Driver Management (Vehicle Rental only) -->
+    <section class="admin-panel" id="panel-drivermanagement">
+      <div class="admin-topbar"><h2>Driver Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Driver</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="driverName">Driver Name</label><input type="text" id="driverName" placeholder="e.g. Jean Abou Rjeily"></div>
+          <div class="admin-form-group"><label for="driverLicenseNumber">License Number</label><input type="text" id="driverLicenseNumber" placeholder="e.g. LB-123456"></div>
+        </div>
+        <div class="admin-form-group"><label for="driverYearsExperience">Years of Experience</label><input type="number" id="driverYearsExperience" min="0" placeholder="e.g. 8"></div>
+        <div class="admin-form-group"><label for="driverSchedule">Driver Schedule</label><input type="text" id="driverSchedule" placeholder="e.g. Mon–Sat, 8am–10pm"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="driverPhone">Phone</label><input type="text" id="driverPhone" placeholder="e.g. +961 3 111 222"></div>
+          <div class="admin-form-group"><label for="driverEmail">Email</label><input type="email" id="driverEmail" placeholder="e.g. jean@eliteweddingcars.com"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addDriverBtn" style="margin-top:0.6rem;">Add Driver</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelDriverEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div id="driversList"></div>
+    </section>
+
+    <!-- Customer Management (Vehicle Rental only) -->
+    <section class="admin-panel" id="panel-vehicleclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Couple Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="vehicleClientCoupleName">Couple Name</label><input type="text" id="vehicleClientCoupleName" placeholder="e.g. Nour &amp; Ziad"></div>
+          <div class="admin-form-group"><label for="vehicleClientWeddingDate">Wedding Date</label><input type="date" id="vehicleClientWeddingDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="vehicleClientContact">Contact</label><input type="text" id="vehicleClientContact" placeholder="Phone or email"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="vehicleClientPickupLocation">Pickup Location</label><input type="text" id="vehicleClientPickupLocation" placeholder="e.g. Bride's home, Achrafieh"></div>
+          <div class="admin-form-group"><label for="vehicleClientDestination">Destination</label><input type="text" id="vehicleClientDestination" placeholder="e.g. Saint Elie Church, then venue"></div>
+        </div>
+        <div class="admin-form-group"><label for="vehicleClientTimelineNotes">Timeline Notes</label><textarea id="vehicleClientTimelineNotes" rows="2" placeholder="e.g. Pickup at 3pm, ceremony at 4:30pm, venue arrival by 6pm"></textarea></div>
+        <div class="admin-form-group"><label for="vehicleClientSpecialRequests">Special Requests</label><textarea id="vehicleClientSpecialRequests" rows="2" placeholder="e.g. White ribbon decoration, red carpet arrival"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addVehicleClientBtn">Add Couple Profile</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelVehicleClientEditBtn" style="margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div id="vehicleClientsList"></div>
+    </section>
+
+    <!-- Menu Management (Catering only) -->
+    <section class="admin-panel" id="panel-menumanagement">
+      <div class="admin-topbar"><h2>Menu Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Food Categories</h3>
+        <p class="admin-hint" style="text-align:left;">Upload photos representing each category of food you offer — shown to couples browsing your menu before they see individual items.</p>
+        <div id="foodCategoriesList"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Add a Menu Item</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="menuItemCategory">Category</label>
+            <select id="menuItemCategory"></select>
+          </div>
+          <div class="admin-form-group"><label for="menuItemName">Food Name</label><input type="text" id="menuItemName" placeholder="e.g. Chicken Taouk"></div>
+        </div>
+        <div class="admin-form-group"><label for="menuItemDescription">Description</label><textarea id="menuItemDescription" rows="2" placeholder="e.g. Grilled marinated chicken skewers served with garlic sauce"></textarea></div>
+        <div class="admin-form-group"><label for="menuItemIngredients">Ingredients (comma separated)</label><input type="text" id="menuItemIngredients" placeholder="Chicken, garlic, lemon, olive oil"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="menuItemPrice">Price ($)</label><input type="number" id="menuItemPrice" min="0"></div>
+          <div class="admin-form-group">
+            <label for="menuItemAvailability">Availability</label>
+            <select id="menuItemAvailability"><option>Available</option><option>Unavailable</option></select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addMenuItemBtn" style="margin-top:0.6rem;">Add Menu Item</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelMenuItemEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-form-group"><label for="menuItemFilterCategory">Filter by Category</label><select id="menuItemFilterCategory"></select></div>
+      </div>
+
+      <div id="menuItemsList"></div>
+    </section>
+
+    <!-- Event Management (Catering only) -->
+    <section class="admin-panel" id="panel-eventmanagement">
+      <div class="admin-topbar"><h2>Event Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add an Event</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="eventCoupleName">Couple Name</label><input type="text" id="eventCoupleName" placeholder="e.g. Nour &amp; Ziad"></div>
+          <div class="admin-form-group"><label for="eventWeddingDate">Wedding Date</label><input type="date" id="eventWeddingDate"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="eventVenueLocation">Venue Location</label><input type="text" id="eventVenueLocation" placeholder="e.g. Le Jardin Wedding Venue, Beirut"></div>
+          <div class="admin-form-group"><label for="eventGuestCount">Guest Count</label><input type="number" id="eventGuestCount" min="0"></div>
+        </div>
+        <div class="admin-form-group"><label for="eventTimeline">Event Timeline</label><textarea id="eventTimeline" rows="2" placeholder="e.g. Setup 2pm, cocktail 5pm, dinner service 7pm, dessert 9pm"></textarea></div>
+        <div class="admin-form-group"><label for="eventSetupSchedule">Setup Schedule</label><textarea id="eventSetupSchedule" rows="2" placeholder="e.g. Kitchen team arrives 12pm, buffet setup 1:30pm, final check 4:30pm"></textarea></div>
+        <div class="admin-form-group"><label for="eventStaffAssignment">Staff Assignment</label><input type="text" id="eventStaffAssignment" placeholder="e.g. 2 chefs, 4 waiters, 1 coordinator"></div>
+        <div class="admin-form-group"><label for="eventSpecialRequests">Special Requests</label><textarea id="eventSpecialRequests" rows="2" placeholder="e.g. Nut-free kitchen, extra vegan options"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addEventBtn">Add Event</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelEventEditBtn" style="margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div id="eventsList"></div>
+    </section>
+
+    <!-- Customer Management (Catering only) -->
+    <section class="admin-panel" id="panel-cateringclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Couple Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="cateringClientCoupleName">Couple Name</label><input type="text" id="cateringClientCoupleName" placeholder="e.g. Nour &amp; Ziad"></div>
+          <div class="admin-form-group"><label for="cateringClientGuestNumber">Guest Number</label><input type="number" id="cateringClientGuestNumber" min="0"></div>
+        </div>
+        <div class="admin-form-group"><label for="cateringClientMenuPreferences">Menu Preferences</label><input type="text" id="cateringClientMenuPreferences" placeholder="e.g. Lebanese cuisine, live sushi station"></div>
+        <div class="admin-form-group"><label for="cateringClientAllergiesDietary">Allergies &amp; Dietary Requirements</label><textarea id="cateringClientAllergiesDietary" rows="2" placeholder="e.g. Nut allergy for 2 guests, 5 vegan meals needed"></textarea></div>
+        <div class="admin-form-group"><label for="cateringClientSpecialRequests">Special Requests</label><textarea id="cateringClientSpecialRequests" rows="2"></textarea></div>
+        <div class="admin-form-group"><label for="cateringClientNotes">Notes</label><textarea id="cateringClientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addCateringClientBtn">Add Couple Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="cateringClientSearchInput">Search by Name</label><input type="text" id="cateringClientSearchInput" placeholder="e.g. Nour"></div>
+      <div id="cateringClientsList"></div>
+    </section>
+
+    <!-- Custom Honeymoon Planning (Honeymoon Agency only) -->
+    <section class="admin-panel" id="panel-customhoneymoonplanning">
+      <div class="admin-topbar"><h2>Custom Honeymoon Planning</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Custom Request</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="chpCoupleName">Couple Name</label><input type="text" id="chpCoupleName" placeholder="e.g. Maya &amp; Elie"></div>
+          <div class="admin-form-group"><label for="chpBudget">Budget ($)</label><input type="number" id="chpBudget" min="0"></div>
+        </div>
+        <div class="admin-form-group"><label for="chpCouplePreference">Couple Preference</label><input type="text" id="chpCouplePreference" placeholder="e.g. Relaxing beach getaway, adults-only resort"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="chpTravelStartDate">Travel Start Date</label><input type="date" id="chpTravelStartDate"></div>
+          <div class="admin-form-group"><label for="chpTravelEndDate">Travel End Date</label><input type="date" id="chpTravelEndDate"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="chpPreferredDestination">Preferred Destination</label><input type="text" id="chpPreferredDestination" placeholder="e.g. Maldives or Bali"></div>
+          <div class="admin-form-group"><label for="chpHotelType">Hotel Type</label><input type="text" id="chpHotelType" placeholder="e.g. 5-star overwater villa"></div>
+        </div>
+        <div class="admin-form-group"><label for="chpActivities">Activities (comma separated)</label><input type="text" id="chpActivities" placeholder="Snorkeling, sunset cruise, couples massage"></div>
+        <div class="admin-form-group"><label for="chpSpecialRequests">Special Requests</label><textarea id="chpSpecialRequests" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addCustomHoneymoonRequestBtn">Add Custom Request</button>
+      </div>
+
+      <div id="customHoneymoonRequestsList"></div>
+    </section>
+
+    <!-- Customer Management (Honeymoon Agency only) -->
+    <section class="admin-panel" id="panel-honeymoonclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Couple Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="honeymoonClientCoupleName">Couple Name</label><input type="text" id="honeymoonClientCoupleName" placeholder="e.g. Nour &amp; Ziad"></div>
+          <div class="admin-form-group"><label for="honeymoonClientWeddingDate">Wedding Date</label><input type="date" id="honeymoonClientWeddingDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="honeymoonClientTravelDate">Travel Date</label><input type="date" id="honeymoonClientTravelDate"></div>
+        <div class="admin-form-group"><label for="honeymoonClientPassportInfo">Passport Information <span class="admin-hint" style="display:inline;">(optional — stored securely, for booking purposes only)</span></label><input type="text" id="honeymoonClientPassportInfo" placeholder="e.g. Passport number, expiry date"></div>
+        <div class="admin-form-group"><label for="honeymoonClientPreferences">Preferences &amp; Previous Trips</label><textarea id="honeymoonClientPreferences" rows="2" placeholder="e.g. Prefers beach destinations, honeymooned parents recommended Santorini"></textarea></div>
+        <div class="admin-form-group"><label for="honeymoonClientNotes">Notes</label><textarea id="honeymoonClientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addHoneymoonClientBtn">Add Couple Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="honeymoonClientSearchInput">Search by Name</label><input type="text" id="honeymoonClientSearchInput" placeholder="e.g. Nour"></div>
+      <div id="honeymoonClientsList"></div>
+    </section>
+
+    <!-- Design Collection (Invitation Cards only) -->
+    <section class="admin-panel" id="panel-designcollection">
+      <div class="admin-topbar"><h2>Design Collection</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Design</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="designCategory">Category</label>
+            <select id="designCategory"></select>
+          </div>
+          <div class="admin-form-group"><label for="designName">Design Name</label><input type="text" id="designName" placeholder="e.g. Golden Rose Elegance"></div>
+        </div>
+        <div class="admin-form-group">
+          <label for="designStyle">Style</label>
+          <select id="designStyle"></select>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="designAvailableFormats">Available Formats</label><input type="text" id="designAvailableFormats" placeholder="e.g. Digital, Printed"></div>
+          <div class="admin-form-group"><label for="designPaperType">Paper Type</label><input type="text" id="designPaperType" placeholder="e.g. Matte cardstock, Vellum overlay"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="designSizeOptions">Size Options</label><input type="text" id="designSizeOptions" placeholder="e.g. 5x7, A7, Square"></div>
+          <div class="admin-form-group"><label for="designColorOptions">Color Options</label><input type="text" id="designColorOptions" placeholder="e.g. Gold, Ivory, Blush"></div>
+        </div>
+        <div class="admin-form-group"><label for="designCustomizationOptions">Customization Options</label><input type="text" id="designCustomizationOptions" placeholder="e.g. Custom wording, Foil stamping, Wax seal"></div>
+        <button type="button" class="admin-btn small outline" id="addDesignBtn" style="margin-top:0.6rem;">Add Design</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelDesignEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-form-group"><label for="designFilterCategory">Filter by Category</label><select id="designFilterCategory"></select></div>
+      </div>
+
+      <div id="designCollectionList"></div>
+    </section>
+
+    <!-- Customer Management (Invitation Cards only) -->
+    <section class="admin-panel" id="panel-invitationclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Couple Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="invitationClientCoupleName">Couple Name</label><input type="text" id="invitationClientCoupleName" placeholder="e.g. Nour &amp; Ziad"></div>
+          <div class="admin-form-group"><label for="invitationClientWeddingDate">Wedding Date</label><input type="date" id="invitationClientWeddingDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="invitationClientGuestNames">Guest Names</label><textarea id="invitationClientGuestNames" rows="2" placeholder="e.g. Full guest list or key names for personalized printing"></textarea></div>
+        <div class="admin-form-group"><label for="invitationClientQuantities">Invitation Quantities</label><input type="text" id="invitationClientQuantities" placeholder="e.g. 150 invitations, 20 save-the-dates"></div>
+        <div class="admin-form-group"><label for="invitationClientDesignPreferences">Design Preferences</label><textarea id="invitationClientDesignPreferences" rows="2" placeholder="e.g. Gold foil, floral motifs, minimalist typography"></textarea></div>
+        <div class="admin-form-group"><label for="invitationClientPreviousOrders">Previous Orders</label><textarea id="invitationClientPreviousOrders" rows="2" placeholder="e.g. Ordered save-the-dates in March 2026"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addInvitationClientBtn">Add Couple Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="invitationClientSearchInput">Search by Name</label><input type="text" id="invitationClientSearchInput" placeholder="e.g. Nour"></div>
+      <div id="invitationClientsList"></div>
+    </section>
+
+    <!-- Delivery Management (Invitation Cards only) -->
+    <section class="admin-panel" id="panel-deliverymanagement">
+      <div class="admin-topbar"><h2>Delivery Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Delivery</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="deliveryCoupleName">Couple / Order Reference</label><input type="text" id="deliveryCoupleName" placeholder="e.g. Nour &amp; Ziad"></div>
+          <div class="admin-form-group"><label for="deliveryDate">Delivery Date</label><input type="date" id="deliveryDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="deliveryAddress">Delivery Address</label><textarea id="deliveryAddress" rows="2" placeholder="e.g. Achrafieh, Beirut, Building 12, 3rd Floor"></textarea></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="deliveryCourierInfo">Courier Information</label><input type="text" id="deliveryCourierInfo" placeholder="e.g. Aramex, Driver: Jad, +961 3 456 789"></div>
+          <div class="admin-form-group">
+            <label for="deliveryTrackingStatus">Order Tracking</label>
+            <select id="deliveryTrackingStatus">
+              <option>Preparing</option>
+              <option>Out for Delivery</option>
+              <option>Delivered</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addDeliveryBtn">Add Delivery</button>
+      </div>
+
+      <div id="deliveriesList"></div>
+    </section>
+
+    <!-- Service Management (Bridal Stylist only) -->
+    <section class="admin-panel" id="panel-servicemanagement">
+      <div class="admin-topbar"><h2>Services</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Service</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="stylistServiceName">Service Name</label><input type="text" id="stylistServiceName" placeholder="e.g. Bridal Hair &amp; Makeup"></div>
+          <div class="admin-form-group"><label for="stylistServiceCategory">Service Category</label><input type="text" id="stylistServiceCategory" placeholder="e.g. Hair Styling, Makeup, Full Bridal Look"></div>
+        </div>
+        <div class="admin-form-group"><label for="stylistServiceDescription">Description</label><textarea id="stylistServiceDescription" rows="2" placeholder="e.g. Full hair and makeup styling for the bride on her wedding day"></textarea></div>
+        <label class="amenity-item"><input type="checkbox" id="stylistServiceHomeAvailable"> Available as Home Service</label>
+        <button type="button" class="admin-btn small outline" id="addStylistServiceBtn" style="margin-top:0.6rem;">Add Service</button>
+      </div>
+
+      <div id="stylistServicesList"></div>
+    </section>
+
+    <!-- Portfolio (Bridal Stylist only) -->
+    <section class="admin-panel" id="panel-bridalstylistportfolio">
+      <div class="admin-topbar"><h2>Portfolio</h2></div>
+
+      <div class="admin-card">
+        <h3>Create an Album</h3>
+        <p class="admin-hint" style="text-align:left;">Upload wedding-day styling photos, grouped by look.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="newStylistAlbumName">Album Name</label><input type="text" id="newStylistAlbumName" placeholder="e.g. Sarah's Wedding Day Look"></div>
+          <div class="admin-form-group">
+            <label for="newStylistAlbumCategory">Style Category</label>
+            <select id="newStylistAlbumCategory">
+              <option>Classic Bridal</option>
+              <option>Modern Bridal</option>
+              <option>Luxury Look</option>
+              <option>Boho Style</option>
+              <option>Traditional Style</option>
+              <option>Full Bridal Look</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="createStylistAlbumBtn">Create Album</button>
+      </div>
+
+      <div id="stylistAlbumsList"></div>
+
+      <div class="admin-card">
+        <h3>Featured Work</h3>
+        <p class="admin-hint" style="text-align:left;">Star a photo in any album above to feature it here.</p>
+        <div class="gallery-grid-vendor" id="stylistFeaturedGrid"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Before &amp; After Photos</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="stylistBeforeImageInput">Before Photo</label><input type="file" id="stylistBeforeImageInput" accept="image/*"></div>
+          <div class="admin-form-group"><label for="stylistAfterImageInput">After Photo</label><input type="file" id="stylistAfterImageInput" accept="image/*"></div>
+        </div>
+        <div class="admin-form-group"><label for="stylistBeforeAfterLabel">Label (optional)</label><input type="text" id="stylistBeforeAfterLabel" placeholder="e.g. Bridal glam transformation"></div>
+        <button class="admin-btn small" id="addStylistBeforeAfterBtn">Add Before/After Pair</button>
+        <div id="stylistBeforeAfterList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Videos</h3>
+        <input type="file" id="stylistVideosInput" accept="video/*" multiple>
+        <div class="gallery-grid-vendor" id="stylistVideosGrid"></div>
+      </div>
+    </section>
+
+    <!-- Bride Profiles (Bridal Stylist only) -->
+    <section class="admin-panel" id="panel-brideprofiles">
+      <div class="admin-topbar"><h2>Bride Profiles</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Bride Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="brideProfileName">Bride Info (Name)</label><input type="text" id="brideProfileName" placeholder="e.g. Sarah Haddad"></div>
+          <div class="admin-form-group"><label for="brideProfileWeddingDate">Wedding Date</label><input type="date" id="brideProfileWeddingDate"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="brideProfileVenue">Venue</label><input type="text" id="brideProfileVenue" placeholder="e.g. Le Jardin Wedding Venue"></div>
+          <div class="admin-form-group"><label for="brideProfileTheme">Wedding Theme</label><input type="text" id="brideProfileTheme" placeholder="e.g. Romantic Garden"></div>
+        </div>
+        <div class="admin-form-group"><label for="brideProfileDressDetails">Dress Details</label><textarea id="brideProfileDressDetails" rows="2" placeholder="e.g. Ivory lace gown with long train"></textarea></div>
+        <div class="admin-form-group"><label for="brideProfileMeasurements">Body Measurements</label><input type="text" id="brideProfileMeasurements" placeholder="e.g. Bust 34, Waist 26, Hips 36"></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="brideProfilePreferredStyle">Preferred Style</label><input type="text" id="brideProfilePreferredStyle" placeholder="e.g. Classic and elegant"></div>
+          <div class="admin-form-group"><label for="brideProfileColorPalette">Color Palette</label><input type="text" id="brideProfileColorPalette" placeholder="e.g. Ivory, blush, gold"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="brideProfileHairPreferences">Hair Preferences</label><input type="text" id="brideProfileHairPreferences" placeholder="e.g. Soft romantic updo"></div>
+          <div class="admin-form-group"><label for="brideProfileMakeupPreferences">Makeup Preferences</label><input type="text" id="brideProfileMakeupPreferences" placeholder="e.g. Soft glam, natural finish"></div>
+        </div>
+        <div class="admin-form-group"><label for="brideProfileAccessories">Accessories</label><input type="text" id="brideProfileAccessories" placeholder="e.g. Pearl earrings, veil, hairpins"></div>
+        <div class="admin-form-group"><label for="brideProfileBudget">Budget</label><input type="text" id="brideProfileBudget" placeholder="e.g. $500"></div>
+        <div class="admin-form-group"><label for="brideProfileNotes">Notes</label><textarea id="brideProfileNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addBrideProfileBtn">Add Bride Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="brideProfileSearchInput">Search by Name</label><input type="text" id="brideProfileSearchInput" placeholder="e.g. Sarah"></div>
+      <div id="brideProfilesList"></div>
+    </section>
+
+    <!-- Performance Gallery (Zaffeh only) -->
+    <section class="admin-panel" id="panel-zaffehgallery">
+      <div class="admin-topbar"><h2>Performance Gallery</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Previous Wedding Performance</h3>
+        <p class="admin-hint" style="text-align:left;">Upload photos from a past wedding performance, grouped by event.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="newZaffehAlbumName">Event / Couple Name</label><input type="text" id="newZaffehAlbumName" placeholder="e.g. Sarah &amp; Elie's Wedding"></div>
+          <div class="admin-form-group">
+            <label for="newZaffehAlbumType">Performance Type</label>
+            <select id="newZaffehAlbumType"></select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="createZaffehAlbumBtn">Create Album</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelZaffehAlbumEditBtn" style="margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div id="zaffehAlbumsList"></div>
+
+      <div class="admin-card">
+        <h3>Customer Highlights</h3>
+        <p class="admin-hint" style="text-align:left;">Star a photo in any performance above to feature it here.</p>
+        <div class="gallery-grid-vendor" id="zaffehHighlightsGrid"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Videos</h3>
+        <input type="file" id="zaffehVideosInput" accept="video/*" multiple>
+        <div class="gallery-grid-vendor" id="zaffehVideosGrid"></div>
+      </div>
+    </section>
+
+    <!-- Team Management (Zaffeh only) -->
+    <section class="admin-panel" id="panel-zaffehteam">
+      <div class="admin-topbar"><h2>Team Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Performer</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="zaffehPerformerName">Name</label><input type="text" id="zaffehPerformerName" placeholder="e.g. Karim Abou Jaoude"></div>
+          <div class="admin-form-group">
+            <label for="zaffehPerformerRole">Role</label>
+            <select id="zaffehPerformerRole">
+              <option>Drummer</option>
+              <option>Dabke Dancer</option>
+              <option>Singer</option>
+              <option>Zaffeh Leader</option>
+              <option>Sword Performer</option>
+              <option>Fire Performer</option>
+              <option>DJ / MC</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-form-group"><label for="zaffehPerformerPhone">Phone</label><input type="tel" id="zaffehPerformerPhone" placeholder="+961 3 000 000"></div>
+        <button type="button" class="admin-btn small outline" id="addZaffehPerformerBtn">Add Performer</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelZaffehPerformerEditBtn" style="margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div id="zaffehPerformersList"></div>
+
+      <div class="admin-card">
+        <h3>Performance Schedule</h3>
+        <p class="admin-hint" style="text-align:left;">Upcoming confirmed bookings — assign performers to each one.</p>
+        <div id="zaffehPerformanceScheduleList"></div>
+      </div>
+    </section>
+
+    <!-- Cake Collection (Cake Designers only) -->
+    <section class="admin-panel" id="panel-cakecollection">
+      <div class="admin-topbar"><h2>Cake Collection</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Cake</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="cakeName">Cake Name</label><input type="text" id="cakeName" placeholder="e.g. Rose Garden Elegance"></div>
+          <div class="admin-form-group">
+            <label for="cakeCategory">Category</label>
+            <select id="cakeCategory"></select>
+          </div>
+        </div>
+        <div class="admin-form-group"><label for="cakeDescription">Description</label><textarea id="cakeDescription" rows="2" placeholder="e.g. Three-tier buttercream cake with hand-piped floral details"></textarea></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="cakeTiers">Number of Tiers</label><input type="number" id="cakeTiers" min="1"></div>
+          <div class="admin-form-group"><label for="cakeServes">Serves (Number of Guests)</label><input type="number" id="cakeServes" min="1"></div>
+        </div>
+
+        <h4 style="margin-top:1rem;">Flavor Options</h4>
+        <div class="amenity-grid" id="cakeFlavorsGrid"></div>
+
+        <h4 style="margin-top:1rem;">Filling Options</h4>
+        <div class="amenity-grid" id="cakeFillingsGrid"></div>
+
+        <h4 style="margin-top:1rem;">Decoration Style</h4>
+        <div class="amenity-grid" id="cakeDecorationStylesGrid"></div>
+
+        <div class="form-row-2" style="margin-top:0.8rem;">
+          <div class="admin-form-group"><label for="cakePrice">Price ($)</label><input type="number" id="cakePrice" min="0"></div>
+          <div class="admin-form-group">
+            <label for="cakeAvailability">Availability</label>
+            <select id="cakeAvailability"></select>
+          </div>
+        </div>
+
+        <button type="button" class="admin-btn small outline" id="addCakeBtn" style="margin-top:0.6rem;">Add Cake</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelCakeEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-form-group" style="max-width:280px;"><label for="cakeFilterCategory">Filter by Category</label><select id="cakeFilterCategory"></select></div>
+      </div>
+
+      <div id="cakeCollectionList"></div>
+    </section>
+
+    <!-- Customer Management (Cake Designers only) -->
+    <section class="admin-panel" id="panel-cakeclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Couple Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="cakeClientCoupleName">Couple Name</label><input type="text" id="cakeClientCoupleName" placeholder="e.g. Maya &amp; Fadi"></div>
+          <div class="admin-form-group"><label for="cakeClientWeddingDate">Wedding Date</label><input type="date" id="cakeClientWeddingDate"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="cakeClientVenueLocation">Venue Location</label><input type="text" id="cakeClientVenueLocation" placeholder="e.g. Le Jardin Wedding Venue, Beirut"></div>
+          <div class="admin-form-group"><label for="cakeClientGuestCount">Guest Count</label><input type="number" id="cakeClientGuestCount" min="0"></div>
+        </div>
+        <div class="admin-form-group"><label for="cakeClientPreferences">Cake Preferences</label><textarea id="cakeClientPreferences" rows="2" placeholder="e.g. Wants a 3-tier white and gold cake with fresh florals"></textarea></div>
+        <div class="admin-form-group"><label for="cakeClientAllergies">Allergies &amp; Dietary Requirements</label><input type="text" id="cakeClientAllergies" placeholder="e.g. Nut allergy, one tier must be gluten-free"></div>
+        <div class="admin-form-group"><label for="cakeClientNotes">Notes</label><textarea id="cakeClientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addCakeClientBtn">Add Couple Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="cakeClientSearchInput">Search by Name</label><input type="text" id="cakeClientSearchInput" placeholder="e.g. Maya"></div>
+      <div id="cakeClientsList"></div>
+    </section>
+
+    <!-- Jewelry Collection (Jewelry only) -->
+    <section class="admin-panel" id="panel-jewelrycollection">
+      <div class="admin-topbar"><h2>Jewelry Collection</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Jewelry Item</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="jewelryName">Product Name</label><input type="text" id="jewelryName" placeholder="e.g. Eternal Bloom"></div>
+          <div class="admin-form-group"><label for="jewelryCollectionName">Collection Name</label><input type="text" id="jewelryCollectionName" placeholder="e.g. Aurelia Bridal 2026"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="jewelryCategory">Category</label>
+            <select id="jewelryCategory"></select>
+          </div>
+          <div class="admin-form-group"><label for="jewelryItemNumber">Item Number / Barcode</label><input type="text" id="jewelryItemNumber" placeholder="e.g. 8901234567"></div>
+        </div>
+        <div class="admin-form-group"><label for="jewelryDescription">Description</label><textarea id="jewelryDescription" rows="2" placeholder="e.g. Hand-set diamond halo ring with a rose gold band"></textarea></div>
+
+        <h4 style="margin-top:1rem;">Materials</h4>
+        <div class="amenity-grid" id="jewelryMaterialsGrid"></div>
+
+        <div class="form-row-2" style="margin-top:0.8rem;">
+          <div class="admin-form-group"><label for="jewelryWeight">Weight</label><input type="text" id="jewelryWeight" placeholder="e.g. 5.2g"></div>
+          <div class="admin-form-group"><label for="jewelrySizes">Available Sizes</label><input type="text" id="jewelrySizes" placeholder="e.g. 5, 6, 7, 7.5, 8"></div>
+        </div>
+        <div class="admin-form-group"><label for="jewelryStoneDetails">Stone Details</label><textarea id="jewelryStoneDetails" rows="2" placeholder="e.g. 1.2ct round-cut diamond, VS1 clarity, F color"></textarea></div>
+        <div class="admin-form-group">
+          <label for="jewelryAvailability">Available Status</label>
+          <select id="jewelryAvailability"></select>
+        </div>
+
+        <h4 style="margin-top:1rem;">Buy or Rent</h4>
+        <label class="amenity-item"><input type="checkbox" id="jewelryBuyCheck"> Available to Buy</label>
+        <div class="admin-form-group hidden" id="jewelryBuyPriceGroup"><label for="jewelryBuyPrice">Buy Price ($)</label><input type="number" id="jewelryBuyPrice" min="0"></div>
+        <label class="amenity-item"><input type="checkbox" id="jewelryRentCheck"> Available to Rent</label>
+        <div class="admin-form-group hidden" id="jewelryRentPriceGroup"><label for="jewelryRentPrice">Rental Price ($)</label><input type="number" id="jewelryRentPrice" min="0"></div>
+
+        <button type="button" class="admin-btn small outline" id="addJewelryBtn" style="margin-top:0.6rem;">Add Jewelry Item</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelJewelryEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="jewelryFilterCategory">Filter by Category</label><select id="jewelryFilterCategory"></select></div>
+          <div class="admin-form-group"><label for="jewelryBarcodeSearch">Search by Item Number / Barcode</label><input type="text" id="jewelryBarcodeSearch" placeholder="e.g. 8901234567"></div>
+        </div>
+      </div>
+
+      <div id="jewelryCollectionList"></div>
+    </section>
+
+    <!-- Reservation Management (Jewelry only) -->
+    <section class="admin-panel" id="panel-jewelryreservations">
+      <div class="admin-topbar"><h2>Reservation Management</h2></div>
+
+      <div class="admin-card">
+        <h3>New Reservation</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="jewelryResCustomerName">Customer Name</label><input type="text" id="jewelryResCustomerName" placeholder="e.g. Farah Saad"></div>
+          <div class="admin-form-group">
+            <label for="jewelryResItem">Item</label>
+            <select id="jewelryResItem"></select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="jewelryResDeposit">Deposit Amount ($)</label><input type="number" id="jewelryResDeposit" min="0"></div>
+          <div class="admin-form-group">
+            <label for="jewelryResDepositStatus">Deposit Status</label>
+            <select id="jewelryResDepositStatus"><option>Pending</option><option>Partial</option><option>Paid</option></select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="jewelryResPickupDate">Pickup Date</label><input type="date" id="jewelryResPickupDate"></div>
+          <div class="admin-form-group"><label for="jewelryResReturnDate">Return Date (for rentals)</label><input type="date" id="jewelryResReturnDate"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addJewelryReservationBtn" style="margin-top:0.6rem;">Add Reservation</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="jewelryResStatusFilter">Filter by Status</label><select id="jewelryResStatusFilter"><option value="">All</option><option value="New">New Reservations</option><option value="Reserved">Reserved Items</option><option value="Completed">Completed</option></select></div>
+          <div class="admin-form-group"><label for="jewelryResSearch">Search by Item Number / Barcode</label><input type="text" id="jewelryResSearch" placeholder="e.g. 8901234567"></div>
+        </div>
+      </div>
+
+      <div id="jewelryReservationsList"></div>
+    </section>
+
+    <!-- Inventory Management (Jewelry only) -->
+    <section class="admin-panel" id="panel-jewelryinventory">
+      <div class="admin-topbar"><h2>Inventory Management</h2></div>
+      <div class="stats-grid" id="jewelryInventoryStats"></div>
+      <div class="admin-card">
+        <table class="admin-table">
+          <thead><tr><th>Product</th><th>Category</th><th>Status</th><th>Stock Quantity</th></tr></thead>
+          <tbody id="jewelryInventoryTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Customer Management (Jewelry only) -->
+    <section class="admin-panel" id="panel-jewelryclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+      <div class="admin-card">
+        <h3>Add a Bride Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="jewelryClientName">Bride Name</label><input type="text" id="jewelryClientName" placeholder="e.g. Sarah Nassar"></div>
+          <div class="admin-form-group"><label for="jewelryClientRingSize">Ring Size</label><input type="text" id="jewelryClientRingSize" placeholder="e.g. 6.5"></div>
+        </div>
+        <div class="admin-form-group"><label for="jewelryClientBudgetRange">Budget Range</label><input type="text" id="jewelryClientBudgetRange" placeholder="e.g. $1,500 - $3,000"></div>
+
+        <h4 style="margin-top:1rem;">Style Preferences</h4>
+        <div class="amenity-grid" id="jewelryClientStylePreferencesGrid"></div>
+
+        <div class="admin-form-group" style="margin-top:0.8rem;"><label for="jewelryClientNotes">Notes</label><textarea id="jewelryClientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addJewelryClientBtn" style="margin-top:0.6rem;">Add Bride Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="jewelryClientSearchInput">Search by Name</label><input type="text" id="jewelryClientSearchInput" placeholder="e.g. Sarah"></div>
+      <div id="jewelryClientsList"></div>
+    </section>
+
+    <!-- Inventory Management (Suit Rental only) -->
+    <section class="admin-panel" id="panel-suitinventory">
+      <div class="admin-topbar"><h2>Inventory Management</h2></div>
+      <p class="admin-hint" style="text-align:left;">A live operational view of every suit in your collection — update its status and how many you have in stock, or look one up by barcode. To add or remove a suit itself, use Suit Collection.</p>
+      <div class="stat-grid" id="suitInventoryStats"></div>
+      <div class="admin-card">
+        <div class="admin-form-group" style="max-width:280px;"><label for="suitInventoryBarcodeSearch">Search by Barcode Number</label><input type="text" id="suitInventoryBarcodeSearch" placeholder="e.g. 8901234567"></div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Suit</th><th>Category</th><th>Barcode</th><th>Status</th><th>Quantity in Stock</th></tr></thead>
+            <tbody id="suitInventoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customer Management (Suit Rental only) -->
+    <section class="admin-panel" id="panel-suitclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Groom Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="suitClientGroomName">Groom Name</label><input type="text" id="suitClientGroomName" placeholder="e.g. Karim Abou Chakra"></div>
+          <div class="admin-form-group"><label for="suitClientWeddingDate">Wedding Date</label><input type="date" id="suitClientWeddingDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="suitClientContact">Contact</label><input type="text" id="suitClientContact" placeholder="Phone or email"></div>
+        <div class="admin-form-group"><label for="suitClientMeasurements">Measurements</label><textarea id="suitClientMeasurements" rows="2" placeholder="e.g. Chest 40, Waist 34, Height 180cm"></textarea></div>
+        <div class="admin-form-group"><label for="suitClientColorPreferences">Color Preferences</label><input type="text" id="suitClientColorPreferences" placeholder="e.g. Navy, Charcoal"></div>
+        <h4 style="margin-top:0.6rem;">Preferred Style</h4>
+        <div class="amenity-grid" id="suitClientPreferredStyleGrid"></div>
+        <div class="admin-form-group" style="margin-top:0.6rem;"><label for="suitClientPreviousRentals">Previous Rentals</label><input type="text" id="suitClientPreviousRentals" placeholder="e.g. Rented a navy tuxedo for engagement, March 2026"></div>
+        <div class="admin-form-group"><label for="suitClientNotes">Notes</label><textarea id="suitClientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addSuitClientBtn">Add Groom Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="suitClientSearchInput">Search by Name</label><input type="text" id="suitClientSearchInput" placeholder="e.g. Karim"></div>
+      <div id="suitClientsList"></div>
+    </section>
+
+    <!-- Inventory Management (Bridal Dress Shops only) -->
+    <section class="admin-panel" id="panel-inventory">
+      <div class="admin-topbar"><h2>Inventory Management</h2></div>
+      <p class="admin-hint" style="text-align:left;">A live operational view of every dress in your collection — update its status and how many you have in stock. To add or remove a dress itself, use Dress Collection.</p>
+      <div class="stat-grid" id="inventoryStats"></div>
+      <div class="admin-card">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Dress</th><th>Category</th><th>Status</th><th>Quantity in Stock</th></tr></thead>
+            <tbody id="inventoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customer Management (Bridal Dress Shops only) -->
+    <section class="admin-panel" id="panel-bridalclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Bride Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="bridalClientBrideName">Bride Name</label><input type="text" id="bridalClientBrideName" placeholder="e.g. Sarah Haddad"></div>
+          <div class="admin-form-group"><label for="bridalClientWeddingDate">Wedding Date</label><input type="date" id="bridalClientWeddingDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="bridalClientContact">Contact</label><input type="text" id="bridalClientContact" placeholder="Phone or email"></div>
+        <div class="admin-form-group"><label for="bridalClientMeasurements">Measurements</label><textarea id="bridalClientMeasurements" rows="2" placeholder="e.g. Bust 34, Waist 26, Hips 36"></textarea></div>
+        <div class="admin-form-group"><label for="bridalClientDressPreferences">Dress Preferences</label><input type="text" id="bridalClientDressPreferences" placeholder="e.g. Ivory, lace fabric, long train"></div>
+        <h4 style="margin-top:0.6rem;">Favorite Styles</h4>
+        <div class="amenity-grid" id="bridalClientFavoriteStylesGrid"></div>
+        <div class="admin-form-group" style="margin-top:0.6rem;"><label for="bridalClientNotes">Notes</label><textarea id="bridalClientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addBridalClientBtn">Add Bride Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="bridalClientSearchInput">Search by Name</label><input type="text" id="bridalClientSearchInput" placeholder="e.g. Sarah"></div>
+      <div id="bridalClientsList"></div>
+    </section>
+
+    <!-- Client Management (Makeup Artists only) -->
+    <section class="admin-panel" id="panel-clientmanagement">
+      <div class="admin-topbar"><h2>Client Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Bride Profile</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="clientBrideName">Bride Name</label><input type="text" id="clientBrideName" placeholder="e.g. Sarah Haddad"></div>
+          <div class="admin-form-group"><label for="clientWeddingDate">Wedding Date</label><input type="date" id="clientWeddingDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="clientContact">Contact</label><input type="text" id="clientContact" placeholder="Phone or email"></div>
+        <div class="admin-form-group"><label for="clientSkinType">Skin Type Notes</label><input type="text" id="clientSkinType" placeholder="e.g. Combination, oily T-zone"></div>
+        <div class="admin-form-group"><label for="clientReferences">Makeup References</label><input type="text" id="clientReferences" placeholder="e.g. Pinterest board link, wants soft glam"></div>
+        <div class="admin-form-group"><label for="clientAllergies">Allergies (optional)</label><input type="text" id="clientAllergies" placeholder="e.g. Allergic to fragrance-based products"></div>
+        <div class="admin-form-group"><label for="clientPreviousAppointments">Previous Appointments</label><input type="text" id="clientPreviousAppointments" placeholder="e.g. Trial on May 3, loved the look"></div>
+        <div class="admin-form-group"><label for="clientNotes">Notes</label><textarea id="clientNotes" rows="2"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addClientBtn">Add Bride Profile</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="clientSearchInput">Search by Name</label><input type="text" id="clientSearchInput" placeholder="e.g. Sarah"></div>
+      <div id="clientsList"></div>
+    </section>
+
+    <!-- Food & Beverage Menu (Restaurants only) -->
+    <section class="admin-panel" id="panel-restaurantmenu">
+      <div class="admin-topbar"><h2>Food &amp; Beverage Menu</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Dish</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="dishName">Dish Name</label><input type="text" id="dishName" placeholder="e.g. Rose Petal Salad"></div>
+          <div class="admin-form-group">
+            <label for="restaurantMenuCategory">Category</label>
+            <select id="restaurantMenuCategory"></select>
+          </div>
+        </div>
+        <div class="admin-form-group"><label for="dishIngredients">Ingredients</label><textarea id="dishIngredients" rows="2" placeholder="e.g. Rose petals, arugula, feta, pomegranate, balsamic glaze"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addDishBtn" style="margin-top:0.6rem;">Add Dish</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelDishEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-form-group" style="max-width:280px;"><label for="restaurantMenuFilterCategory">Filter by Category</label><select id="restaurantMenuFilterCategory"></select></div>
+      </div>
+
+      <div id="restaurantMenuList"></div>
+    </section>
+
+    <!-- Entertainment Services (Wedding Entertainment only) -->
+    <section class="admin-panel" id="panel-entertainmentservices">
+      <div class="admin-topbar"><h2>Entertainment Services</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Service</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="entServiceName">Service Name</label><input type="text" id="entServiceName" placeholder="e.g. Sparkle the Clown Face Painting"></div>
+          <div class="admin-form-group">
+            <label for="entServiceType">Service Type</label>
+            <select id="entServiceType"></select>
+          </div>
+        </div>
+        <div class="admin-form-group"><label for="entServiceDescription">Description</label><textarea id="entServiceDescription" rows="2" placeholder="e.g. Professional face painting with a wide range of designs for kids and adults"></textarea></div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="entServiceDuration">Performance Duration</label><input type="text" id="entServiceDuration" placeholder="e.g. 1 hour"></div>
+          <div class="admin-form-group">
+            <label for="entServiceAgeGroup">Age Group</label>
+            <select id="entServiceAgeGroup"></select>
+          </div>
+        </div>
+        <div class="admin-form-group"><label for="entServiceNumPerformers">Number of Performers</label><input type="number" id="entServiceNumPerformers" min="1" placeholder="e.g. 2"></div>
+        <div class="admin-form-group"><label for="entServiceEquipment">Equipment Included</label><textarea id="entServiceEquipment" rows="2" placeholder="e.g. Face paints, brushes, stencils, table and chairs"></textarea></div>
+        <button type="button" class="admin-btn small outline" id="addEntServiceBtn" style="margin-top:0.6rem;">Add Service</button>
+        <button type="button" class="admin-btn small outline hidden" id="cancelEntServiceEditBtn" style="margin-top:0.6rem;margin-left:0.4rem;">Cancel</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-form-group" style="max-width:280px;"><label for="entertainmentServicesFilterType">Filter by Type</label><select id="entertainmentServicesFilterType"></select></div>
+      </div>
+
+      <div id="entertainmentServicesList"></div>
+    </section>
+
+    <!-- Gallery (Wedding Entertainment only) -->
+    <section class="admin-panel" id="panel-entertainmentgallery">
+      <div class="admin-topbar"><h2>Gallery</h2></div>
+
+      <div class="admin-card">
+        <h3>Create an Album</h3>
+        <p class="admin-hint" style="text-align:left;">Upload photos from your performances, grouped by album.</p>
+        <div class="admin-inline-form">
+          <input type="text" id="newEntertainmentAlbumName" placeholder="Album name (e.g. Bubble Show Highlights)">
+          <button type="button" class="admin-btn small outline" id="createEntertainmentAlbumBtn">Create Album</button>
+        </div>
+        <div id="entertainmentAlbumsList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Highlight Reels &amp; Customer Reaction Videos</h3>
+        <input type="file" id="entertainmentVideosInput" accept="video/*" multiple>
+        <div class="gallery-grid-vendor" id="entertainmentVideosGrid"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Previous Events</h3>
+        <p class="admin-hint" style="text-align:left;">Showcase past parties and weddings you've performed at.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="entertainmentEventTitle">Event Title</label><input type="text" id="entertainmentEventTitle" placeholder="e.g. Nour &amp; Ziad Wedding"></div>
+          <div class="admin-form-group"><label for="entertainmentEventVenue">Venue (optional)</label><input type="text" id="entertainmentEventVenue" placeholder="e.g. Phoenicia Hotel"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="entertainmentEventDate">Date (optional)</label><input type="date" id="entertainmentEventDate"></div>
+          <div class="admin-form-group"><label for="entertainmentEventDescription">Description (optional)</label><input type="text" id="entertainmentEventDescription" placeholder="e.g. Magic show for 150 guests"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addEntertainmentEventBtn">Add Event</button>
+        <div id="entertainmentPreviousEventsList" style="margin-top:1rem;"></div>
+      </div>
+    </section>
+
+    <!-- Customer Management (Wedding Entertainment only) -->
+    <section class="admin-panel" id="panel-entertainmentclientmanagement">
+      <div class="admin-topbar"><h2>Customer Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Add a Customer</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="entClientCoupleName">Couple / Host Name</label><input type="text" id="entClientCoupleName" placeholder="e.g. Maya &amp; Fadi"></div>
+          <div class="admin-form-group"><label for="entClientEventDate">Event Date</label><input type="date" id="entClientEventDate"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="entClientEventLocation">Event Location</label><input type="text" id="entClientEventLocation" placeholder="e.g. Le Jardin Wedding Venue, Beirut"></div>
+          <div class="admin-form-group"><label for="entClientServiceBooked">Service Booked</label><input type="text" id="entClientServiceBooked" placeholder="e.g. Magic Show"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addEntClientBtn">Add Customer</button>
+      </div>
+
+      <div class="admin-form-group" style="max-width:320px;"><label for="entertainmentClientSearchInput">Search by Name</label><input type="text" id="entertainmentClientSearchInput" placeholder="e.g. Maya"></div>
+      <div id="entertainmentClientsList"></div>
+    </section>
+
+    <!-- Packages & Pricing -->
+    <section class="admin-panel" id="panel-packages">
+      <div class="admin-topbar"><h2>Packages &amp; Pricing</h2></div>
+      <div class="admin-card">
+        <h3>Create a Package</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="pkgName">Package Name</label><input type="text" id="pkgName" placeholder="e.g. Gold Package"></div>
+          <div class="admin-form-group"><label for="pkgPrice" id="pkgPriceLabel">Price ($)</label><input type="number" id="pkgPrice" min="0"></div>
+        </div>
+        <div class="form-row-2" id="pkgGuestsGroup">
+          <div class="admin-form-group"><label for="pkgMinGuests">Minimum Guests</label><input type="number" id="pkgMinGuests" min="0"></div>
+          <div class="admin-form-group"><label for="pkgMaxGuests">Maximum Guests</label><input type="number" id="pkgMaxGuests" min="0"></div>
+        </div>
+        <div class="admin-form-group hidden" id="pkgTypeGroup">
+          <label for="pkgType" id="pkgTypeLabel">Service Type</label>
+          <select id="pkgType"></select>
+        </div>
+        <div class="hidden" id="pkgFloristFieldsGroup">
+          <div class="admin-form-group"><label for="pkgDescription">Description</label><input type="text" id="pkgDescription" placeholder="e.g. Elegant garden-style decor for an intimate wedding"></div>
+          <div class="admin-form-group"><label for="pkgIncludedItems">Included Items (comma separated)</label><input type="text" id="pkgIncludedItems" placeholder="Bridal bouquet, 10 centerpieces, arch decoration"></div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgNumberOfTables">Number of Tables Included</label><input type="number" id="pkgNumberOfTables" min="0"></div>
+            <div class="admin-form-group"><label for="pkgPriceMax">Price To ($) — for a price range</label><input type="number" id="pkgPriceMax" min="0"></div>
+          </div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgFlowerTypes">Flower Types (comma separated)</label><input type="text" id="pkgFlowerTypes" placeholder="Roses, Peonies, Eucalyptus"></div>
+            <div class="admin-form-group"><label for="pkgDecorationStyle">Decoration Style</label><input type="text" id="pkgDecorationStyle" placeholder="e.g. Rustic Garden"></div>
+          </div>
+        </div>
+        <div class="hidden" id="pkgMakeupFieldsGroup">
+          <div class="admin-form-group"><label for="pkgIncludedServices">Included Services (comma separated)</label><input type="text" id="pkgIncludedServices" placeholder="Bride makeup, Hair styling, Touch-up kit"></div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgDuration">Duration</label><input type="text" id="pkgDuration" placeholder="e.g. 2 hours"></div>
+            <div class="admin-form-group"><label for="pkgNumberOfPeople">Number of People Included</label><input type="number" id="pkgNumberOfPeople" min="0"></div>
+          </div>
+        </div>
+        <div class="hidden" id="pkgBridalFieldsGroup">
+          <div class="admin-form-group"><label for="pkgBridalIncludedServices">Included Services (comma separated)</label><input type="text" id="pkgBridalIncludedServices" placeholder="Dress fitting, Alterations, Steaming"></div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgRentalDuration">Rental Duration</label><input type="text" id="pkgRentalDuration" placeholder="e.g. 3 days"></div>
+            <div class="admin-form-group"><label for="pkgDepositRequired">Deposit Required</label><input type="text" id="pkgDepositRequired" placeholder="e.g. $200 or 30%"></div>
+          </div>
+          <div class="admin-form-group"><label for="pkgTermsConditions">Terms &amp; Conditions</label><textarea id="pkgTermsConditions" rows="3" placeholder="e.g. Non-refundable deposit, dress must be returned dry-cleaned within 3 days of the wedding"></textarea></div>
+        </div>
+        <div class="hidden" id="pkgSuitFieldsGroup">
+          <label class="amenity-item"><input type="checkbox" id="pkgSuitPurchaseCheck"> Available for Purchase (not just rental)</label>
+          <div class="admin-form-group"><label for="pkgSuitIncludedItems">Included Items (comma separated)</label><input type="text" id="pkgSuitIncludedItems" placeholder="Suit, Shirt, Tie/Bow Tie, Shoes, Accessories"></div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgSuitRentalDuration">Rental Duration</label><input type="text" id="pkgSuitRentalDuration" placeholder="e.g. 3 days"></div>
+            <div class="admin-form-group"><label for="pkgSuitDepositRequired">Deposit Required</label><input type="text" id="pkgSuitDepositRequired" placeholder="e.g. $150 or 30%"></div>
+          </div>
+          <div class="admin-form-group"><label for="pkgSuitTermsConditions">Terms &amp; Conditions</label><textarea id="pkgSuitTermsConditions" rows="3" placeholder="e.g. Suit must be returned dry-cleaned within 3 days; late returns incur a daily fee"></textarea></div>
+        </div>
+        <div class="hidden" id="pkgVehicleFieldsGroup">
+          <div class="admin-form-group"><label for="pkgVehicleIncludedServices">Included Services (comma separated)</label><input type="text" id="pkgVehicleIncludedServices" placeholder="Car, Driver, Decorations"></div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgVehicleIncludedHours">Included Hours</label><input type="text" id="pkgVehicleIncludedHours" placeholder="e.g. 4 hours"></div>
+            <div class="admin-form-group"><label for="pkgVehicleExtraHourPrice">Extra Hour Price ($)</label><input type="number" id="pkgVehicleExtraHourPrice" min="0"></div>
+          </div>
+          <div class="admin-form-group"><label for="pkgVehicleDepositRequired">Deposit Required</label><input type="text" id="pkgVehicleDepositRequired" placeholder="e.g. $100 or 30%"></div>
+        </div>
+        <div class="hidden" id="pkgCateringFieldsGroup">
+          <div class="admin-form-group"><label for="pkgCateringIncludedDishes">Included Dishes (comma separated)</label><input type="text" id="pkgCateringIncludedDishes" placeholder="Chicken Taouk, Kibbeh, Tabbouleh, Baklava"></div>
+        </div>
+        <div class="hidden" id="pkgHoneymoonFieldsGroup">
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgHoneymoonDestination">Destination</label><input type="text" id="pkgHoneymoonDestination" placeholder="e.g. Santorini, Greece"></div>
+            <div class="admin-form-group"><label for="pkgHoneymoonDuration">Duration</label><input type="text" id="pkgHoneymoonDuration" placeholder="e.g. 7 nights / 8 days"></div>
+          </div>
+          <div class="admin-form-group"><label for="pkgHoneymoonHotelInfo">Hotel Information</label><textarea id="pkgHoneymoonHotelInfo" rows="2" placeholder="e.g. 5-star beachfront resort, sea-view suite with private pool"></textarea></div>
+          <div class="admin-form-group"><label for="pkgHoneymoonFlightDetails">Flight Details</label><textarea id="pkgHoneymoonFlightDetails" rows="2" placeholder="e.g. Round-trip flights from Beirut, business class upgrade available"></textarea></div>
+          <div class="admin-form-group"><label for="pkgHoneymoonActivitiesIncluded">Activities Included (comma separated)</label><input type="text" id="pkgHoneymoonActivitiesIncluded" placeholder="Sunset cruise, wine tasting, couples spa"></div>
+          <div class="admin-form-group"><label for="pkgHoneymoonMealsIncluded">Meals Included (comma separated)</label><input type="text" id="pkgHoneymoonMealsIncluded" placeholder="Breakfast, romantic dinner, all-inclusive"></div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgHoneymoonTransportation">Transportation</label><input type="text" id="pkgHoneymoonTransportation" placeholder="e.g. Airport transfers, private car"></div>
+            <div class="admin-form-group"><label for="pkgHoneymoonInsurance">Insurance</label><input type="text" id="pkgHoneymoonInsurance" placeholder="e.g. Travel insurance included"></div>
+          </div>
+          <div class="admin-form-group"><label for="pkgHoneymoonAvailability">Availability</label><select id="pkgHoneymoonAvailability"><option>Available</option><option>Unavailable</option></select></div>
+        </div>
+        <div class="hidden" id="pkgInvitationFieldsGroup">
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgInvitationMinQuantity">Minimum Quantity</label><input type="number" id="pkgInvitationMinQuantity" min="0"></div>
+            <div class="admin-form-group"><label for="pkgInvitationDeliveryTime">Delivery Time</label><input type="text" id="pkgInvitationDeliveryTime" placeholder="e.g. 7-10 business days"></div>
+          </div>
+          <div class="admin-form-group"><label for="pkgInvitationIncludedServices">Included Services (comma separated)</label><input type="text" id="pkgInvitationIncludedServices" placeholder="Design proof, printing, envelopes"></div>
+        </div>
+        <div class="hidden" id="pkgJewelryFieldsGroup">
+          <div class="admin-form-group"><label for="pkgJewelryPriceMax">Price To ($) — for a price range</label><input type="number" id="pkgJewelryPriceMax" min="0"></div>
+          <div class="admin-form-group"><label for="pkgJewelryIncludedItems">Included Items (comma separated)</label><input type="text" id="pkgJewelryIncludedItems" placeholder="Ring box, Certificate of Authenticity, Cleaning kit"></div>
+          <div class="admin-form-group"><label for="pkgJewelryCustomizationOptions">Customization Options (comma separated)</label><input type="text" id="pkgJewelryCustomizationOptions" placeholder="Engraving, Stone selection, Metal type, Ring size adjustment"></div>
+          <div class="admin-form-group"><label for="pkgJewelryDeliveryTime">Delivery Time or Pickup</label><input type="text" id="pkgJewelryDeliveryTime" placeholder="e.g. 5-7 business days or in-store pickup"></div>
+        </div>
+        <div class="hidden" id="pkgZaffehFieldsGroup">
+          <h4 style="margin-top:0.6rem;">Choose Entrance Style</h4>
+          <p class="admin-hint" style="text-align:left;">Which performance styles are included in this package — couples pick their preferred one when booking.</p>
+          <div class="amenity-grid" id="pkgZaffehEntranceStylesGrid"></div>
+          <div class="admin-form-group" style="margin-top:0.8rem;"><label for="pkgZaffehMusicOptions">Music Selection — Available Entrance Songs (comma separated)</label><input type="text" id="pkgZaffehMusicOptions" placeholder="Arabic pop medley, Traditional Dabke, Western pop entrance"></div>
+        </div>
+        <div class="hidden" id="pkgCakeFieldsGroup">
+          <div class="admin-form-group"><label for="pkgCakeDescription">Description</label><textarea id="pkgCakeDescription" rows="2" placeholder="e.g. Three-tier custom cake with dessert table and delivery included"></textarea></div>
+          <div class="form-row-2">
+            <div class="admin-form-group"><label for="pkgCakeIncludedServices">Included Services (comma separated)</label><input type="text" id="pkgCakeIncludedServices" placeholder="Delivery, Setup, Cake stand rental"></div>
+            <div class="admin-form-group"><label for="pkgCakeNumberOfServings">Number of Servings</label><input type="number" id="pkgCakeNumberOfServings" min="0"></div>
+          </div>
+        </div>
+
+        <div class="hidden" id="pkgRestaurantFieldsGroup">
+          <div class="admin-form-group"><label for="pkgRestaurantDescription">Description</label><textarea id="pkgRestaurantDescription" rows="2" placeholder="e.g. Rooftop proposal setup with candlelit dinner for two"></textarea></div>
+          <div class="admin-form-group"><label for="pkgRestaurantSetup">Setup</label><input type="text" id="pkgRestaurantSetup" placeholder="e.g. Rooftop terrace with fairy lights and rose petals"></div>
+          <div class="admin-form-group"><label for="pkgRestaurantIncludedServices">Services (comma separated)</label><input type="text" id="pkgRestaurantIncludedServices" placeholder="Event Decoration, Private Dining, Romantic Dinner"></div>
+        </div>
+        <div class="hidden" id="pkgEntertainmentFieldsGroup">
+          <div class="admin-form-group"><label for="pkgEntertainmentDescription">Description</label><textarea id="pkgEntertainmentDescription" rows="2" placeholder="e.g. Custom kids' party package with face painting, a magic show and a bubble show"></textarea></div>
+          <div class="admin-form-group"><label for="pkgEntertainmentIncludedServices">Services Included (comma separated)</label><input type="text" id="pkgEntertainmentIncludedServices" placeholder="Face Painting, Magic Show, Bubble Show"></div>
+        </div>
+        <div class="admin-form-group">
+          <label>Optional Add-ons</label>
+          <div class="admin-inline-form" style="margin-bottom:0.5rem;">
+            <input type="text" id="pkgAddonName" placeholder="Add-on name (e.g. Extra Hour)">
+            <input type="number" id="pkgAddonPrice" placeholder="Price ($)" min="0" style="max-width:140px;">
+            <input type="file" id="pkgAddonImage" accept="image/*" class="hidden" style="max-width:220px;">
+            <button type="button" class="admin-btn small outline" id="addPkgAddonBtn">Add Add-on</button>
+          </div>
+          <div id="pkgAddonsDraftList"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="pkgSeasonal">Seasonal Pricing Notes</label><input type="text" id="pkgSeasonal" placeholder="e.g. +15% Jun–Sep peak season"></div>
+          <div class="admin-form-group"><label for="pkgDiscount">Discounts &amp; Promotions</label><input type="text" id="pkgDiscount" placeholder="e.g. 10% off winter bookings"></div>
+        </div>
+        <div id="aiPriceSuggestionWrap"></div>
+        <button class="admin-btn" id="addPackageBtn">Add Package</button>
+      </div>
+      <div class="package-grid" id="packageGrid"></div>
+    </section>
+
+    <!-- Wedding Timeline (Wedding Planner only) -->
+    <section class="admin-panel" id="panel-timeline">
+      <div class="admin-topbar"><h2>Wedding Timeline</h2></div>
+
+      <div class="admin-card">
+        <h3>Planning Schedule</h3>
+        <p class="admin-hint" style="text-align:left;">Key milestones and deadlines for your couples' planning journey.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="scheduleTitle">Milestone</label><input type="text" id="scheduleTitle" placeholder="e.g. Venue walkthrough"></div>
+          <div class="admin-form-group"><label for="scheduleDate">Date</label><input type="date" id="scheduleDate"></div>
+        </div>
+        <div class="admin-form-group"><label for="scheduleNotes">Notes (optional)</label><input type="text" id="scheduleNotes" placeholder="e.g. Bring floor plan"></div>
+        <button type="button" class="admin-btn small outline" id="addScheduleBtn">Add Milestone</button>
+        <div id="scheduleList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Task Management</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="taskText" placeholder="e.g. Confirm florist delivery time">
+          <input type="date" id="taskDueDate">
+          <button type="button" class="admin-btn small outline" id="addTaskBtn">Add Task</button>
+        </div>
+        <div id="taskList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Vendor Coordination</h3>
+        <p class="admin-hint" style="text-align:left;">Track the other vendors you're coordinating with for your couples' events.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="coordVendorName">Vendor / Business Name</label><input type="text" id="coordVendorName" placeholder="e.g. Le Jardin Wedding Venue"></div>
+          <div class="admin-form-group"><label for="coordCategory">Category</label><input type="text" id="coordCategory" placeholder="e.g. Wedding Venues"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="coordContact">Contact Info</label><input type="text" id="coordContact" placeholder="Phone or email"></div>
+          <div class="admin-form-group">
+            <label for="coordStatus">Status</label>
+            <select id="coordStatus"><option>Pending</option><option>Confirmed</option><option>Booked</option></select>
+          </div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addCoordBtn">Add Vendor</button>
+        <div id="coordList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-topbar" style="margin-bottom:0.6rem;">
+          <h3 style="margin:0;">Wedding Day Timeline</h3>
+          <button type="button" class="admin-btn outline" id="printDayTimelineBtn">🖨 Print Timeline</button>
+        </div>
+        <p class="admin-hint" style="text-align:left;">Build an hour-by-hour runsheet for the big day.</p>
+        <div class="admin-inline-form">
+          <input type="time" id="dayTimelineTime">
+          <input type="text" id="dayTimelineActivity" placeholder="e.g. Ceremony begins">
+          <button type="button" class="admin-btn small outline" id="addDayTimelineBtn">Add</button>
+        </div>
+        <div id="dayTimelineList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Special Offers &amp; Discounts from Vendors</h3>
+        <p class="admin-hint" style="text-align:left;">Deals you've negotiated with other vendors, to pass on to your couples.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="offerVendorName">Vendor Name</label><input type="text" id="offerVendorName" placeholder="e.g. Snap & Story Studio"></div>
+          <div class="admin-form-group"><label for="offerDescription">Offer</label><input type="text" id="offerDescription" placeholder="e.g. 10% off photography packages"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="offerCode">Discount Code (optional)</label><input type="text" id="offerCode" placeholder="e.g. PLANNER10"></div>
+          <div class="admin-form-group"><label for="offerExpiry">Expiry Date (optional)</label><input type="date" id="offerExpiry"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addOfferBtn">Add Offer</button>
+        <div id="offerList" style="margin-top:1rem;"></div>
+      </div>
+    </section>
+
+    <!-- Budget Management (Wedding Planner only) -->
+    <section class="admin-panel" id="panel-budget">
+      <div class="admin-topbar"><h2>Budget Management</h2></div>
+
+      <div class="admin-card">
+        <h3>Create a Wedding Budget</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="budgetCoupleName">Couple Name</label><input type="text" id="budgetCoupleName" placeholder="e.g. Sarah &amp; Karim"></div>
+          <div class="admin-form-group"><label for="budgetTotal">Total Budget ($)</label><input type="number" id="budgetTotal" min="0"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addBudgetBtn">Create Budget</button>
+      </div>
+
+      <div id="budgetsList"></div>
+    </section>
+
+    <!-- Food Menu -->
+    <section class="admin-panel" id="panel-foodmenu">
+      <div class="admin-topbar"><h2>Food Menu</h2></div>
+
+      <div class="admin-card">
+        <h3>Create a Menu Package</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="fmName">Menu Name</label><input type="text" id="fmName" placeholder="e.g. Silver Menu"></div>
+          <div class="admin-form-group">
+            <label for="fmType">Menu Type</label>
+            <select id="fmType">
+              <option>Standard Package</option>
+              <option>Custom Package</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-form-group"><label for="fmAppetizers">Appetizers (comma separated)</label><input type="text" id="fmAppetizers" placeholder="Hummus, Tabbouleh, Kibbeh"></div>
+        <div class="admin-form-group"><label for="fmMains">Main Course (comma separated)</label><input type="text" id="fmMains" placeholder="Grilled Chicken, Beef Tenderloin, Seafood Platter"></div>
+        <div class="admin-form-group"><label for="fmStations">Live Cooking Stations (optional, comma separated)</label><input type="text" id="fmStations" placeholder="Pasta Station, Carving Station, Sushi Bar"></div>
+        <div class="admin-form-group"><label for="fmSides">Side Dishes (comma separated)</label><input type="text" id="fmSides" placeholder="Rice, Roasted Vegetables, Fries"></div>
+        <div class="admin-form-group"><label for="fmDesserts">Desserts (comma separated)</label><input type="text" id="fmDesserts" placeholder="Baklava, Chocolate Fountain, Wedding Cake"></div>
+
+        <div class="admin-form-group">
+          <label for="fmBeverages">Beverages (comma separated)</label>
+          <input type="text" id="fmBeverages" placeholder="Soft Drinks, Juices, Wine, Champagne">
+          <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.4rem;font-size:0.85rem;">
+            <input type="checkbox" id="fmIncludesAlcohol"> Includes alcohol
+          </label>
+        </div>
+
+        <h4>Dietary Options</h4>
+        <div class="amenity-grid" id="dietaryGrid"></div>
+
+        <h4 style="margin-top:1rem;">Pricing</h4>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="fmPricePerPerson">Price per Person ($)</label><input type="number" id="fmPricePerPerson" min="0"></div>
+          <div class="admin-form-group"><label for="fmChildrenPrice">Children Pricing</label><input type="text" id="fmChildrenPrice" placeholder="e.g. $15 or Free under 6"></div>
+        </div>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="fmMinGuests">Minimum Guests</label><input type="number" id="fmMinGuests" min="0"></div>
+          <div class="admin-form-group"><label for="fmMaxGuests">Maximum Guests</label><input type="number" id="fmMaxGuests" min="0"></div>
+        </div>
+        <div class="admin-form-group">
+          <label style="display:flex;align-items:center;gap:0.5rem;">
+            <input type="checkbox" id="fmServiceChargeEnabled"> Service Charge (optional)
+          </label>
+          <input type="number" id="fmServiceChargePercent" min="0" max="100" placeholder="Service charge %" style="margin-top:0.4rem;max-width:200px;">
+        </div>
+        <div class="admin-form-group"><label for="fmExtras">Extras (comma separated, with pricing if any)</label><input type="text" id="fmExtras" placeholder="Extra hour of service +$200, Extra waiter +$50"></div>
+        <div class="admin-form-group"><label for="fmCustomization">Menu Customization Notes</label><textarea id="fmCustomization" rows="2" placeholder="e.g. Menus can be fully customized upon request"></textarea></div>
+
+        <button class="admin-btn" id="addFoodMenuBtn">Add Menu Package</button>
+      </div>
+
+      <div class="package-grid" id="foodMenuGrid"></div>
+    </section>
+
+    <!-- Table Seating Planner (Wedding Venues only) -->
+    <section class="admin-panel" id="panel-venueseating">
+      <div class="admin-topbar"><h2>Table Seating Planner</h2></div>
+      <p class="admin-hint" style="text-align:left;">Plan your floor layout by table — couples' own guest lists live in their private planning dashboard, so tables are labeled by group/party rather than by individual guest.</p>
+
+      <div class="admin-card">
+        <h3>Add a Table</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="venueTableLabel">Table Label</label><input type="text" id="venueTableLabel" placeholder="e.g. Table 1 — Bride's Family"></div>
+          <div class="admin-form-group">
+            <label for="venueTableShape">Shape</label>
+            <select id="venueTableShape">
+              <option value="round">Round</option>
+              <option value="square">Square</option>
+              <option value="rectangle">Rectangle</option>
+              <option value="long">Long</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-form-group"><label for="venueTableSeats">Number of Seats</label><input type="number" id="venueTableSeats" min="1" value="8"></div>
+        <button type="button" class="admin-btn small outline" id="addVenueTableBtn">Add Table</button>
+      </div>
+
+      <div class="admin-card">
+        <h3>Floor Layout</h3>
+        <div id="venueSeatingLayout" style="display:flex;flex-wrap:wrap;gap:1rem;"></div>
+      </div>
+    </section>
+
+    <!-- Interactive Venue Map (Wedding Venues only) -->
+    <section class="admin-panel" id="panel-venuemap">
+      <div class="admin-topbar"><h2>Interactive Venue Map</h2></div>
+
+      <div class="admin-card">
+        <h3>Floor Plan Background</h3>
+        <input type="file" id="venueMapBackgroundInput" accept="image/*">
+        <p class="admin-hint" style="text-align:left;">Upload a floor plan or venue photo, then drag markers onto it to mark where things go.</p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Add a Layout Marker</h3>
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label for="venueMapMarkerType">Marker Type</label>
+            <select id="venueMapMarkerType">
+              <option value="table">🍽️ Table</option>
+              <option value="stage">🎤 Stage</option>
+              <option value="bar">🍸 Bar</option>
+              <option value="dancefloor">💃 Dance Floor</option>
+              <option value="entrance">🚪 Entrance</option>
+            </select>
+          </div>
+          <div class="admin-form-group"><label for="venueMapMarkerLabel">Label (optional)</label><input type="text" id="venueMapMarkerLabel" placeholder="e.g. Table 5"></div>
+        </div>
+        <button type="button" class="admin-btn small outline" id="addVenueMapMarkerBtn">Add Marker to Map</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="venue-map-canvas" id="venueMapCanvas" style="position:relative;width:100%;height:420px;background:#f0ede4;border-radius:10px;overflow:hidden;border:1px dashed #ccc;background-size:cover;background-position:center;"></div>
+        <p class="admin-hint" style="text-align:left;">Drag markers to position them on the map. Click a marker's ✕ to remove it.</p>
+      </div>
+    </section>
+
+    <!-- Availability Calendar -->
+    <section class="admin-panel" id="panel-availability">
+      <div class="admin-topbar"><h2>Availability Calendar</h2></div>
+      <div id="availabilityContent"></div>
+    </section>
+
+    <!-- Appointments (free, no payment — available on all plans) -->
+    <section class="admin-panel" id="panel-appointments">
+      <div class="admin-topbar"><h2>Appointments</h2></div>
+      <p class="admin-hint" style="text-align:left;">Free consultation/viewing requests from couples browsing your profile. No payment is involved — you confirm or decline each request.</p>
+      <div class="admin-form-group" style="max-width:280px;">
+        <label for="appointmentsFilter">Filter</label>
+        <select id="appointmentsFilter">
+          <option value="">All</option>
+          <option value="new">New Requests</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="history">History (Declined / Cancelled)</option>
+        </select>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Couple</th><th>Contact</th><th>Wedding Date</th><th>Requested Slot</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="appointmentsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Booking Management -->
+    <section class="admin-panel" id="panel-bookings">
+      <div class="admin-topbar"><h2>Booking Management</h2></div>
+      <div id="bookingsContent"></div>
+    </section>
+
+    <!-- Payments -->
+    <section class="admin-panel" id="panel-payments">
+      <div class="admin-topbar">
+        <h2>Payments</h2>
+        <button class="admin-btn outline" id="printPaymentsBtn">🖨 Payment Report</button>
+      </div>
+      <div class="stat-grid" id="paymentStats"></div>
+      <div id="paymentRemindersWrap"></div>
+      <div class="admin-card">
+        <h3>Log a Payment</h3>
+        <div class="admin-inline-form">
+          <select id="paymentBookingSelect"></select>
+          <select id="paymentMethodSelect">
+            <option>OMT</option>
+            <option>Whish Money</option>
+            <option>Western Union</option>
+            <option>Credit/Debit Card</option>
+          </select>
+          <input type="number" id="paymentAmountInput" placeholder="Amount ($)" min="0">
+          <select id="paymentStatusSelect">
+            <option>Pending</option>
+            <option>Completed</option>
+          </select>
+          <button class="admin-btn small" id="addPaymentBtn">Add Payment</button>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Booking</th><th>Method</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="paymentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customer Inquiries -->
+    <section class="admin-panel" id="panel-inquiries">
+      <div class="admin-topbar"><h2>Customer Inquiries</h2></div>
+      <div class="admin-inline-form">
+        <button class="admin-btn small outline inquiry-filter active" data-filter="all">All</button>
+        <button class="admin-btn small outline inquiry-filter" data-filter="Inbox">Inbox</button>
+        <button class="admin-btn small outline inquiry-filter" data-filter="WhatsApp">WhatsApp</button>
+        <button class="admin-btn small outline inquiry-filter" data-filter="Email">Email</button>
+        <button class="admin-btn small outline inquiry-filter" data-filter="quote">Quote Requests</button>
+        <button class="admin-btn small outline inquiry-filter hidden" data-filter="consultation" id="consultationFilterBtn">Travel Consultation</button>
+      </div>
+      <div id="inquiriesList"></div>
+    </section>
+
+    <!-- Reviews -->
+    <section class="admin-panel" id="panel-reviews">
+      <div class="admin-topbar"><h2>Reviews</h2></div>
+      <div class="admin-card">
+        <h3>Overall Rating</h3>
+        <p style="font-size:1.6rem;" id="overallRatingDisplay"></p>
+      </div>
+      <div id="reviewsListVendor"></div>
+    </section>
+
+    <!-- Blog (Premium Featured plan only) -->
+    <section class="admin-panel" id="panel-blog">
+      <div class="admin-topbar"><h2>Blog <span class="plan-tag">Premium Featured</span></h2></div>
+      <div id="blogLockNote"></div>
+      <div class="admin-card">
+        <h3>Write an Article</h3>
+        <div class="admin-form-group"><label for="blogArticleTitle">Title</label><input type="text" id="blogArticleTitle" placeholder="e.g. 5 Tips for Choosing Your Wedding Rings"></div>
+        <div class="admin-form-group"><label for="blogArticleContent">Content</label><textarea id="blogArticleContent" rows="6" placeholder="Write your article here..."></textarea></div>
+        <div class="admin-form-group"><label for="blogArticleImage">Image (1 photo)</label><input type="file" id="blogArticleImage" accept="image/*"></div>
+        <button type="button" class="admin-btn small outline" id="addBlogArticleBtn" style="margin-top:0.6rem;">Publish Article</button>
+        <p class="admin-note" id="blogArticleNote"></p>
+      </div>
+
+      <div id="blogArticlesList"></div>
+    </section>
+
+    <!-- Analytics (Photographers & Videographers only) -->
+    <section class="admin-panel" id="panel-analytics">
+      <div class="admin-topbar">
+        <h2>Analytics</h2>
+        <button class="admin-btn outline" id="exportRevenueReportBtn">🖨 Revenue Report</button>
+      </div>
+      <div class="stat-grid" id="analyticsStats"></div>
+
+      <div class="admin-card hidden" id="mostViewedDestinationsCard">
+        <h3>Most Viewed Destinations</h3>
+        <div id="mostViewedDestinationsList"></div>
+      </div>
+
+      <div class="admin-card hidden" id="mostViewedDesignsCard">
+        <h3>Most Viewed Designs</h3>
+        <div id="mostViewedDesignsList"></div>
+      </div>
+
+      <div class="admin-card hidden" id="mostRequestedStylesCard">
+        <h3>Most Requested Styles</h3>
+        <div id="mostRequestedStylesList"></div>
+      </div>
+
+      <div class="admin-card hidden" id="mostViewedProductsCard">
+        <h3>Most Viewed Products</h3>
+        <div id="mostViewedProductsList"></div>
+      </div>
+
+      <div class="admin-card hidden" id="mostRequestedCollectionsCard">
+        <h3>Most Requested Collections</h3>
+        <div id="mostRequestedCollectionsList"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Popular Packages</h3>
+        <div id="popularPackagesList"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Revenue Reports</h3>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Month</th><th>Revenue</th></tr></thead>
+            <tbody id="revenueTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Documents & Verification -->
+    <section class="admin-panel" id="panel-documents">
+      <div class="admin-topbar"><h2>Documents &amp; Verification</h2></div>
+
+      <div class="admin-card">
+        <h3>Verification Status</h3>
+        <div id="verificationStatusContent"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Business License</h3>
+        <div id="licenseDocWrap"></div>
+        <input type="file" id="licenseInput" accept="image/*,application/pdf">
+      </div>
+
+      <div class="admin-card">
+        <h3>Insurance Documents</h3>
+        <div id="insuranceDocList"></div>
+        <input type="file" id="insuranceInput" accept="image/*,application/pdf" multiple>
+      </div>
+    </section>
+
+    <!-- Notifications -->
+    <section class="admin-panel" id="panel-notifications">
+      <div class="admin-topbar">
+        <h2>Notifications</h2>
+        <button class="admin-btn outline" id="markAllNotifReadBtn">Mark all as read</button>
+      </div>
+
+      <div class="admin-card">
+        <h3>Notification Preferences</h3>
+        <div class="toggle-row"><label for="notifBookingAlerts">New booking alerts</label><input type="checkbox" id="notifBookingAlerts"></div>
+        <div class="toggle-row"><label for="notifSubRenewal">Subscription renewal reminders</label><input type="checkbox" id="notifSubRenewal"></div>
+        <div class="toggle-row"><label for="notifCustomerMsgs">Customer messages</label><input type="checkbox" id="notifCustomerMsgs"></div>
+        <div class="toggle-row"><label for="notifPayments">Payment notifications</label><input type="checkbox" id="notifPayments"></div>
+        <button class="admin-btn" id="saveNotifPrefsBtn" style="margin-top:1rem;">Save Preferences</button>
+        <p class="admin-note" id="notifPrefsNote"></p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Recent Notifications</h3>
+        <div id="notifFeed"></div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section class="admin-panel" id="panel-settings">
+      <div class="admin-topbar"><h2>Settings</h2></div>
+
+      <div class="admin-card">
+        <h3>Business Hours</h3>
+        <div id="businessHoursGrid"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Booking &amp; Policies</h3>
+        <div class="admin-form-group"><label for="bookingRulesInput">Booking Rules</label><textarea id="bookingRulesInput" rows="2" placeholder="e.g. Minimum 6 months advance booking, max 2 date changes"></textarea></div>
+        <div class="admin-form-group"><label for="depositPercentInput">Deposit Percentage (%)</label><input type="number" id="depositPercentInput" min="0" max="100"></div>
+        <div class="admin-form-group"><label for="cancellationPolicyInput">Cancellation Policy</label><textarea id="cancellationPolicyInput" rows="2"></textarea></div>
+        <div class="admin-form-group"><label for="refundPolicyInput">Refund Policy</label><textarea id="refundPolicyInput" rows="2"></textarea></div>
+        <h4>Accepted Payment Methods</h4>
+        <div class="amenity-grid" id="paymentMethodsGrid"></div>
+
+        <h4 style="margin-top:1.2rem;">Payment Receiving Numbers</h4>
+        <p class="admin-hint" style="text-align:left;">Shown to customers when they choose that payment method at checkout. Credit/Debit Card doesn't need a number — customers enter their own card and payment is processed automatically.</p>
+        <div class="form-row-2">
+          <div class="admin-form-group"><label for="omtNumberInput">OMT Number</label><input type="text" id="omtNumberInput" placeholder="e.g. 03 123 456"></div>
+          <div class="admin-form-group"><label for="whishNumberInput">Whish Money Number</label><input type="text" id="whishNumberInput" placeholder="e.g. 03 123 456"></div>
+        </div>
+        <div class="admin-form-group"><label for="westernUnionInfoInput">Western Union Receiving Info</label><input type="text" id="westernUnionInfoInput" placeholder="Full name and city for Western Union pickup"></div>
+
+        <button class="admin-btn" id="savePoliciesBtn">Save Settings</button>
+        <p class="admin-note" id="policiesNote"></p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Team Members</h3>
+        <div class="admin-inline-form">
+          <input type="text" id="teamName" placeholder="Name">
+          <input type="text" id="teamRole" placeholder="Role (e.g. Coordinator)">
+          <input type="email" id="teamEmail" placeholder="Email">
+          <button class="admin-btn small" id="addTeamMemberBtn">Add</button>
+        </div>
+        <div id="teamList"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Password &amp; Security</h3>
+        <form id="vendorChangePasswordForm">
+          <div class="admin-form-group"><label for="vendorNewPassword">New Password</label><input type="password" id="vendorNewPassword" required></div>
+          <button type="submit" class="admin-btn">Update Password</button>
+          <p class="admin-note" id="vendorPasswordNote"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Marketing -->
+    <section class="admin-panel" id="panel-marketing">
+      <div class="admin-topbar"><h2>Marketing</h2></div>
+
+      <div class="admin-card">
+        <h3>Your Plan: <span id="currentPlanLabel" style="color:var(--secondary);"></span></h3>
+        <div id="planComparisonWrap"></div>
+        <div id="upgradeButtonsWrap" style="margin-top:1rem;"></div>
+        <div id="upgradeFormWrap"></div>
+        <p class="admin-note" id="upgradeNote"></p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Promote Your Business</h3>
+        <p style="color:#777;font-size:0.85rem;">Purchase promotions to get more visibility on the homepage and search results. Requests are activated by our team once payment is confirmed.</p>
+        <div class="plan-grid" id="marketingPromoGrid"></div>
+        <p class="promo-total" id="marketingPromoTotal"></p>
+
+        <div id="marketingHomepageAdMediaGroup" class="hidden">
+          <div class="admin-form-group">
+            <label for="marketingAdMedia">Picture or Video for Homepage Advertisement</label>
+            <input type="file" id="marketingAdMedia" accept="image/*,video/*">
+            <p class="admin-hint" style="text-align:left;">Videos should be small (under a few MB) to store reliably in the browser.</p>
+          </div>
+        </div>
+
+        <div class="payment-instructions" style="margin-top:1rem;">
+          <p>Send your promotion payment via Whish Money, OMT, or Western Union to the number below:</p>
+          <div class="payment-number-row">
+            <span class="payment-number">+961 81 256 069</span>
+            <button type="button" class="admin-btn small outline" id="copyMarketingNumberBtn">Copy</button>
+          </div>
+          <div class="payment-methods-badges">
+            <span class="payment-badge">Whish Money</span>
+            <span class="payment-badge">OMT</span>
+            <span class="payment-badge">Western Union</span>
+          </div>
+        </div>
+        <div class="form-row-2" style="margin-top:1rem;">
+          <div class="admin-form-group">
+            <label for="marketingPaymentMethod">Payment Method Used</label>
+            <select id="marketingPaymentMethod">
+              <option>Whish Money</option>
+              <option>OMT</option>
+              <option>Western Union</option>
+            </select>
+          </div>
+          <div class="admin-form-group">
+            <label for="marketingTransactionRef">Transaction Reference Number</label>
+            <input type="text" id="marketingTransactionRef" placeholder="e.g. WM123456">
+          </div>
+        </div>
+        <button class="admin-btn" id="submitMarketingBtn">Submit Promotion Request</button>
+        <p class="admin-note" id="marketingNote"></p>
+      </div>
+    </section>
+
+    <!-- Help & Support -->
+    <section class="admin-panel" id="panel-help">
+      <div class="admin-topbar"><h2>Help &amp; Support</h2></div>
+
+      <div class="admin-card">
+        <h3>Frequently Asked Questions</h3>
+        <div class="faq-accordion" id="vendorFaqAccordion">
+          <div class="faq-item">
+            <button type="button" class="faq-question">How do I upgrade my subscription plan?<span class="faq-toggle-icon">+</span></button>
+            <div class="faq-answer"><p>Go to the "Marketing" tab and choose a higher plan under "Your Plan" — you'll see what unlocks at each tier before confirming payment.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-question">How do I get the Verified badge?<span class="faq-toggle-icon">+</span></button>
+            <div class="faq-answer"><p>Upload your business license and any relevant insurance documents under "Documents & Verification." Our team reviews submissions and updates your status from the admin dashboard.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-question">How do payments and deposits work?<span class="faq-toggle-icon">+</span></button>
+            <div class="faq-answer"><p>Customers pay a deposit you set (as a percentage) via OMT, Whish Money, Western Union, or card. Log manual transfers yourself under "Payments" — card payments are recorded automatically.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-question">Why can't a customer see my listing?<span class="faq-toggle-icon">+</span></button>
+            <div class="faq-answer"><p>Your business must be Approved by our admin team and your subscription active. Check your status under "Documents & Verification."</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-question">How do I cancel or change a booking?<span class="faq-toggle-icon">+</span></button>
+            <div class="faq-answer"><p>Open the booking under "Booking Management" — you can confirm, cancel, or attach a signed contract from there.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Contact Support</h3>
+        <p style="color:#777;font-size:0.9rem;">Can't find what you're looking for? Reach out to the Forever Begins team directly.</p>
+        <ul class="contact-list" style="margin-top:0.8rem;">
+          <li>📞 <a href="tel:+96176346074">+961 76 346 074</a></li>
+          <li>💬 <a href="https://wa.me/96176346074" target="_blank" rel="noopener">WhatsApp Us</a></li>
+          <li>📷 <a href="https://instagram.com/gridwisesolutions.lb" target="_blank" rel="noopener">@gridwisesolutions.lb</a></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="lib/firebase/firebase-app-compat.js"></script>
+<script src="lib/firebase/firebase-auth-compat.js"></script>
+<script src="lib/firebase/firebase-firestore-compat.js"></script>
+<script src="lib/firebase/firebase-storage-compat.js"></script>
+<script src="firebase-init.js"></script>
+<script src="data-shim.js"></script>
+<script src="vendor.js"></script>
+</body>
+</html>

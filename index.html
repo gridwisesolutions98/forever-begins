@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.pexels.com https://images.unsplash.com https://firebasestorage.googleapis.com http://localhost:9199; media-src 'self' data: https://firebasestorage.googleapis.com http://localhost:9199; font-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com http://localhost:9099 http://localhost:8080 http://localhost:9199 ws://localhost:8080; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title data-i18n="meta.title">Forever Begins | Wedding Planning Services</title>
+<meta name="description" content="Plan your wedding in Lebanon with Forever Begins — book trusted venues, photographers, caterers, planners and more, all in one place.">
+<meta name="keywords" content="wedding planning Lebanon, wedding venues Beirut, wedding photographers Lebanon, wedding vendors, engagement planning, Lebanese wedding marketplace">
+<meta name="robots" content="index, follow">
+<meta name="author" content="GridWise Solutions">
+<link rel="canonical" href="https://foreverbegins.pro/">
+<meta name="theme-color" content="#0F6A5B">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Forever Begins">
+<meta property="og:title" content="Forever Begins | Wedding Planning Services">
+<meta property="og:description" content="Plan your wedding in Lebanon with Forever Begins — book trusted venues, photographers, caterers, planners and more, all in one place.">
+<meta property="og:url" content="https://foreverbegins.pro/">
+<meta property="og:image" content="https://foreverbegins.pro/6.jpeg">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ar_LB">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Forever Begins | Wedding Planning Services">
+<meta name="twitter:description" content="Plan your wedding in Lebanon with Forever Begins — book trusted venues, photographers, caterers, planners and more, all in one place.">
+<meta name="twitter:image" content="https://foreverbegins.pro/6.jpeg">
+
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Forever Begins",
+  "url": "https://foreverbegins.pro/",
+  "logo": "https://foreverbegins.pro/6.jpeg",
+  "description": "A wedding-services marketplace connecting couples in Lebanon with trusted wedding vendors — venues, photographers, caterers, planners and more.",
+  "areaServed": { "@type": "Country", "name": "Lebanon" },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+961-76-346-074",
+    "contactType": "customer service"
+  },
+  "sameAs": [
+    "https://wa.me/96176346074",
+    "https://instagram.com/gridwisesolutions.lb"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Forever Begins",
+  "url": "https://foreverbegins.pro/"
+}
+</script>
+</head>
+<body>
+
+<!-- ===== HEADER / NAV ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="#home" class="brand">
+      <video class="brand-logo" muted loop playsinline preload="none" id="brandLogoVideo">
+        <source data-src="logo.mp4" type="video/mp4">
+      </video>
+      <span class="brand-name">Forever Begins</span>
+    </a>
+
+    <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
+      <div class="nav-vendor-login">
+        <p class="nav-vendor-login-title" data-i18n="nav.vendor_login_title">Vendor Login</p>
+        <form id="navVendorLoginForm">
+          <input type="text" id="navVendorUsername" data-i18n-placeholder="nav.vendor_login_username" placeholder="Username" required>
+          <input type="password" id="navVendorPassword" data-i18n-placeholder="nav.vendor_login_password" placeholder="Password" required>
+          <button type="submit" class="btn btn-primary btn-sm btn-block" data-i18n="nav.vendor_login_btn">Login</button>
+          <p class="nav-vendor-login-note" id="navVendorLoginNote"></p>
+        </form>
+        <p style="text-align:center;margin-top:0.4rem;"><a href="#" id="navForgotPasswordLink" style="font-size:0.78rem;">Forgot password?</a></p>
+        <div class="hidden" id="navForgotPasswordWrap" style="margin-top:0.6rem;">
+          <div id="navForgotStep1">
+            <input type="text" id="navForgotUsername" placeholder="Username" style="margin-bottom:0.4rem;">
+            <input type="text" id="navForgotContact" placeholder="Email or WhatsApp on file" style="margin-bottom:0.4rem;">
+            <button type="button" class="btn btn-outline btn-sm btn-block" id="navSendCodeBtn">Send Reset Code</button>
+            <p class="nav-vendor-login-note" id="navForgotNote1"></p>
+          </div>
+          <div class="hidden" id="navForgotStep2">
+            <input type="text" id="navResetCode" placeholder="Reset code" style="margin-bottom:0.4rem;">
+            <input type="password" id="navNewPasswordReset" placeholder="New password" style="margin-bottom:0.4rem;">
+            <button type="button" class="btn btn-primary btn-sm btn-block" id="navResetPasswordBtn">Reset Password</button>
+            <p class="nav-vendor-login-note" id="navForgotNote2"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lang-switch" id="langSwitch">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="ar">AR</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      </div>
+      <a href="#home" class="nav-link" data-i18n="nav.home">Home</a>
+      <a href="#planning" class="nav-link" data-i18n="nav.planning">Wedding Planning</a>
+      <a href="#register" class="nav-link" data-i18n="nav.register">Register for Service</a>
+      <a href="#vendor-register" class="nav-link" data-i18n="nav.vendor">List Your Business</a>
+      <a href="#promote" class="nav-link" data-i18n="nav.promote">Promote Your Service</a>
+      <a href="#stories" class="nav-link" data-i18n="nav.stories">Success Stories</a>
+      <a href="#about" class="nav-link" data-i18n="nav.about">About Us</a>
+      <a href="#contact" class="nav-link" data-i18n="nav.contact">Contact Us</a>
+      <a href="#faq" class="nav-link" data-i18n="nav.faq">Help Center / FAQs</a>
+      <a href="#ai-assistant" class="nav-link nav-cta" data-i18n="nav.ai">AI Wedding Planner</a>
+    </nav>
+  </div>
+  <div class="nav-overlay" id="navOverlay"></div>
+</header>
+
+<main>
+
+  <!-- ===== HOME / FIND SERVICES ===== -->
+  <section id="home" class="hero">
+    <img src="6.jpeg" alt="Couple embracing beside a vintage convertible at sunset by the sea" class="hero-bg" id="heroImg" fetchpriority="high">
+    <video class="hero-bg hidden" id="heroVideo" autoplay muted loop playsinline></video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="eyebrow" data-i18n="hero.eyebrow">Your story, beautifully planned</p>
+      <h1 data-i18n="hero.title">Forever Begins Here</h1>
+      <p class="hero-sub" data-i18n="hero.sub">From venues to vows, find every wedding service you need in one place — guided by real experts and our AI Wedding Planner.</p>
+      <div class="hero-actions">
+        <a href="#find-services" class="btn btn-primary" data-i18n="hero.cta_find">Find Services</a>
+        <a href="#ai-assistant" class="btn btn-outline" data-i18n="hero.cta_ai">Ask the AI Planner</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SPONSORED VENDORS ===== -->
+  <section id="sponsored" class="section sponsored-section hidden">
+    <div class="container">
+      <p class="eyebrow center" data-i18n="sponsored.eyebrow">Sponsored</p>
+      <h2 class="section-title center" data-i18n="sponsored.title">Featured Sponsored Vendors</h2>
+      <p class="section-sub center" data-i18n="sponsored.sub">Trusted vendors currently promoting their services with us.</p>
+      <div class="sponsored-grid" id="sponsoredGrid"></div>
+    </div>
+  </section>
+
+  <!-- Find Services -->
+  <section id="find-services" class="section services">
+    <div class="container">
+      <p class="eyebrow center" data-i18n="findServices.eyebrow">Home</p>
+      <h2 class="section-title center" data-i18n="findServices.title">Find Services</h2>
+      <p class="section-sub center" data-i18n="findServices.sub">Explore trusted vendors across every part of your celebration.</p>
+
+      <form class="service-search" id="serviceSearchForm">
+        <div class="form-group">
+          <label for="searchCategory" data-i18n="search.category_label">Service</label>
+          <select id="searchCategory">
+            <option value="" data-i18n="search.all_services">All Services</option>
+            <option value="Wedding Venues" data-i18n="services.venues.title">Wedding Venues</option>
+            <option value="Photographers &amp; Videographers" data-i18n="services.photographers.title">Photographers &amp; Videographers</option>
+            <option value="DJs &amp; Bands" data-i18n="services.djs.title">DJs &amp; Bands</option>
+            <option value="Wedding Planner" data-i18n="services.planner.title">Wedding Planner</option>
+            <option value="Florists &amp; Decor" data-i18n="services.florists.title">Florists &amp; Decor</option>
+            <option value="Makeup Artists" data-i18n="services.makeup.title">Makeup Artists</option>
+            <option value="Hair Stylists" data-i18n="services.hair.title">Hair Stylists</option>
+            <option value="Bridal Dress Shops" data-i18n="services.bridal.title">Bridal Dress Shops</option>
+            <option value="Bridal Stylists" data-i18n="services.bridalstylist.title">Bridal Stylists</option>
+            <option value="Zaffeh" data-i18n="services.zaffeh.title">Zaffeh</option>
+            <option value="Suits Rentals" data-i18n="services.suits.title">Suits Rentals</option>
+            <option value="Car Rentals" data-i18n="services.cars.title">Car Rentals</option>
+            <option value="Caterings" data-i18n="services.catering.title">Caterings</option>
+            <option value="Cake Designers" data-i18n="services.cake.title">Cake Designers</option>
+            <option value="Honeymoon Agencies" data-i18n="services.honeymoon.title">Honeymoon Agencies</option>
+            <option value="Invitation Cards" data-i18n="services.invitations.title">Invitation Cards</option>
+            <option value="Jewelry" data-i18n="services.jewelry.title">Jewelry</option>
+            <option value="Restaurants" data-i18n="services.restaurants.title">Restaurants</option>
+            <option value="Wedding Entertainment" data-i18n="services.entertainment.title">Wedding Entertainment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchLocation" data-i18n="search.location_label">Location</label>
+          <input type="text" id="searchLocation" data-i18n-placeholder="search.location_placeholder" placeholder="City or area">
+        </div>
+        <div class="form-group">
+          <label for="searchBudget" data-i18n="search.budget_label">Budget</label>
+          <select id="searchBudget">
+            <option value="" data-i18n="search.any_budget">Any Budget</option>
+            <option value="Under $5,000" data-i18n="search.budget_under5">Under $5,000</option>
+            <option value="$5,000 - $15,000" data-i18n="search.budget_5to15">$5,000 - $15,000</option>
+            <option value="$15,000 - $30,000" data-i18n="search.budget_15to30">$15,000 - $30,000</option>
+            <option value="$30,000+" data-i18n="search.budget_30plus">$30,000+</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchAvailability" data-i18n="search.availability_label">Availability</label>
+          <input type="date" id="searchAvailability">
+        </div>
+        <div class="form-group">
+          <label for="searchRating" data-i18n="search.rating_label">Rating</label>
+          <select id="searchRating">
+            <option value="" data-i18n="search.any_rating">Any Rating</option>
+            <option value="4.8" data-i18n="search.rating_48">4.8+ Stars</option>
+            <option value="4.5" data-i18n="search.rating_45">4.5+ Stars</option>
+            <option value="4" data-i18n="search.rating_4">4+ Stars</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" data-i18n="search.btn">Search</button>
+      </form>
+      <p class="search-result-note" id="searchResultNote"></p>
+
+      <div class="service-grid" id="serviceGrid">
+        <div class="service-card" data-category="Wedding Venues" data-rating="4.9">
+          <img class="service-icon" src="https://images.unsplash.com/photo-1780542900375-0cf459e38fbb?auto=format&amp;fit=crop&amp;w=200&amp;q=80" alt="Wedding Venues" loading="lazy">
+          <h3 data-i18n="services.venues.title">Wedding Venues</h3>
+          <p data-i18n="services.venues.desc">Ballrooms, estates, gardens and destination locations.</p>
+          <div class="service-rating">⭐ 4.9</div>
+        </div>
+        <div class="service-card" data-category="Photographers &amp; Videographers" data-rating="4.8">
+          <img class="service-icon" src="https://images.pexels.com/photos/17057198/pexels-photo-17057198.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Photographers &amp; Videographers" loading="lazy">
+          <h3 data-i18n="services.photographers.title">Photographers &amp; Videographers</h3>
+          <p data-i18n="services.photographers.desc">Capture every moment with vetted photo and video teams.</p>
+          <div class="service-rating">⭐ 4.8</div>
+        </div>
+        <div class="service-card" data-category="DJs &amp; Bands" data-rating="4.6">
+          <img class="service-icon" src="https://images.pexels.com/photos/9002826/pexels-photo-9002826.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="DJs &amp; Bands" loading="lazy">
+          <h3 data-i18n="services.djs.title">DJs &amp; Bands</h3>
+          <p data-i18n="services.djs.desc">Live bands and DJs to keep the celebration going all night.</p>
+          <div class="service-rating">⭐ 4.6</div>
+        </div>
+        <div class="service-card" data-category="Wedding Planner" data-rating="4.9">
+          <img class="service-icon" src="https://images.pexels.com/photos/33136468/pexels-photo-33136468.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Wedding Planner" loading="lazy">
+          <h3 data-i18n="services.planner.title">Wedding Planner</h3>
+          <p data-i18n="services.planner.desc">Dedicated planners to coordinate every detail of your day.</p>
+          <div class="service-rating">⭐ 4.9</div>
+        </div>
+        <div class="service-card" data-category="Florists &amp; Decor" data-rating="4.7">
+          <img class="service-icon" src="https://images.pexels.com/photos/585410/pexels-photo-585410.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Florists &amp; Decor" loading="lazy">
+          <h3 data-i18n="services.florists.title">Florists &amp; Decor</h3>
+          <p data-i18n="services.florists.desc">Arches, centerpieces and full-scale styling design.</p>
+          <div class="service-rating">⭐ 4.7</div>
+        </div>
+        <div class="service-card" data-category="Makeup Artists" data-rating="4.8">
+          <img class="service-icon" src="https://images.pexels.com/photos/35538643/pexels-photo-35538643.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Makeup Artists" loading="lazy">
+          <h3 data-i18n="services.makeup.title">Makeup Artists</h3>
+          <p data-i18n="services.makeup.desc">Bridal makeup artists for your ceremony, party and photos.</p>
+          <div class="service-rating">⭐ 4.8</div>
+        </div>
+        <div class="service-card" data-category="Hair Stylists" data-rating="4.7">
+          <img class="service-icon" src="https://images.pexels.com/photos/10561323/pexels-photo-10561323.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Hair Stylists" loading="lazy">
+          <h3 data-i18n="services.hair.title">Hair Stylists</h3>
+          <p data-i18n="services.hair.desc">Professional stylists for the bride, family and bridal party.</p>
+          <div class="service-rating">⭐ 4.7</div>
+        </div>
+        <div class="service-card" data-category="Bridal Dress Shops" data-rating="4.8">
+          <img class="service-icon" src="https://images.pexels.com/photos/4374417/pexels-photo-4374417.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Bridal Dress Shops" loading="lazy">
+          <h3 data-i18n="services.bridal.title">Bridal Dress Shops</h3>
+          <p data-i18n="services.bridal.desc">Gowns and fittings from trusted bridal boutiques.</p>
+          <div class="service-rating">⭐ 4.8</div>
+        </div>
+        <div class="service-card" data-category="Bridal Stylists" data-rating="4.8">
+          <img class="service-icon" src="https://images.pexels.com/photos/35538643/pexels-photo-35538643.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Bridal Stylists" loading="lazy">
+          <h3 data-i18n="services.bridalstylist.title">Bridal Stylists</h3>
+          <p data-i18n="services.bridalstylist.desc">Your personal guide for choosing the perfect hairstyle, makeup, dress, and overall bridal look.</p>
+          <div class="service-rating">⭐ 4.8</div>
+        </div>
+        <div class="service-card" data-category="Zaffeh" data-rating="4.6">
+          <img class="service-icon" src="https://images.pexels.com/photos/8197231/pexels-photo-8197231.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Zaffeh" loading="lazy">
+          <h3 data-i18n="services.zaffeh.title">Zaffeh</h3>
+          <p data-i18n="services.zaffeh.desc">Traditional wedding processions to welcome the couple in style.</p>
+          <div class="service-rating">⭐ 4.6</div>
+        </div>
+        <div class="service-card" data-category="Suits Rentals" data-rating="4.5">
+          <img class="service-icon" src="https://images.pexels.com/photos/18701361/pexels-photo-18701361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Suits Rentals" loading="lazy">
+          <h3 data-i18n="services.suits.title">Suits Rentals</h3>
+          <p data-i18n="services.suits.desc">Tailored suits and tuxedos for grooms and groomsmen.</p>
+          <div class="service-rating">⭐ 4.5</div>
+        </div>
+        <div class="service-card" data-category="Car Rentals" data-rating="4.6">
+          <img class="service-icon" src="https://images.pexels.com/photos/26972540/pexels-photo-26972540.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Car Rentals" loading="lazy">
+          <h3 data-i18n="services.cars.title">Car Rentals</h3>
+          <p data-i18n="services.cars.desc">Elegant cars for the couple's grand arrival and departure.</p>
+          <div class="service-rating">⭐ 4.6</div>
+        </div>
+        <div class="service-card" data-category="Caterings" data-rating="4.7">
+          <img class="service-icon" src="https://images.pexels.com/photos/30469688/pexels-photo-30469688.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Caterings" loading="lazy">
+          <h3 data-i18n="services.catering.title">Caterings</h3>
+          <p data-i18n="services.catering.desc">Menus and tastings from award-winning culinary teams.</p>
+          <div class="service-rating">⭐ 4.7</div>
+        </div>
+        <div class="service-card" data-category="Cake Designers" data-rating="4.8">
+          <img class="service-icon" src="https://images.pexels.com/photos/34596958/pexels-photo-34596958.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Cake Designers" loading="lazy">
+          <h3 data-i18n="services.cake.title">Cake Designers</h3>
+          <p data-i18n="services.cake.desc">Custom wedding cakes designed to match your theme.</p>
+          <div class="service-rating">⭐ 4.8</div>
+        </div>
+        <div class="service-card" data-category="Honeymoon Agencies" data-rating="4.7">
+          <img class="service-icon" src="https://images.pexels.com/photos/31760911/pexels-photo-31760911.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Honeymoon Agencies" loading="lazy">
+          <h3 data-i18n="services.honeymoon.title">Honeymoon Agencies</h3>
+          <p data-i18n="services.honeymoon.desc">Curated getaways to start married life the right way.</p>
+          <div class="service-rating">⭐ 4.7</div>
+        </div>
+        <div class="service-card" data-category="Invitation Cards" data-rating="4.6">
+          <img class="service-icon" src="https://images.pexels.com/photos/35005581/pexels-photo-35005581.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Invitation Cards" loading="lazy">
+          <h3 data-i18n="services.invitations.title">Invitation Cards</h3>
+          <p data-i18n="services.invitations.desc">Custom invitations and stationery for every wedding style.</p>
+          <div class="service-rating">⭐ 4.6</div>
+        </div>
+        <div class="service-card" data-category="Jewelry" data-rating="4.9">
+          <img class="service-icon" src="https://images.pexels.com/photos/12320902/pexels-photo-12320902.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Jewelry" loading="lazy">
+          <h3 data-i18n="services.jewelry.title">Jewelry</h3>
+          <p data-i18n="services.jewelry.desc">Rings and fine jewelry for engagements and wedding days.</p>
+          <div class="service-rating">⭐ 4.9</div>
+        </div>
+        <div class="service-card" data-category="Restaurants" data-rating="4.7">
+          <img class="service-icon" src="https://images.pexels.com/photos/34723813/pexels-photo-34723813.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=200" alt="Restaurants" loading="lazy">
+          <h3 data-i18n="services.restaurants.title">Restaurants</h3>
+          <p data-i18n="services.restaurants.desc">Venues and dining spots for engagement dinners and receptions.</p>
+          <div class="service-rating">⭐ 4.7</div>
+        </div>
+        <div class="service-card" data-category="Wedding Entertainment" data-rating="4.8">
+          <img class="service-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%230F6A5B'/%3E%3Ctext x='50%25' y='56%25' font-size='96' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%8E%AA%3C/text%3E%3C/svg%3E" alt="Wedding Entertainment" loading="lazy">
+          <h3 data-i18n="services.entertainment.title">Wedding Entertainment</h3>
+          <p data-i18n="services.entertainment.desc">Face painting, magic shows, photo booths and more to entertain your guests.</p>
+          <div class="service-rating">⭐ 4.8</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WEDDING PLANNING ===== -->
+  <section id="planning" class="section planning">
+    <div class="container">
+      <p class="eyebrow center" data-i18n="planning.eyebrow">Wedding Planning</p>
+      <h2 class="section-title center" data-i18n="planning.title">Your Personal Planning Dashboard</h2>
+      <p class="section-sub center" data-i18n="planning.sub">Log in to manage your checklist, budget, guest list and more — all in one place.</p>
+
+      <!-- ===== AUTH (Login / Sign Up) ===== -->
+      <div class="auth-wrapper" id="authWrapper">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-authtab="login" data-i18n="auth.login_tab">Login</button>
+          <button type="button" class="auth-tab" data-authtab="signup" data-i18n="auth.signup_tab">Sign Up</button>
+        </div>
+
+        <form class="auth-form" id="loginForm">
+          <div class="form-group">
+            <label for="loginUsername" data-i18n="auth.username_label">Username</label>
+            <input type="text" id="loginUsername" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword" data-i18n="auth.password_label">Password</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" data-i18n="auth.login_btn">Login</button>
+          <p class="form-note" id="loginNote"></p>
+        </form>
+
+        <p style="text-align:center;margin-top:0.6rem;" id="coupleForgotPasswordToggleWrap"><a href="#" id="coupleForgotPasswordLink" style="font-size:0.85rem;">Forgot password?</a></p>
+        <div class="hidden" id="coupleForgotPasswordWrap" style="margin-top:1rem;padding-top:1rem;border-top:1px solid #eee;">
+          <div id="coupleForgotStep1">
+            <div class="form-group">
+              <label for="coupleForgotUsername">Username</label>
+              <input type="text" id="coupleForgotUsername">
+            </div>
+            <div class="form-group">
+              <label for="coupleForgotContact">Email or WhatsApp number on file</label>
+              <input type="text" id="coupleForgotContact" placeholder="you@example.com or +961...">
+            </div>
+            <button type="button" class="btn btn-outline btn-block" id="coupleSendCodeBtn">Send Reset Code</button>
+            <p class="form-note" id="coupleForgotNote1"></p>
+          </div>
+          <div class="hidden" id="coupleForgotStep2">
+            <div class="form-group">
+              <label for="coupleResetCode">Reset Code</label>
+              <input type="text" id="coupleResetCode">
+            </div>
+            <div class="form-group">
+              <label for="coupleNewPasswordReset">New Password</label>
+              <input type="password" id="coupleNewPasswordReset">
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="coupleResetPasswordBtn">Reset Password</button>
+            <p class="form-note" id="coupleForgotNote2"></p>
+          </div>
+        </div>
+
+        <form class="auth-form hidden" id="signupForm">
+          <div class="form-group">
+            <label for="signupBride" data-i18n="auth.signup_bride_label">Bride Full Name</label>
+            <input type="text" id="signupBride" required>
+          </div>
+          <div class="form-group">
+            <label for="signupGroom" data-i18n="auth.signup_groom_label">Groom Full Name</label>
+            <input type="text" id="signupGroom" required>
+          </div>
+          <div class="form-group">
+            <label for="signupEmail" data-i18n="auth.signup_email_label">Email Address</label>
+            <input type="email" id="signupEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="signupPhone" data-i18n="auth.signup_phone_label">Phone Number</label>
+            <input type="tel" id="signupPhone" required>
+          </div>
+          <div class="form-group">
+            <label for="signupWeddingDate" data-i18n="auth.signup_weddingdate_label">Wedding Date</label>
+            <input type="date" id="signupWeddingDate">
+          </div>
+          <div class="form-group">
+            <label for="signupUsername" data-i18n="auth.signup_username_label">Username</label>
+            <input type="text" id="signupUsername" required>
+          </div>
+          <div class="form-group">
+            <label for="signupPassword" data-i18n="auth.signup_password_label">Password</label>
+            <input type="password" id="signupPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" data-i18n="auth.signup_btn">Create Account</button>
+          <p class="form-note" id="signupNote"></p>
+        </form>
+        <p class="auth-disclaimer" data-i18n="auth.disclaimer">Demo account system — saved only in this browser, not a secure production login.</p>
+      </div>
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="dashboard hidden" id="dashboard">
+        <div class="dashboard-header">
+          <div>
+            <p class="eyebrow" style="margin-bottom:0.2rem;" data-i18n="dashboard.welcome">Welcome back</p>
+            <h3 id="dashboardUser">—</h3>
+          </div>
+          <div class="dashboard-header-actions">
+            <button class="icon-btn" type="button" data-panel="notifications" title="Notifications">🔔<span class="badge" id="notifBadge">0</span></button>
+            <button class="icon-btn" type="button" data-panel="messages" title="Messages">✉️<span class="badge" id="msgBadge">0</span></button>
+            <button class="btn btn-outline-dark" id="printWeddingReportBtn" type="button">🖨 Print Report</button>
+            <button class="btn btn-outline-dark" id="logoutBtn" type="button" data-i18n="dashboard.logout">Logout</button>
+          </div>
+        </div>
+
+        <div class="dashboard-body">
+          <nav class="dashboard-nav" id="dashboardNav">
+            <button class="dash-link active" data-panel="checklist"><span data-i18n="dashboard.nav_checklist">✅ Checklist</span></button>
+            <button class="dash-link" data-panel="budget">💰 <span data-i18n="dashboard.nav_budget">Budget Planner</span></button>
+            <button class="dash-link" data-panel="guests">👥 <span data-i18n="dashboard.nav_guests">Guest List</span></button>
+            <button class="dash-link" data-panel="seating">🪑 <span data-i18n="dashboard.nav_seating">Seating Planner</span></button>
+            <button class="dash-link" data-panel="countdown">⏳ <span data-i18n="dashboard.nav_countdown">Countdown</span></button>
+            <button class="dash-link" data-panel="gallery">🖼️ <span data-i18n="dashboard.nav_gallery">Inspiration Gallery</span></button>
+            <button class="dash-link" data-panel="blog">📰 <span data-i18n="dashboard.nav_blog">Blog</span></button>
+            <button class="dash-link" data-panel="notes">📝 <span data-i18n="dashboard.nav_notes">Notes</span></button>
+            <button class="dash-link" data-panel="bookings">📅 <span data-i18n="dashboard.nav_bookings">My Bookings</span></button>
+            <button class="dash-link" data-panel="appointments">🕑 <span data-i18n="dashboard.nav_appointments">My Appointments</span></button>
+            <button class="dash-link" data-panel="messages">✉️ <span data-i18n="dashboard.nav_messages">Messages</span></button>
+            <button class="dash-link" data-panel="notifications">🔔 <span data-i18n="dashboard.nav_notifications">Notifications</span></button>
+          </nav>
+
+          <div class="dashboard-panels">
+
+            <div class="dash-panel active" id="panel-checklist">
+              <h3 data-i18n="panel.checklist_title">Wedding Checklist</h3>
+              <form class="inline-form" id="checklistForm">
+                <input type="text" id="checklistInput" data-i18n-placeholder="panel.checklist_placeholder" placeholder="Add a task...">
+                <input type="tel" id="checklistPhone" placeholder="Phone (optional)">
+                <button type="submit" class="btn btn-primary" data-i18n="panel.add_btn">Add</button>
+              </form>
+              <ul class="check-list" id="checklistList"></ul>
+            </div>
+
+            <div class="dash-panel" id="panel-budget">
+              <h3 data-i18n="panel.budget_title">Budget Planner Estimator</h3>
+              <div class="form-group" style="max-width:260px;">
+                <label for="budgetTotal" data-i18n="panel.budget_total_label">Total Budget ($)</label>
+                <input type="number" id="budgetTotal" min="0" data-i18n-placeholder="panel.budget_total_placeholder" placeholder="e.g. 20000">
+              </div>
+              <div id="budgetBreakdown" class="budget-breakdown"></div>
+            </div>
+
+            <div class="dash-panel" id="panel-guests">
+              <h3 data-i18n="panel.guests_title">Guest List</h3>
+              <form class="inline-form" id="guestForm">
+                <input type="text" id="guestName" data-i18n-placeholder="panel.guest_name_placeholder" placeholder="Guest name" required>
+                <input type="tel" id="guestPhone" placeholder="Phone number">
+                <select id="guestStatus">
+                  <option value="Pending" data-i18n="panel.guest_status_pending">Pending</option>
+                  <option value="Confirmed" data-i18n="panel.guest_status_confirmed">Confirmed</option>
+                  <option value="Declined" data-i18n="panel.guest_status_declined">Declined</option>
+                </select>
+                <button type="submit" class="btn btn-primary" data-i18n="panel.add_btn">Add</button>
+              </form>
+              <p class="guest-summary" id="guestSummary"></p>
+              <div class="table-wrap">
+                <table class="data-table" id="guestTable">
+                  <thead><tr><th data-i18n="panel.guest_th_name">Name</th><th>Phone</th><th data-i18n="panel.guest_th_rsvp">RSVP</th><th></th></tr></thead>
+                  <tbody id="guestTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="dash-panel" id="panel-seating">
+              <h3 data-i18n="panel.seating_title">Seating Planner</h3>
+              <p class="admin-hint" style="text-align:left;color:#999;font-size:0.85rem;">Click a guest below, then click an empty seat to assign them. Click a filled seat to unseat that guest.</p>
+              <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <div class="form-group" style="max-width:200px;">
+                  <label for="tableCount" data-i18n="panel.seating_tablecount_label">Number of Tables</label>
+                  <input type="number" id="tableCount" min="1" value="5">
+                </div>
+                <div class="form-group" style="max-width:200px;">
+                  <label for="seatsPerTableInput">Seats per Table</label>
+                  <input type="number" id="seatsPerTableInput" min="2" max="16" value="8">
+                </div>
+              </div>
+              <div id="seatingBoard" class="seating-board"></div>
+            </div>
+
+            <div class="dash-panel" id="panel-countdown">
+              <h3 data-i18n="panel.countdown_title">Wedding Countdown</h3>
+              <div class="form-group" style="max-width:220px;">
+                <label for="weddingDateInput" data-i18n="panel.countdown_date_label">Your Wedding Date</label>
+                <input type="date" id="weddingDateInput">
+              </div>
+              <div class="countdown-display" id="countdownDisplay">
+                <div><span id="cdDays">0</span><small data-i18n="panel.countdown_days">Days</small></div>
+                <div><span id="cdHours">0</span><small data-i18n="panel.countdown_hours">Hours</small></div>
+                <div><span id="cdMinutes">0</span><small data-i18n="panel.countdown_minutes">Minutes</small></div>
+                <div><span id="cdSeconds">0</span><small data-i18n="panel.countdown_seconds">Seconds</small></div>
+              </div>
+            </div>
+
+            <div class="dash-panel" id="panel-gallery">
+              <h3 data-i18n="panel.gallery_title">Inspiration Gallery</h3>
+              <label class="fav-toggle"><input type="checkbox" id="favOnlyToggle"> <span data-i18n="panel.gallery_fav_toggle">Show favorites only</span></label>
+              <div class="gallery-grid" id="galleryGrid"></div>
+            </div>
+
+            <div class="dash-panel" id="panel-blog">
+              <h3 data-i18n="panel.blog_title">Blog</h3>
+              <div class="blog-grid" id="vendorBlogGrid"></div>
+              <div class="blog-grid">
+                <article class="blog-card">
+                  <h4 data-i18n="panel.blog1_title">10 Timeless Wedding Color Palettes</h4>
+                  <p data-i18n="panel.blog1_desc">Explore combinations that photograph beautifully in every season.</p>
+                </article>
+                <article class="blog-card">
+                  <h4 data-i18n="panel.blog2_title">How to Build a Wedding Budget That Sticks</h4>
+                  <p data-i18n="panel.blog2_desc">A realistic breakdown for allocating your budget without stress.</p>
+                </article>
+                <article class="blog-card">
+                  <h4 data-i18n="panel.blog3_title">Guest List Etiquette, Simplified</h4>
+                  <p data-i18n="panel.blog3_desc">Who to invite, plus-one rules, and handling tricky RSVPs.</p>
+                </article>
+                <article class="blog-card">
+                  <h4 data-i18n="panel.blog4_title">Zaffeh Traditions Around the Region</h4>
+                  <p data-i18n="panel.blog4_desc">How couples are blending classic processions into modern receptions.</p>
+                </article>
+              </div>
+            </div>
+
+            <div class="dash-panel" id="panel-notes">
+              <h3 data-i18n="panel.notes_title">Notes</h3>
+              <textarea id="notesArea" rows="10" data-i18n-placeholder="panel.notes_placeholder" placeholder="Jot down ideas, reminders or vendor notes..."></textarea>
+              <p class="form-note" id="notesSaved"></p>
+            </div>
+
+            <div class="dash-panel" id="panel-bookings">
+              <h3 data-i18n="panel.bookings_title">My Bookings</h3>
+              <form class="inline-form" id="bookingForm">
+                <input type="text" id="bookingVendor" data-i18n-placeholder="panel.booking_vendor_placeholder" placeholder="Vendor name" required>
+                <input type="date" id="bookingDate" required>
+                <button type="submit" class="btn btn-primary" data-i18n="panel.booking_add_btn">Add Booking</button>
+              </form>
+              <div class="table-wrap">
+                <table class="data-table" id="bookingTable">
+                  <thead><tr><th data-i18n="panel.booking_th_vendor">Vendor</th><th data-i18n="panel.booking_th_date">Date</th><th data-i18n="panel.booking_th_status">Status</th></tr></thead>
+                  <tbody id="bookingTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="dash-panel" id="panel-appointments">
+              <h3 data-i18n="panel.appointments_title">My Appointments</h3>
+              <form class="inline-form" id="appointmentForm">
+                <input type="text" id="apptWith" data-i18n-placeholder="panel.appt_with_placeholder" placeholder="With (e.g. Florist)" required>
+                <input type="datetime-local" id="apptTime" required>
+                <button type="submit" class="btn btn-primary" data-i18n="panel.appt_add_btn">Add</button>
+              </form>
+              <div class="table-wrap">
+                <table class="data-table" id="apptTable">
+                  <thead><tr><th data-i18n="panel.appt_th_with">With</th><th data-i18n="panel.appt_th_when">When</th></tr></thead>
+                  <tbody id="apptTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="dash-panel" id="panel-messages">
+              <h3 data-i18n="panel.messages_title">Messages</h3>
+              <ul class="message-list" id="messageList"></ul>
+            </div>
+
+            <div class="dash-panel" id="panel-notifications">
+              <div class="panel-heading-row">
+                <h3 data-i18n="panel.notifications_title">Notifications</h3>
+                <button type="button" class="btn btn-outline-dark" id="clearNotifsBtn" data-i18n="panel.notifications_clear_btn">Mark all as read</button>
+              </div>
+              <ul class="notif-list" id="notifList"></ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== REGISTER FOR SERVICE ===== -->
+  <section id="register" class="section register">
+    <div class="container register-grid">
+      <div class="register-copy">
+        <p class="eyebrow" data-i18n="register.eyebrow">Register for Service</p>
+        <h2 class="section-title" data-i18n="register.title">Let's Start Planning Together</h2>
+        <p class="section-sub" data-i18n="register.sub">Share a few details and a planner will reach out within one business day. Vendors welcome — join our trusted network too.</p>
+        <ul class="checklist">
+          <li data-i18n="register.li1">Personalized vendor matches</li>
+          <li data-i18n="register.li2">Dedicated wedding planner</li>
+          <li data-i18n="register.li3">Access to the AI Wedding Planner Assistant</li>
+        </ul>
+      </div>
+
+      <form class="register-form" id="registerForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName" data-i18n="register.fullname_label">Full Name</label>
+            <input type="text" id="fullName" name="fullName" required>
+          </div>
+          <div class="form-group">
+            <label for="email" data-i18n="register.email_label">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone" data-i18n="register.phone_label">Phone</label>
+            <input type="tel" id="phone" name="phone">
+          </div>
+          <div class="form-group">
+            <label for="weddingDate" data-i18n="register.weddingdate_label">Wedding Date</label>
+            <input type="date" id="weddingDate" name="weddingDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="serviceType" data-i18n="register.servicetype_label">Service Needed</label>
+          <select id="serviceType" name="serviceType">
+            <option value="AI Planner" data-i18n="register.ai_planner_option">AI Planner</option>
+            <option value="Wedding Planner" data-i18n="services.planner.title">Wedding Planner</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="plannerSelectGroup">
+          <label for="plannerSelect" data-i18n="register.planner_select_label">Choose a Wedding Planner</label>
+          <select id="plannerSelect"></select>
+        </div>
+        <div class="form-group">
+          <label for="message" data-i18n="register.message_label">Tell us about your day</label>
+          <textarea id="message" name="message" rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="register.submit_btn">Submit Registration</button>
+        <p class="form-note" id="registerNote"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== VENDOR REGISTRATION & SUBSCRIPTION ===== -->
+  <section id="vendor-register" class="section vendor-register">
+    <div class="container">
+      <p class="eyebrow center" data-i18n="vendor.eyebrow">For Vendors</p>
+      <h2 class="section-title center" data-i18n="vendor.title">List Your Business With Us</h2>
+      <p class="section-sub center" data-i18n="vendor.sub">Register your business, choose a subscription plan, and start getting matched with couples planning their wedding.</p>
+
+      <form class="vendor-form" id="vendorForm">
+        <div class="vendor-form-section">
+          <h3 data-i18n="vendor.business_info_title">Business Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vBusinessName" data-i18n="vendor.business_name_label">Business Name</label>
+              <input type="text" id="vBusinessName" required>
+            </div>
+            <div class="form-group">
+              <label for="vCategory" data-i18n="vendor.category_label">Category</label>
+              <select id="vCategory">
+                <option value="Wedding Venues" data-i18n="services.venues.title">Wedding Venues</option>
+                <option value="Photographers &amp; Videographers" data-i18n="services.photographers.title">Photographers &amp; Videographers</option>
+                <option value="DJs &amp; Bands" data-i18n="services.djs.title">DJs &amp; Bands</option>
+                <option value="Wedding Planner" data-i18n="services.planner.title">Wedding Planner</option>
+                <option value="Florists &amp; Decor" data-i18n="services.florists.title">Florists &amp; Decor</option>
+                <option value="Makeup Artists" data-i18n="services.makeup.title">Makeup Artists</option>
+                <option value="Hair Stylists" data-i18n="services.hair.title">Hair Stylists</option>
+                <option value="Bridal Dress Shops" data-i18n="services.bridal.title">Bridal Dress Shops</option>
+                <option value="Bridal Stylists" data-i18n="services.bridalstylist.title">Bridal Stylists</option>
+                <option value="Zaffeh" data-i18n="services.zaffeh.title">Zaffeh</option>
+                <option value="Suits Rentals" data-i18n="services.suits.title">Suits Rentals</option>
+                <option value="Car Rentals" data-i18n="services.cars.title">Car Rentals</option>
+                <option value="Caterings" data-i18n="services.catering.title">Caterings</option>
+                <option value="Cake Designers" data-i18n="services.cake.title">Cake Designers</option>
+                <option value="Honeymoon Agencies" data-i18n="services.honeymoon.title">Honeymoon Agencies</option>
+                <option value="Invitation Cards" data-i18n="services.invitations.title">Invitation Cards</option>
+                <option value="Jewelry" data-i18n="services.jewelry.title">Jewelry</option>
+                <option value="Restaurants" data-i18n="services.restaurants.title">Restaurants</option>
+                <option value="Wedding Entertainment" data-i18n="services.entertainment.title">Wedding Entertainment</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="vendor-form-section">
+          <h3 data-i18n="vendor.account_title">Vendor Account</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vUsername" data-i18n="vendor.username_label">Username</label>
+              <input type="text" id="vUsername" required>
+            </div>
+            <div class="form-group">
+              <label for="vPassword" data-i18n="vendor.password_label">Password</label>
+              <input type="password" id="vPassword" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="vendor-form-section">
+          <h3 data-i18n="vendor.contact_info_title">Contact Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vPhone" data-i18n="vendor.phone_label">Phone Number</label>
+              <input type="tel" id="vPhone" required>
+            </div>
+            <div class="form-group">
+              <label for="vEmail" data-i18n="vendor.email_label">Email</label>
+              <input type="email" id="vEmail" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vLocation" data-i18n="vendor.location_label">Business Location</label>
+              <input type="text" id="vLocation" data-i18n-placeholder="vendor.location_placeholder" placeholder="City, area or full address" required>
+            </div>
+            <div class="form-group">
+              <label for="vMapsLink" data-i18n="vendor.maps_label">Google Maps Link (optional)</label>
+              <input type="url" id="vMapsLink" placeholder="https://maps.google.com/...">
+            </div>
+          </div>
+        </div>
+
+        <div class="vendor-form-section">
+          <h3 data-i18n="vendor.plan_title">Choose a Subscription Plan</h3>
+          <div class="plan-grid">
+            <label class="plan-card">
+              <input type="radio" name="plan" value="Basic" required>
+              <div class="plan-name" data-i18n="vendor.plan_basic_name">Basic</div>
+              <div class="plan-price">$25<span data-i18n="vendor.per_month">/month</span></div>
+              <ul>
+                <li data-i18n="vendor.plan_basic_f1">Vendor profile</li>
+                <li data-i18n="vendor.plan_basic_f2">Upload up to 10 images</li>
+                <li data-i18n="vendor.plan_basic_f3">Services &amp; pricing</li>
+                <li data-i18n="vendor.plan_basic_f4">Receive inquiries &amp; appointments</li>
+                <li data-i18n="vendor.plan_basic_f5">Reviews</li>
+              </ul>
+            </label>
+            <label class="plan-card">
+              <input type="radio" name="plan" value="Professional" required>
+              <div class="plan-badge" data-i18n="vendor.plan_popular">Most Popular</div>
+              <div class="plan-name" data-i18n="vendor.plan_pro_name">Professional</div>
+              <div class="plan-price">$50<span data-i18n="vendor.per_month">/month</span></div>
+              <ul>
+                <li data-i18n="vendor.plan_pro_f1">Everything in Basic</li>
+                <li data-i18n="vendor.plan_pro_f2">Unlimited photos &amp; videos</li>
+                <li data-i18n="vendor.plan_pro_f3">Booking requests</li>
+                <li data-i18n="vendor.plan_pro_f4">Availability calendar</li>
+                <li data-i18n="vendor.plan_pro_f5">Analytics (views, inquiries, favorites)</li>
+                <li data-i18n="vendor.plan_pro_f6">Verified badge</li>
+              </ul>
+            </label>
+            <label class="plan-card">
+              <input type="radio" name="plan" value="Premium Featured" required>
+              <div class="plan-name" data-i18n="vendor.plan_premium_name">Premium Featured</div>
+              <div class="plan-price">$100<span data-i18n="vendor.per_month">/month</span></div>
+              <ul>
+                <li data-i18n="vendor.plan_premium_f1">Everything in Professional</li>
+                <li data-i18n="vendor.plan_premium_f2">Higher ranking in search</li>
+                <li data-i18n="vendor.plan_premium_f3">Advanced analytics</li>
+                <li data-i18n="vendor.plan_premium_f4">Promotional campaigns</li>
+                <li data-i18n="vendor.plan_premium_f5">Banner exposure</li>
+              </ul>
+            </label>
+          </div>
+        </div>
+
+        <div class="vendor-form-section">
+          <h3 data-i18n="vendor.payment_title">Payment Method</h3>
+
+          <div class="payment-instructions">
+            <p data-i18n="vendor.payment_instructions">Send your subscription payment via Whish Money, OMT, or Western Union to the number below:</p>
+            <div class="payment-number-row">
+              <span class="payment-number">+961 81 256 069</span>
+              <button type="button" class="btn btn-outline-dark" id="copyPaymentNumberBtn" data-i18n="vendor.copy_btn">Copy</button>
+            </div>
+            <div class="payment-methods-badges">
+              <span class="payment-badge" data-i18n="vendor.method_whish">Whish Money</span>
+              <span class="payment-badge" data-i18n="vendor.method_omt">OMT</span>
+              <span class="payment-badge" data-i18n="vendor.method_wu">Western Union</span>
+            </div>
+          </div>
+
+          <p class="payment-disclaimer" data-i18n="vendor.payment_disclaimer">Payments are verified manually — our team will activate your listing once your transfer is confirmed.</p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vPaymentMethod" data-i18n="vendor.payment_method_label">Payment Method Used</label>
+              <select id="vPaymentMethod">
+                <option value="Whish Money" data-i18n="vendor.method_whish">Whish Money</option>
+                <option value="OMT" data-i18n="vendor.method_omt">OMT</option>
+                <option value="Western Union" data-i18n="vendor.method_wu">Western Union</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="vTransactionRef" data-i18n="vendor.transaction_ref_label">Transaction Reference Number</label>
+              <input type="text" id="vTransactionRef" data-i18n-placeholder="vendor.transaction_ref_placeholder" placeholder="e.g. WM123456" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="vReceiptPhoto" data-i18n="vendor.receipt_label">Payment Receipt Screenshot (optional)</label>
+            <input type="file" id="vReceiptPhoto" accept="image/*">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="vendor.submit_btn">Complete Registration &amp; Subscribe</button>
+        <p class="form-note" id="vendorNote"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== PROMOTE YOUR SERVICE ===== -->
+  <section id="promote" class="section promote">
+    <div class="container">
+      <p class="eyebrow center" data-i18n="promote.eyebrow">Promote Your Service</p>
+      <h2 class="section-title center" data-i18n="promote.title">Get More Visibility</h2>
+      <p class="section-sub center" data-i18n="promote.sub">Boost your listing with these optional promotions.</p>
+
+      <form class="vendor-form" id="promoteForm">
+        <div class="vendor-form-section">
+          <h3 data-i18n="vendor.business_info_title">Business Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pBusinessName" data-i18n="vendor.business_name_label">Business Name</label>
+              <input type="text" id="pBusinessName" required>
+            </div>
+            <div class="form-group">
+              <label for="pPhone" data-i18n="vendor.phone_label">Phone Number</label>
+              <input type="tel" id="pPhone" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="pEmail" data-i18n="vendor.email_label">Email</label>
+            <input type="email" id="pEmail" required>
+          </div>
+        </div>
+
+        <div class="vendor-form-section">
+          <h3 data-i18n="promote.addons_title">Choose Promotions</h3>
+          <div class="plan-grid">
+            <label class="plan-card promo-card">
+              <input type="checkbox" name="promo" value="Sponsored Service">
+              <div class="plan-name" data-i18n="promote.sponsored_name">Sponsored Service</div>
+              <p class="promo-desc" data-i18n="promote.sponsored_desc">get a personal 10% discount coupon to share — earn 10% commission whenever someone books using your code.</p>
+            </label>
+            <label class="plan-card promo-card">
+              <input type="checkbox" name="promo" value="Featured Listing">
+              <div class="plan-name" data-i18n="promote.featured_name">Featured Listing</div>
+              <p class="promo-desc" data-i18n="promote.featured_desc">Appears at the top of search results.</p>
+            </label>
+            <label class="plan-card promo-card">
+              <input type="checkbox" name="promo" value="Homepage Advertisement">
+              <div class="plan-name" data-i18n="promote.homepage_ad_name">Homepage Advertisement</div>
+              <p class="promo-desc" data-i18n="promote.homepage_ad_desc">A picture or video for your service featured as a top homepage banner ad.</p>
+            </label>
+            <label class="plan-card promo-card">
+              <input type="checkbox" name="promo" value="Verified Badge">
+              <div class="plan-name" data-i18n="promote.verified_name">Verified Badge</div>
+              <p class="promo-desc" data-i18n="promote.verified_desc">A verified badge on your profile for 1 year.</p>
+            </label>
+            <label class="plan-card promo-card promo-bundle">
+              <input type="checkbox" id="promoBundle">
+              <div class="plan-badge" data-i18n="promote.bundle_badge">Best Value</div>
+              <div class="plan-name" data-i18n="promote.bundle_name">All 4 Promotions</div>
+              <p class="promo-desc" data-i18n="promote.bundle_desc">Get the Sponsored Service, Featured Listing, Homepage Advertisement and Verified Badge together for one flat monthly price.</p>
+            </label>
+          </div>
+          <p class="promo-total" id="promoTotal"></p>
+
+          <div class="form-group hidden" id="homepageAdMediaGroup">
+            <label for="pHomepageAdMedia" data-i18n="promote.media_label">Picture or Video for Homepage Advertisement</label>
+            <input type="file" id="pHomepageAdMedia" accept="image/*,video/*">
+            <p class="admin-hint-inline" data-i18n="promote.media_hint">Videos should be small (under a few MB) to store reliably in the browser.</p>
+          </div>
+        </div>
+
+        <div class="vendor-form-section">
+          <h3 data-i18n="promote.contact_title">Contact Us to Proceed</h3>
+
+          <div class="payment-instructions">
+            <p data-i18n="promote.contact_instructions">Submit this form, then reach out to us directly to finalize your promotion:</p>
+            <div class="payment-number-row">
+              <span class="payment-number">76 346 074</span>
+              <button type="button" class="btn btn-outline-dark" id="copyPromoNumberBtn" data-i18n="vendor.copy_btn">Copy</button>
+            </div>
+            <p style="margin-top:0.6rem;"><a href="mailto:gridwisesolutions.lb@gmail.com">gridwisesolutions.lb@gmail.com</a></p>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="promote.submit_btn">Request Promotion</button>
+        <p class="form-note" id="promoteNote"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== SUCCESS STORIES ===== -->
+  <section id="stories" class="section stories">
+    <div class="container">
+      <p class="eyebrow center" data-i18n="stories.eyebrow">Success Stories</p>
+      <h2 class="section-title center" data-i18n="stories.title">Real Couples, Real Celebrations</h2>
+      <p class="section-sub center" data-i18n="stories.sub">A few of the weddings we've had the honor of bringing to life.</p>
+
+      <div class="story-upload-card">
+        <h3 data-i18n="stories.upload_title">Share Your Story</h3>
+        <p class="section-sub" style="margin-bottom:1.2rem;" data-i18n="stories.upload_sub">Upload 1 or 2 photos from your wedding and tell us how it went.</p>
+        <form class="story-upload-form" id="storyUploadForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="storyNames" data-i18n="stories.names_label">Couple Names</label>
+              <input type="text" id="storyNames" data-i18n-placeholder="stories.names_placeholder" placeholder="e.g. Sara & Ahmad" required>
+            </div>
+            <div class="form-group">
+              <label for="storyPhotos" data-i18n="stories.photos_label">Photos (1 or 2)</label>
+              <input type="file" id="storyPhotos" accept="image/*" multiple required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="storyQuote" data-i18n="stories.quote_label">Your Story</label>
+            <textarea id="storyQuote" rows="3" data-i18n-placeholder="stories.quote_placeholder" placeholder="Tell us about your wedding day..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" data-i18n="stories.submit_btn">Submit Story</button>
+          <p class="form-note" id="storyUploadNote"></p>
+        </form>
+      </div>
+
+      <div class="stories-grid" id="userStoriesGrid"></div>
+
+      <div class="stories-grid">
+        <div class="story-card">
+          <img class="story-media" src="1.jpg" alt="Bride and groom kissing under a floral arch at sunset" loading="lazy">
+          <div class="story-body">
+            <p class="story-quote">"<span data-i18n="stories.story1_quote">Forever Begins matched us with a venue and florist that understood our vision perfectly. The AI planner even suggested a timeline we hadn't considered.</span>"</p>
+            <p class="story-author">— <span data-i18n="stories.story1_author">Amira &amp; Karim</span></p>
+          </div>
+        </div>
+        <div class="story-card">
+          <img class="story-media" src="5.jpeg" alt="Bride and groom sitting on a vintage car outside a lakeside villa" loading="lazy">
+          <div class="story-body">
+            <p class="story-quote">"<span data-i18n="stories.story2_quote">From registration to our final walkthrough, every step felt guided. Our planner handled vendors so we could just enjoy being engaged.</span>"</p>
+            <p class="story-author">— <span data-i18n="stories.story2_author">Layla &amp; Omar</span></p>
+          </div>
+        </div>
+        <div class="story-card">
+          <img class="story-media" src="2.jpg" alt="Couple walking down a candlelit staircase" loading="lazy">
+          <div class="story-body">
+            <p class="story-quote">"<span data-i18n="stories.story3_quote">We planned a destination wedding in three months. It would not have been possible without this platform's network of vendors.</span>"</p>
+            <p class="story-author">— <span data-i18n="stories.story3_author">Nour &amp; Elias</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT US ===== -->
+  <section id="about" class="section about">
+    <div class="container about-grid">
+      <img src="6.jpeg" alt="Couple embracing beside a vintage convertible at sunset by the sea" class="about-image">
+      <div class="about-copy">
+        <p class="eyebrow" data-i18n="about.eyebrow">About Us</p>
+        <h2 class="section-title" data-i18n="about.title">Planning Weddings With Heart</h2>
+        <p data-i18n="about.paragraph">Forever Begins was founded to make wedding planning feel calm instead of chaotic. We pair experienced human planners with smart tools — including our AI Wedding Planner Assistant — so couples and vendors can move faster, together.</p>
+        <div class="about-stats">
+          <div class="stat">
+            <span class="stat-num">1,200+</span>
+            <span class="stat-label" data-i18n="about.stat1_label">Weddings Planned</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">450+</span>
+            <span class="stat-label" data-i18n="about.stat2_label">Trusted Vendors</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">9</span>
+            <span class="stat-label" data-i18n="about.stat3_label">Years of Experience</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT US ===== -->
+  <section id="contact" class="section contact">
+    <div class="container contact-grid">
+      <div class="contact-info">
+        <p class="eyebrow" data-i18n="contact.eyebrow">Contact Us</p>
+        <h2 class="section-title" data-i18n="contact.title">We'd Love to Hear From You</h2>
+        <p class="section-sub" style="margin-bottom:1.5rem;" data-i18n="contact.sub">Questions about planning, vendors, or your registration? Reach out anytime.</p>
+        <ul class="contact-list">
+          <li><strong data-i18n="contact.email_label">Email:</strong> gridwisesolutions.lb@gmail.com</li>
+          <li><strong data-i18n="contact.phone_label">Phone:</strong> +961 76 346 074</li>
+          <li><strong data-i18n="contact.hours_label">Hours:</strong> <span data-i18n="contact.hours_value">Mon–Sat, 9am–7pm</span></li>
+        </ul>
+      </div>
+      <form class="contact-form" id="contactForm">
+        <div class="form-group">
+          <label for="cName" data-i18n="contact.form_name_label">Name</label>
+          <input type="text" id="cName" required>
+        </div>
+        <div class="form-group">
+          <label for="cEmail" data-i18n="contact.form_email_label">Email</label>
+          <input type="email" id="cEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="cMessage" data-i18n="contact.form_message_label">Message</label>
+          <textarea id="cMessage" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="contact.submit_btn">Send Message</button>
+        <p class="form-note" id="contactNote"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== HELP CENTER / FAQ ===== -->
+  <section id="faq" class="section faq">
+    <div class="container">
+      <p class="eyebrow center" data-i18n="faq.eyebrow">Help Center</p>
+      <h2 class="section-title center" data-i18n="faq.title">Frequently Asked Questions</h2>
+
+      <div class="accordion" id="accordion">
+        <div class="accordion-item">
+          <button class="accordion-trigger"><span data-i18n="faq.q1">How does vendor matching work?</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="accordion-panel">
+            <p data-i18n="faq.a1">Tell us your date, budget and style during registration. We match you with vetted vendors, and our AI Wedding Planner refines suggestions as your preferences become clearer.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-trigger"><span data-i18n="faq.q2">Is there a fee to use Forever Begins?</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="accordion-panel">
+            <p data-i18n="faq.a2">Browsing services and registering is free for couples. Full-service planning packages are quoted based on your wedding's scope after your first consultation.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-trigger"><span data-i18n="faq.q3">Can vendors join the platform?</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="accordion-panel">
+            <p data-i18n="faq.a3">Yes — select "I'm a Vendor / Supplier" in the registration form and our partnerships team will follow up with onboarding details.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-trigger"><span data-i18n="faq.q4">What can the AI Wedding Planner help with?</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="accordion-panel">
+            <p data-i18n="faq.a4">It can suggest timelines, budgets, vendor shortlists, and answer planning questions instantly, day or night. A human planner is always available for anything more complex.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== AI WEDDING PLANNER ASSISTANT ===== -->
+  <section id="ai-assistant" class="section ai-assistant">
+    <div class="container ai-grid">
+      <div class="ai-copy">
+        <p class="eyebrow" data-i18n="ai.eyebrow">AI Wedding Planner</p>
+        <h2 class="section-title" data-i18n="ai.title">Meet Your 24/7 Planning Assistant</h2>
+        <p class="section-sub" data-i18n="ai.sub">Ask about budgets, timelines, or vendor ideas any time — get instant guidance, then hand off to a human planner whenever you're ready.</p>
+        <button class="btn btn-primary" id="openChatBtn" data-i18n="ai.btn">Chat with the AI Planner</button>
+      </div>
+      <div class="ai-illustration">💍</div>
+    </div>
+  </section>
+
+  <!-- ===== SPIN & WIN ===== -->
+  <section id="spin-win" class="section spin-win-section">
+    <div class="container" style="text-align:center;">
+      <p class="eyebrow center" data-i18n="spin.eyebrow">Spin &amp; Win</p>
+      <h2 class="section-title center" data-i18n="spin.title">Spin the Wheel, Win a Prize!</h2>
+      <p class="section-sub center" data-i18n="spin.sub">One free spin per couple — enter your WhatsApp number and try your luck!</p>
+
+      <div class="spin-wheel-wrap">
+        <div class="spin-pointer">▼</div>
+        <div class="spin-wheel" id="spinWheel">
+          <div class="spin-label" data-i="0" data-i18n="spin.seg_tryagain">Try Again</div>
+          <div class="spin-label" data-i="1" data-i18n="spin.seg_10">10% Off</div>
+          <div class="spin-label" data-i="2" data-i18n="spin.seg_tryagain">Try Again</div>
+          <div class="spin-label" data-i="3" data-i18n="spin.seg_15">15% Off</div>
+          <div class="spin-label" data-i="4" data-i18n="spin.seg_20cakes">20% Off Cakes</div>
+          <div class="spin-label" data-i="5" data-i18n="spin.seg_freeinvite">Free Invites</div>
+          <div class="spin-label" data-i="6" data-i18n="spin.seg_10dress">10% Off Dress</div>
+          <div class="spin-label" data-i="7" data-i18n="spin.seg_turkey">Win a Trip!</div>
+        </div>
+      </div>
+
+      <div class="spin-controls" id="spinControls">
+        <div class="form-group" style="max-width:280px;margin:0 auto 1rem;">
+          <label for="spinWhatsapp" data-i18n="spin.whatsapp_label">Your WhatsApp Number</label>
+          <input type="tel" id="spinWhatsapp" placeholder="+961 3 123 456">
+        </div>
+        <button class="btn btn-primary" id="spinBtn" data-i18n="spin.button">🎡 Spin the Wheel</button>
+        <p class="form-note" id="spinNote"></p>
+      </div>
+
+      <div class="spin-result hidden" id="spinResult">
+        <h3 id="spinResultTitle"></h3>
+        <p id="spinResultText"></p>
+        <a href="#" target="_blank" rel="noopener" class="btn btn-gold hidden" id="spinWhatsappBtn" data-i18n="spin.notify_btn">📲 Notify Me on WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="brand-name">Forever Begins</span>
+      <p data-i18n="footer.tagline">Planning weddings with heart, guided by people and powered by AI.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#home" data-i18n="nav.home">Home</a>
+      <a href="#planning" data-i18n="nav.planning">Wedding Planning</a>
+      <a href="#register" data-i18n="nav.register">Register for Service</a>
+      <a href="#vendor-register" data-i18n="nav.vendor">List Your Business</a>
+      <a href="#promote" data-i18n="nav.promote">Promote Your Service</a>
+      <a href="#stories" data-i18n="nav.stories">Success Stories</a>
+      <a href="#about" data-i18n="nav.about">About Us</a>
+      <a href="#contact" data-i18n="nav.contact">Contact Us</a>
+      <a href="#faq" data-i18n="nav.faq">Help Center / FAQs</a>
+      <a href="vendor.html">Vendor Login</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="refund.html">Refund Policy</a>
+    </div>
+  </div>
+  <div class="footer-credits">
+    <p class="footer-credit-text">Developed by <strong>GridWise Solutions</strong> · <a href="tel:+96176346074">+961 76 346 074</a></p>
+    <div class="footer-social">
+      <a href="https://wa.me/96176346074" target="_blank" rel="noopener" class="social-btn whatsapp" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2c-5.514 0-9.997 4.483-9.997 9.997 0 1.762.464 3.484 1.346 4.997L2 22l5.13-1.346a9.96 9.96 0 004.874 1.243h.004c5.514 0 9.996-4.483 9.996-9.997C21.999 6.483 17.518 2 12.004 2zm5.844 15.84a8.283 8.283 0 01-5.85 2.427h-.003a8.271 8.271 0 01-4.213-1.155l-.302-.18-3.045.799.812-2.968-.197-.304a8.26 8.26 0 01-1.267-4.42c0-4.564 3.716-8.28 8.283-8.28 2.213 0 4.293.862 5.858 2.428a8.223 8.223 0 012.423 5.856c0 4.566-3.716 8.283-8.279 8.283z"/></svg>
+      </a>
+      <a href="https://instagram.com/gridwisesolutions.lb" target="_blank" rel="noopener" class="social-btn instagram" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.98-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6 6 0 100 12 6 6 0 000-12zm0 9.837a3.836 3.836 0 110-7.673 3.836 3.836 0 010 7.673zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </a>
+    </div>
+  </div>
+  <p class="footer-copy" data-i18n="footer.copyright">© 2026 Forever Begins. All rights reserved.</p>
+</footer>
+
+<!-- ===== DONATION POPUP ===== -->
+<div class="donation-overlay hidden" id="donationOverlay">
+  <div class="donation-box">
+    <button class="donation-close" id="donationCloseBtn" aria-label="Close">×</button>
+    <div class="donation-icon">💛</div>
+    <h3 data-i18n="donation.title">Help Kids Fighting Cancer</h3>
+    <p data-i18n="donation.message">Every little bit helps. Donate $1 or more to support children battling cancer — no amount is too small.</p>
+    <div class="payment-instructions">
+      <div class="payment-number-row">
+        <span class="payment-number">+961 81 335 905</span>
+        <button type="button" class="btn btn-outline-dark" id="donationCopyBtn" data-i18n="vendor.copy_btn">Copy</button>
+      </div>
+      <div class="payment-methods-badges">
+        <span class="payment-badge" data-i18n="vendor.method_whish">Whish Money</span>
+        <span class="payment-badge" data-i18n="vendor.method_omt">OMT</span>
+        <span class="payment-badge" data-i18n="vendor.method_wu">Western Union</span>
+      </div>
+    </div>
+    <button class="btn btn-outline-dark donation-dismiss-btn" id="donationDismissBtn" data-i18n="donation.dismiss">Maybe Later</button>
+  </div>
+</div>
+
+<!-- ===== AI CHAT WIDGET ===== -->
+<button class="chat-fab" id="chatFab" aria-label="Open AI Wedding Planner chat">💬</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <span data-i18n="chat.header_title">AI Wedding Planner</span>
+    <button id="closeChatBtn" aria-label="Close chat">×</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-msg bot" data-i18n="chat.initial_message">Hi! I'm your AI Wedding Planner. Ask me about budgets, timelines or vendors to get started.</div>
+  </div>
+  <form class="chat-input-row" id="chatForm">
+    <input type="text" id="chatInput" data-i18n-placeholder="chat.input_placeholder" placeholder="Type your question..." autocomplete="off">
+    <button type="submit">➤</button>
+  </form>
+</div>
+
+<script src="i18n.js"></script>
+<script src="lib/firebase/firebase-app-compat.js"></script>
+<script src="lib/firebase/firebase-auth-compat.js"></script>
+<script src="lib/firebase/firebase-firestore-compat.js"></script>
+<script src="lib/firebase/firebase-storage-compat.js"></script>
+<script src="firebase-init.js"></script>
+<script src="data-shim.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
