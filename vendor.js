@@ -553,15 +553,11 @@ function saveCurrentVendorToApplications() {
 }
 
 function bumpProfileViews() {
-  const profile = getVendorData('profile', {});
-  profile.viewsCount = (profile.viewsCount || 0) + Math.floor(Math.random() * 3) + 1;
-  setVendorData('profile', profile);
+  incrementVendorField(currentVendor.username, 'profile', 'viewsCount', Math.floor(Math.random() * 3) + 1);
 }
 
 function bumpPortfolioViews() {
-  const profile = getVendorData('profile', {});
-  profile.portfolioViewsCount = (profile.portfolioViewsCount || 0) + Math.floor(Math.random() * 5) + 1;
-  setVendorData('profile', profile);
+  incrementVendorField(currentVendor.username, 'profile', 'portfolioViewsCount', Math.floor(Math.random() * 5) + 1);
 }
 
 function renderAll() {

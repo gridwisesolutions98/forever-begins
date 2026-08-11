@@ -154,6 +154,28 @@ function writeVendorDoc(username, name, value) {
     .catch(err => console.error('Data shim: write failed for', key, err));
 }
 
+// For counters (profile views, portfolio views, ...) that live as one field
+// inside an object-shaped vendor doc (e.g. profile.viewsCount). writeVendorDoc
+// is unsafe for this: it needs a fresh read of the WHOLE object first, and if
+// this fires before that doc's own onSnapshot listener has delivered its
+// first real snapshot (a real race — this runs on every page/session
+// reconnect, not just once), the read sees the empty {} placeholder instead
+// of the real data, and writing it back destroys every other field (gallery,
+// logo, cover...) that was already saved. FieldValue.increment() on a
+// dotted path needs no read at all, so there's nothing to race — it can only
+// ever touch the one field, never the rest of the object, no matter when it
+// fires relative to the listener.
+function incrementVendorField(username, name, field, amount) {
+  const key = `fb_venue_${name}_${username}`;
+  const current = getLS(key, {});
+  current[field] = (current[field] || 0) + amount;
+  setLS(key, current);
+  if (!window.fbDb) return;
+  window.fbDb.collection('vendors').doc(username).collection('meta').doc(name)
+    .set({ value: { [field]: firebase.firestore.FieldValue.increment(amount) } }, { merge: true })
+    .catch(err => console.error('Data shim: increment failed for', key, field, err));
+}
+
 // For a couple booking/messaging a vendor from venue.js: they don't own the
 // vendor's document, so they can't use writeVendorDoc's full overwrite (that
 // needs isOwner). This appends exactly one new item via arrayUnion instead,
