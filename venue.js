@@ -798,11 +798,17 @@ function renderProfile(username) {
     <div class="food-menu-card">
       <h4>${escapeHtml(m.name)} <span style="font-size:0.75rem;color:#999;">(${escapeHtml(m.type)})</span></h4>
       <div style="font-weight:700;color:var(--primary);">$${escapeHtml(m.pricePerPerson)} / person</div>
+      <div style="color:#999;font-size:0.85rem;">${escapeHtml(m.minGuests || 0)}–${escapeHtml(m.maxGuests || '∞')} guests</div>
       ${m.appetizers && m.appetizers.length ? `<div><strong>Appetizers:</strong> ${m.appetizers.map(escapeHtml).join(', ')}</div>` : ''}
       ${m.mains && m.mains.length ? `<div><strong>Main Course:</strong> ${m.mains.map(escapeHtml).join(', ')}</div>` : ''}
       ${m.stations && m.stations.length ? `<div><strong>Live Stations:</strong> ${m.stations.map(escapeHtml).join(', ')}</div>` : ''}
+      ${m.sides && m.sides.length ? `<div><strong>Sides:</strong> ${m.sides.map(escapeHtml).join(', ')}</div>` : ''}
       ${m.desserts && m.desserts.length ? `<div><strong>Desserts:</strong> ${m.desserts.map(escapeHtml).join(', ')}</div>` : ''}
+      ${m.beverages && m.beverages.length ? `<div><strong>Beverages:</strong> ${m.beverages.map(escapeHtml).join(', ')}${m.includesAlcohol ? ' (includes alcohol)' : ''}</div>` : ''}
       ${m.dietary && m.dietary.length ? `<div><strong>Dietary Options:</strong> ${m.dietary.map(escapeHtml).join(', ')}</div>` : ''}
+      ${m.childrenPrice ? `<div><strong>Children's Price:</strong> ${escapeHtml(m.childrenPrice)}</div>` : ''}
+      ${m.serviceChargeEnabled ? `<div><strong>Service Charge:</strong> ${escapeHtml(m.serviceChargePercent || 0)}%</div>` : ''}
+      ${m.extras && m.extras.length ? `<div><strong>Extras:</strong> ${m.extras.map(escapeHtml).join(', ')}</div>` : ''}
     </div>
   `).join('') : '<p style="color:#999;">No food menu published yet.</p>';
 
