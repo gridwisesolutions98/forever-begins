@@ -5,3 +5,4 @@ ui-debug.log
 .firebase/
 .claude/
 *.log
+functions/node_modules/
