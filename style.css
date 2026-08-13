@@ -562,6 +562,14 @@ img, video { max-width: 100%; display: block; }
   flex-direction: column;
   gap: 0.3rem;
 }
+/* Grid items default to min-width: auto, which lets a wide child (the
+   Bookings/Appointments tables below have min-width: 420px, wrapped in a
+   .table-wrap meant to scroll horizontally on its own) push this whole
+   column — and with it the entire page — wider than the viewport instead
+   of scrolling internally. On mobile this appears as the page "resizing
+   itself" wider than the screen the moment those panels render. Overriding
+   the default to 0 lets .table-wrap's overflow-x: auto actually engage. */
+.dashboard-panels { min-width: 0; }
 .dash-link {
   text-align: left;
   background: none;
