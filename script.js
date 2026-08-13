@@ -1194,6 +1194,12 @@ chatForm.addEventListener('submit', (e) => {
     profile = profile || {};
     dashboardUser.textContent = (profile.bride && profile.groom) ? `${profile.bride} & ${profile.groom}` : username;
     renderAll(getData(username));
+    // Only the initial login/session-resume should land on the default tab —
+    // renderAll() also runs on every live Firestore sync after that (e.g.
+    // right after saving anything, including a single keystroke in Budget
+    // Planner), and switching tabs there would yank the couple away from
+    // whatever panel they're actively using mid-edit.
+    switchPanel('checklist');
     // Only a real login/signup action triggers the celebration — resuming an
     // already-logged-in session on page reload should not replay it.
     if (celebrate) celebrateLogin();
@@ -1698,7 +1704,6 @@ chatForm.addEventListener('submit', (e) => {
     steps.forEach(step => {
       try { step(); } catch (err) { console.error('Wedding Planning dashboard: a section failed to render:', err); }
     });
-    switchPanel('checklist');
   }
 
   // ----- Print Report -----
