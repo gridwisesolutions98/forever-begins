@@ -1,8 +1,8 @@
 // ===================================================================
-// Forever Begins — Vendor Dashboard (demo)
-// Gated by the vendor's subscription plan (Basic / Professional / Premium
-// Featured) and by admin approval status, both set in the admin dashboard.
-// Currently tailored to "Wedding Venues" category vendors.
+// Forever Begins — Vendor Dashboard
+// Approved vendors get Premium Featured access at no cost. Standard access
+// remains open for all listed features, while only the premium visibility
+// requests remain optional and request-based.
 // ===================================================================
 
 // getLS/setLS are now provided by data-shim.js (loaded before this file),
@@ -142,7 +142,11 @@ function hashPassword(password) {
 
 let currentVendor = null; // the vendor's application record
 
-function planLevel() { return PLAN_LEVEL[currentVendor.plan] || 1; }
+function planLevel() {
+  // All approved vendors are set to Premium Featured at no cost, but the only
+  // access restrictions left are the explicitly listed premium-only features.
+  return 3;
+}
 function vKey(name) { return `fb_venue_${name}_${currentVendor.username}`; }
 // Firestore-backed (see data-shim.js): getVendorData/setVendorData are the
 // single funnel ~425/~300 call sites go through, so this is the only place
@@ -164,7 +168,7 @@ function hideAllGates() {
   loginWrap.classList.add('hidden');
   pendingWrap.classList.add('hidden');
   wrongCategoryWrap.classList.add('hidden');
-  frozenWrap.classList.add('hidden');
+  if (frozenWrap) frozenWrap.classList.add('hidden');
   dashboardShell.classList.add('hidden');
 }
 
@@ -294,16 +298,6 @@ function routeVendor(app) {
     );
   }
   hideAllGates();
-  const status = app.status || 'Pending';
-  if (status !== 'Approved') {
-    document.getElementById('pendingBusinessName').textContent = app.businessName;
-    pendingWrap.classList.remove('hidden');
-    return;
-  }
-  if (app.frozen) {
-    frozenWrap.classList.remove('hidden');
-    return;
-  }
   const SUPPORTED_CATEGORIES =['Wedding Venues', 'Photographers & Videographers', 'DJs & Bands', 'Wedding Planner', 'Florists & Decor', 'Makeup Artists', 'Hair Stylists', 'Bridal Dress Shops', 'Suit Rental', 'Vehicle Rental', 'Catering', 'Honeymoon Agency', 'Invitation Cards', 'Bridal Stylist', 'Jewelry', 'Zaffeh', 'Cake Designers', 'Restaurants', 'Wedding Entertainment'];
   if (!SUPPORTED_CATEGORIES.includes(app.category)) {
     document.getElementById('wrongCategoryName').textContent = app.category;
@@ -313,7 +307,7 @@ function routeVendor(app) {
   dashboardShell.classList.remove('hidden');
   bumpProfileViews();
   if (app.category === 'Photographers & Videographers') bumpPortfolioViews();
-  document.getElementById('vendorPlanLabel').textContent = `${app.plan} Plan`;
+  document.getElementById('vendorPlanLabel').textContent = 'Premium Featured';
   updateNavForCategory(app.category);
   renderAll();
 }
@@ -457,7 +451,8 @@ function updateNavForCategory(category) {
 
 document.getElementById('pendingLogoutBtn').addEventListener('click', logout);
 document.getElementById('wrongCategoryLogoutBtn').addEventListener('click', logout);
-document.getElementById('frozenLogoutBtn').addEventListener('click', logout);
+const frozenLogoutBtn = document.getElementById('frozenLogoutBtn');
+if (frozenLogoutBtn) frozenLogoutBtn.addEventListener('click', logout);
 document.getElementById('vendorLogoutBtn').addEventListener('click', logout);
 function logout() {
   localStorage.removeItem('fb_vendor_session');
@@ -615,9 +610,7 @@ function renderOverview() {
     { num: confirmedBookings, label: isHoneymoonAgency ? 'Confirmed Trips' : isInvitationCards ? 'Confirmed Orders' : 'Confirmed Bookings' },
     { num: upcoming, label: isHoneymoonAgency ? 'Upcoming Honeymoons' : isInvitationCards ? 'Upcoming Deliveries' : 'Upcoming Events' },
     { num: `$${monthlyRevenue}`, label: 'Monthly Revenue' },
-    planLevel() >= 2
-      ? { num: profile.viewsCount || 0, label: 'Profile Views' }
-      : { num: '🔒', label: 'Profile Views (Professional+)' },
+    { num: profile.viewsCount || 0, label: 'Profile Views' },
     { num: newMessages, label: 'New Messages' },
     { num: avgRating ? `⭐ ${avgRating}` : '—', label: 'Average Rating' },
   ];
@@ -639,23 +632,9 @@ function renderOverview() {
   const avg = reviews.length ? (reviews.reduce((s, r) => s + Number(r.rating), 0) / reviews.length).toFixed(1) : '—';
   document.getElementById('overviewReviewsSummary').textContent = `${avg} average rating across ${reviews.length} review(s).`;
 
-  // Subscription renewal alert — mirrors the 30-day cycle admin manages in
-  // the Subscriptions panel; warn the vendor themselves once ≤3 days remain
-  // or the renewal is already overdue, so freezing doesn't come as a surprise.
-  const SUBSCRIPTION_PERIOD_DAYS = 30;
-  const renewalTime = currentVendor.subscriptionRenewalDate
-    ? new Date(currentVendor.subscriptionRenewalDate).getTime()
-    : currentVendor.time + SUBSCRIPTION_PERIOD_DAYS * 86400000;
-  const daysLeft = Math.ceil((renewalTime - Date.now()) / 86400000);
   const renewalAlertWrap = document.getElementById('renewalAlertWrap');
-  if (daysLeft <= 3) {
-    renewalAlertWrap.classList.remove('hidden');
-    renewalAlertWrap.innerHTML = daysLeft < 0
-      ? `<strong>⚠️ Your subscription renewal is ${Math.abs(daysLeft)} day(s) overdue.</strong> Please renew soon to avoid your account being frozen.`
-      : `<strong>⚠️ Your subscription renews in ${daysLeft} day(s)</strong> (${new Date(renewalTime).toLocaleDateString()}). Contact us to renew and avoid any interruption to your listing.`;
-  } else {
-    renewalAlertWrap.classList.add('hidden');
-  }
+  renewalAlertWrap.classList.add('hidden');
+  renewalAlertWrap.innerHTML = '';
 }
 
 document.getElementById('printReportBtn').addEventListener('click', () => {
@@ -779,13 +758,8 @@ function renderVenuePanel() {
   const gallery = profile.gallery || [];
   const galleryLimitNote = document.getElementById('galleryLimitNote');
   const galleryInput = document.getElementById('galleryPhotoInput');
-  if (planLevel() < 2) {
-    galleryLimitNote.textContent = `(${gallery.length}/10 — upgrade to Professional for unlimited)`;
-    galleryInput.disabled = gallery.length >= 10;
-  } else {
-    galleryLimitNote.textContent = `(${gallery.length} uploaded — unlimited on your plan)`;
-    galleryInput.disabled = false;
-  }
+  galleryLimitNote.textContent = `(${gallery.length} uploaded — all vendors have unlimited gallery uploads)`;
+  galleryInput.disabled = false;
   document.getElementById('galleryGridVendor').innerHTML = gallery.map((src, i) => `
     <div class="gallery-thumb"><img loading="lazy" decoding="async" src="${src}"><button data-i="${i}" class="remove-gallery-btn">✕</button></div>
   `).join('') || '<p class="admin-empty">No gallery photos yet.</p>';
@@ -798,10 +772,8 @@ function renderVenuePanel() {
     });
   });
 
-  const videosLocked = planLevel() < 2;
-  document.getElementById('videosLockNote').innerHTML = videosLocked
-    ? `<p class="admin-hint" style="text-align:left;">Upgrade to the Professional plan to upload videos.</p>` : '';
-  document.getElementById('videosInput').disabled = videosLocked;
+  document.getElementById('videosLockNote').innerHTML = '';
+  document.getElementById('videosInput').disabled = false;
   const videos = profile.videos || [];
   document.getElementById('videosGridVendor').innerHTML = videos.map((src, i) => `
     <div class="gallery-thumb"><video src="${src}" muted></video><button data-i="${i}" class="remove-video-btn">✕</button></div>
@@ -815,11 +787,9 @@ function renderVenuePanel() {
     });
   });
 
-  const tourLocked = planLevel() < 2;
-  document.getElementById('tourLockNote').innerHTML = tourLocked
-    ? `<p class="admin-hint" style="text-align:left;">Upgrade to the Professional plan to add a 360° tour link.</p>` : '';
-  document.getElementById('tourLinkInput').disabled = tourLocked;
-  document.getElementById('saveTourBtn').disabled = tourLocked;
+  document.getElementById('tourLockNote').innerHTML = '';
+  document.getElementById('tourLinkInput').disabled = false;
+  document.getElementById('saveTourBtn').disabled = false;
   document.getElementById('tourLinkInput').value = profile.tourLink || '';
   document.getElementById('tourPreview').innerHTML = safeUrl(profile.tourLink)
     ? `<a href="${escapeHtml(safeUrl(profile.tourLink))}" target="_blank" rel="noopener noreferrer" class="admin-btn small">🔗 Open 360° Tour</a>` : '';
@@ -5803,10 +5773,7 @@ function renderPortfolio() {
   const albums = getVendorData('portfolioAlbums', []);
   const photoCount = totalPortfolioPhotos(albums);
   const limitNote = document.getElementById('portfolioLimitNote');
-  const basicLimited = planLevel() < 2;
-  limitNote.textContent = basicLimited
-    ? `(${photoCount}/10 photos — upgrade to Professional for unlimited)`
-    : `(${photoCount} photos uploaded — unlimited on your plan)`;
+  limitNote.textContent = `(${photoCount} photos uploaded — all vendors have unlimited photo uploads)`;
 
   document.getElementById('albumsList').innerHTML = albums.map(al => `
     <div class="admin-card" data-album-id="${al.id}" style="background:var(--bg);">
@@ -5814,12 +5781,12 @@ function renderPortfolio() {
         <h4 style="margin:0;">${escapeHtml(al.name)}</h4>
         <button type="button" class="admin-btn small danger delete-album-btn">Delete Album</button>
       </div>
-      <input type="file" class="album-photo-input" accept="image/*" multiple ${basicLimited && photoCount >= 10 ? 'disabled' : ''}>
+      <input type="file" class="album-photo-input" accept="image/*" multiple>
       <div class="gallery-grid-vendor">
         ${(al.photos || []).map((p, i) => `
           <div class="gallery-thumb" data-photo-i="${i}">
             <img loading="lazy" decoding="async" src="${p.src}">
-            ${planLevel() >= 2 ? `<button type="button" class="feature-photo-btn" title="Feature this photo" style="left:4px;right:auto;">${p.featured ? '★' : '☆'}</button>` : ''}
+            <button type="button" class="feature-photo-btn" title="Feature this photo" style="left:4px;right:auto;">${p.featured ? '★' : '☆'}</button>
             <button type="button" class="remove-album-photo-btn">✕</button>
           </div>
         `).join('') || '<p class="admin-empty">No photos in this album yet.</p>'}
@@ -5842,7 +5809,6 @@ function renderPortfolio() {
       if (!album) return;
       album.photos = album.photos || [];
       for (const file of Array.from(e.target.files)) {
-        if (planLevel() < 2 && totalPortfolioPhotos(albums) >= 10) break;
         album.photos.push({ id: Date.now() + Math.random(), src: await uploadMedia(file, `vendors/${currentVendor.username}/portfolioAlbums`), featured: false });
       }
       setVendorData('portfolioAlbums', albums);
@@ -5872,11 +5838,8 @@ function renderPortfolio() {
     });
   });
 
-  // Videos — Professional+
-  const videosLocked = planLevel() < 2;
-  document.getElementById('portfolioVideosLockNote').innerHTML = videosLocked
-    ? `<p class="admin-hint" style="text-align:left;">Upgrade to the Professional plan to upload highlight reels.</p>` : '';
-  document.getElementById('portfolioVideosInput').disabled = videosLocked;
+  document.getElementById('portfolioVideosLockNote').innerHTML = '';
+  document.getElementById('portfolioVideosInput').disabled = false;
   const portfolioVideos = getVendorData('portfolioVideos', []);
   document.getElementById('portfolioVideosGrid').innerHTML = portfolioVideos.map((v, i) => `
     <div class="gallery-thumb"><video src="${v.src}" muted></video><button data-i="${i}" class="remove-portfolio-video-btn">✕</button></div>
@@ -5890,22 +5853,16 @@ function renderPortfolio() {
     });
   });
 
-  // Featured Portfolio — Professional+
-  const featuredLocked = planLevel() < 2;
-  document.getElementById('featuredPortfolioLockNote').innerHTML = featuredLocked
-    ? `<p class="admin-hint" style="text-align:left;">Upgrade to the Professional plan to feature your best shots.</p>` : '';
+  document.getElementById('featuredPortfolioLockNote').innerHTML = '';
   const featuredPhotos = albums.flatMap(al => (al.photos || []).filter(p => p.featured));
-  document.getElementById('featuredPortfolioGrid').innerHTML = featuredLocked ? '' : (featuredPhotos.map(p => `
+  document.getElementById('featuredPortfolioGrid').innerHTML = featuredPhotos.map(p => `
     <div class="gallery-thumb"><img loading="lazy" decoding="async" src="${p.src}"></div>
-  `).join('') || '<p class="admin-empty">No featured photos yet — star a photo in an album above.</p>');
+  `).join('') || '<p class="admin-empty">No featured photos yet — star a photo in an album above.</p>';
 
-  // Before & After — Premium Featured only
-  const beforeAfterLocked = planLevel() < 3;
-  document.getElementById('beforeAfterLockNote').innerHTML = beforeAfterLocked
-    ? `<p class="admin-hint" style="text-align:left;">Before &amp; After editing showcases are available on the Premium Featured plan.</p>` : '';
-  ['beforeImageInput', 'afterImageInput', 'beforeAfterLabel', 'addBeforeAfterBtn'].forEach(id => document.getElementById(id).disabled = beforeAfterLocked);
-  const beforeAfter = beforeAfterLocked ? [] : getVendorData('beforeAfter', []);
-  document.getElementById('beforeAfterList').innerHTML = beforeAfterLocked ? '' : (beforeAfter.map((ba, i) => `
+  document.getElementById('beforeAfterLockNote').innerHTML = '';
+  ['beforeImageInput', 'afterImageInput', 'beforeAfterLabel', 'addBeforeAfterBtn'].forEach(id => document.getElementById(id).disabled = false);
+  const beforeAfter = getVendorData('beforeAfter', []);
+  document.getElementById('beforeAfterList').innerHTML = beforeAfter.map((ba, i) => `
     <div class="admin-card" data-i="${i}" style="background:var(--bg);">
       <div class="form-row-2">
         <div><p class="admin-hint" style="text-align:left;">Before</p><img loading="lazy" decoding="async" src="${ba.before}" style="width:100%;border-radius:8px;"></div>
@@ -5914,7 +5871,7 @@ function renderPortfolio() {
       ${ba.label ? `<p style="margin-top:0.5rem;">${escapeHtml(ba.label)}</p>` : ''}
       <button type="button" class="admin-btn small danger remove-before-after-btn" style="margin-top:0.5rem;">Remove</button>
     </div>
-  `).join('') || '<p class="admin-empty">No before/after pairs yet.</p>');
+  `).join('') || '<p class="admin-empty">No before/after pairs yet.</p>';
   document.querySelectorAll('.remove-before-after-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const list = getVendorData('beforeAfter', []);
@@ -5937,7 +5894,6 @@ document.getElementById('createAlbumBtn').addEventListener('click', () => {
 });
 
 document.getElementById('portfolioVideosInput').addEventListener('change', async (e) => {
-  if (planLevel() < 2) return;
   const videos = getVendorData('portfolioVideos', []);
   for (const file of Array.from(e.target.files)) {
     if (file.size > MAX_VIDEO_BYTES) { alert(`"${file.name}" is larger than 8MB and was skipped.`); continue; }
@@ -5948,7 +5904,6 @@ document.getElementById('portfolioVideosInput').addEventListener('change', async
 });
 
 document.getElementById('addBeforeAfterBtn').addEventListener('click', async () => {
-  if (planLevel() < 3) return;
   const beforeFile = document.getElementById('beforeImageInput').files[0];
   const afterFile = document.getElementById('afterImageInput').files[0];
   if (!beforeFile || !afterFile) { alert('Please choose both a before and an after photo.'); return; }
@@ -6012,7 +5967,7 @@ document.getElementById('galleryPhotoInput').addEventListener('change', async (e
   const files = Array.from(e.target.files);
   const profile = getVendorData('profile', {});
   profile.gallery = profile.gallery || [];
-  const room = planLevel() < 2 ? Math.max(0, 10 - profile.gallery.length) : files.length;
+  const room = files.length;
   for (const file of files.slice(0, room)) {
     profile.gallery.push(await uploadMedia(file, `vendors/${currentVendor.username}/gallery`));
   }
@@ -6021,7 +5976,6 @@ document.getElementById('galleryPhotoInput').addEventListener('change', async (e
 });
 
 document.getElementById('videosInput').addEventListener('change', async (e) => {
-  if (planLevel() < 2) return;
   const files = Array.from(e.target.files);
   const profile = getVendorData('profile', {});
   profile.videos = profile.videos || [];
@@ -6087,7 +6041,6 @@ document.getElementById('previousDesignsPhotoInput').addEventListener('change', 
 });
 
 document.getElementById('saveTourBtn').addEventListener('click', () => {
-  if (planLevel() < 2) return;
   const profile = getVendorData('profile', {});
   profile.tourLink = document.getElementById('tourLinkInput').value.trim();
   setVendorData('profile', profile);
@@ -6605,18 +6558,14 @@ function renderPackages() {
   }
 
   const aiWrap = document.getElementById('aiPriceSuggestionWrap');
-  if (planLevel() >= 3) {
-    aiWrap.innerHTML = `
-      <div class="admin-card" style="background:var(--bg);box-shadow:none;border:1px dashed var(--secondary);">
-        <h3 style="margin-bottom:0.5rem;">✨ AI Pricing Suggestion <span class="plan-tag">Premium</span></h3>
-        <p class="admin-hint" style="text-align:left;">Estimates a competitive price from your venue's capacity, indoor/outdoor type and the guest range you enter above.</p>
-        <button type="button" class="admin-btn small outline" id="aiSuggestPriceBtn">Suggest a Price</button>
-        <p id="aiSuggestionResult" style="margin-top:0.6rem;font-weight:700;color:var(--primary);"></p>
-      </div>`;
-    document.getElementById('aiSuggestPriceBtn').addEventListener('click', suggestAiPrice);
-  } else {
-    aiWrap.innerHTML = `<p class="admin-hint" style="text-align:left;">✨ AI Pricing Suggestions are available on the Premium Featured plan.</p>`;
-  }
+  aiWrap.innerHTML = `
+    <div class="admin-card" style="background:var(--bg);box-shadow:none;border:1px dashed var(--secondary);">
+      <h3 style="margin-bottom:0.5rem;">✨ AI Pricing Suggestion</h3>
+      <p class="admin-hint" style="text-align:left;">Estimates a competitive price from your venue's capacity, indoor/outdoor type and the guest range you enter above.</p>
+      <button type="button" class="admin-btn small outline" id="aiSuggestPriceBtn">Suggest a Price</button>
+      <p id="aiSuggestionResult" style="margin-top:0.6rem;font-weight:700;color:var(--primary);"></p>
+    </div>`;
+  document.getElementById('aiSuggestPriceBtn').addEventListener('click', suggestAiPrice);
 
   const packages = getVendorData('packages', []);
   document.getElementById('packageGrid').innerHTML = packages.map(p => `
@@ -7080,16 +7029,6 @@ const SEASONAL_OFFER_CATEGORIES = ['Honeymoon Agency'];
 
 function renderAvailability() {
   const container = document.getElementById('availabilityContent');
-  if (planLevel() < 2) {
-    container.innerHTML = `
-      <div class="locked-panel">
-        <div class="lock-icon">🔒</div>
-        <h3>Availability Calendar is a Professional feature</h3>
-        <p>Upgrade your subscription plan to block dates, mark reservations and manage maintenance days.</p>
-        <span class="upgrade-note">Upgrade in "List Your Business" → Choose a Subscription Plan</span>
-      </div>`;
-    return;
-  }
   const usesTrialState = TRIAL_SESSION_CATEGORIES.includes(currentVendor.category);
   const usesWeddingState = WEDDING_DATE_CATEGORIES.includes(currentVendor.category);
   const usesPickupReturnState = SUIT_PICKUP_RETURN_CATEGORIES.includes(currentVendor.category);
@@ -7346,20 +7285,10 @@ let bookingFilter = 'all';
 
 function renderBookings() {
   const container = document.getElementById('bookingsContent');
-  if (planLevel() < 2) {
-    container.innerHTML = `
-      <div class="locked-panel">
-        <div class="lock-icon">🔒</div>
-        <h3>Full Booking Management is a Professional feature</h3>
-        <p>Your Basic plan still receives inquiries and appointment requests — check the "Customer Inquiries" tab. Upgrade to Professional for booking requests, deposits, cancellations and history.</p>
-        <span class="upgrade-note">Upgrade in "List Your Business" → Choose a Subscription Plan</span>
-      </div>`;
-    return;
-  }
   bookingFilter = 'all';
   const packages = getVendorData('packages', []);
   const bookings = getVendorData('bookings', []);
-  const isPremium = planLevel() >= 3;
+  const isPremium = true;
   const autoConfirm = getVendorData('auto_confirm', false);
 
   container.innerHTML = `
@@ -7571,7 +7500,7 @@ function renderBookingsTable() {
     bookings = allBookings.filter(b => b.status === 'Completed');
   }
   if (!bookings.length) { body.innerHTML = `<tr><td colspan="7" class="admin-empty">No bookings in this view yet.</td></tr>`; return; }
-  const isPremium = planLevel() >= 3;
+  const isPremium = true;
   // Wedding Schedule is already sorted chronologically above — reversing it
   // would undo that, so only the default views get newest-first ordering.
   const orderedBookings = bookingFilter === 'wedding-schedule' ? bookings : bookings.slice().reverse();
@@ -7721,33 +7650,29 @@ function renderPayments() {
   populatePaymentBookingSelect();
 
   const remindersWrap = document.getElementById('paymentRemindersWrap');
-  if (planLevel() >= 3) {
-    const enabled = getVendorData('auto_reminders', false);
-    remindersWrap.innerHTML = `
-      <div class="admin-card" style="border:1px dashed var(--secondary);">
-        <h3 style="margin-bottom:0.5rem;">🔔 Automated Payment Reminders <span class="plan-tag">Premium</span></h3>
-        <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.88rem;">
-          <input type="checkbox" id="autoRemindersToggle" ${enabled ? 'checked' : ''}> Enable automated reminders for pending payments
-        </label>
-        <p class="admin-hint" style="text-align:left;">No real emails/SMS are sent (no messaging service is connected) — "Send Reminders Now" simulates the reminder and logs it below.</p>
-        <button class="admin-btn small outline" id="sendRemindersBtn">Send Reminders Now</button>
-        <p class="admin-note" id="remindersNote"></p>
-      </div>`;
-    document.getElementById('autoRemindersToggle').addEventListener('change', (e) => setVendorData('auto_reminders', e.target.checked));
-    document.getElementById('sendRemindersBtn').addEventListener('click', () => {
-      const payments = getVendorData('payments', []);
-      const pending = payments.filter(p => p.status === 'Pending');
-      pending.forEach(p => { p.reminderSentAt = Date.now(); });
-      setVendorData('payments', payments);
-      if (pending.length) pushNotification('payment', `Sent ${pending.length} payment reminder(s).`);
-      const note = document.getElementById('remindersNote');
-      note.textContent = pending.length ? `${pending.length} reminder(s) simulated.` : 'No pending payments to remind.';
-      setTimeout(() => note.textContent = '', 3000);
-      renderPayments();
-    });
-  } else {
-    remindersWrap.innerHTML = `<p class="admin-hint" style="text-align:left;">🔔 Automated payment reminders are available on the Premium Featured plan.</p>`;
-  }
+  const enabled = getVendorData('auto_reminders', false);
+  remindersWrap.innerHTML = `
+    <div class="admin-card" style="border:1px dashed var(--secondary);">
+      <h3 style="margin-bottom:0.5rem;">🔔 Automated Payment Reminders</h3>
+      <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.88rem;">
+        <input type="checkbox" id="autoRemindersToggle" ${enabled ? 'checked' : ''}> Enable automated reminders for pending payments
+      </label>
+      <p class="admin-hint" style="text-align:left;">No real emails/SMS are sent (no messaging service is connected) — "Send Reminders Now" simulates the reminder and logs it below.</p>
+      <button class="admin-btn small outline" id="sendRemindersBtn">Send Reminders Now</button>
+      <p class="admin-note" id="remindersNote"></p>
+    </div>`;
+  document.getElementById('autoRemindersToggle').addEventListener('change', (e) => setVendorData('auto_reminders', e.target.checked));
+  document.getElementById('sendRemindersBtn').addEventListener('click', () => {
+    const payments = getVendorData('payments', []);
+    const pending = payments.filter(p => p.status === 'Pending');
+    pending.forEach(p => { p.reminderSentAt = Date.now(); });
+    setVendorData('payments', payments);
+    if (pending.length) pushNotification('payment', `Sent ${pending.length} payment reminder(s).`);
+    const note = document.getElementById('remindersNote');
+    note.textContent = pending.length ? `${pending.length} reminder(s) simulated.` : 'No pending payments to remind.';
+    setTimeout(() => note.textContent = '', 3000);
+    renderPayments();
+  });
 
   const payments = getVendorData('payments', []);
   const deposits = payments.filter(p => p.isDeposit);
@@ -8084,16 +8009,12 @@ function renderReviews() {
 // homepage dashboard's Blog panel.
 // ===================================================================
 function renderBlog() {
-  // Publishing articles is a Premium Featured perk — vendors on lower plans
-  // see an upgrade prompt instead of the form and their existing articles,
-  // matching how Before & After editing and other Premium-only sections
-  // gate themselves off.
-  const blogLocked = planLevel() < 3;
+  const blogLocked = !(currentVendor.blogAccess === true || currentVendor.blogAccessStatus === 'Approved' || currentVendor.blogAccessStatus === 'Active');
   document.getElementById('blogLockNote').innerHTML = blogLocked
-    ? `<p class="admin-hint" style="text-align:left;">Publishing blog articles is available on the Premium Featured plan.</p>` : '';
+    ? `<p class="admin-hint" style="text-align:left;">Blog access is managed by the admin through the "Access to Blog" feature request. Once approved, the vendor can publish blog articles here.</p>` : '';
   ['blogArticleTitle', 'blogArticleContent', 'blogArticleImage', 'addBlogArticleBtn'].forEach(id => document.getElementById(id).disabled = blogLocked);
-
-  const articles = blogLocked ? [] : getVendorData('blogArticles', []);
+  
+  const articles = getVendorData('blogArticles', []);
   document.getElementById('blogArticlesList').innerHTML = blogLocked ? '' : (articles.slice().reverse().map(a => `
     <div class="admin-card" data-blog-id="${a.id}" style="background:var(--bg);">
       <div class="admin-topbar" style="margin-bottom:0.6rem;">
@@ -8115,7 +8036,7 @@ function renderBlog() {
 }
 
 document.getElementById('addBlogArticleBtn').addEventListener('click', async () => {
-  if (planLevel() < 3) { alert('Publishing blog articles is available on the Premium Featured plan.'); return; }
+  if (document.getElementById('blogArticleTitle').disabled) { alert('Blog access is available through the Promote Your Service option: "Access to Blog".'); return; }
   const title = document.getElementById('blogArticleTitle').value.trim();
   const content = document.getElementById('blogArticleContent').value.trim();
   if (!title || !content) { alert('Please enter a title and content for your article.'); return; }
@@ -8168,14 +8089,10 @@ function renderAnalytics() {
   const reservationConversionRate = decidedReservations ? Math.round((completedReservations / decidedReservations) * 100) : 0;
 
   const stats = [
-    planLevel() >= 2
-      ? { num: profile.viewsCount || 0, label: 'Profile Views' }
-      : { num: '🔒', label: 'Profile Views (Professional+)' },
+    { num: profile.viewsCount || 0, label: 'Profile Views' },
   ];
   if (isPhotographer) {
-    stats.push(planLevel() >= 2
-      ? { num: profile.portfolioViewsCount || 0, label: 'Portfolio Views' }
-      : { num: '🔒', label: 'Portfolio Views (Professional+)' });
+    stats.push({ num: profile.portfolioViewsCount || 0, label: 'Portfolio Views' });
   }
   stats.push(isJewelry
     ? { num: jewelryReservations.length ? `${reservationConversionRate}%` : '—', label: 'Reservation Conversion' }
@@ -8362,11 +8279,76 @@ document.getElementById('insuranceInput').addEventListener('change', async (e) =
 // ===================================================================
 // NOTIFICATIONS
 // ===================================================================
+function getVendorAnnouncements() {
+  return getLS('fb_vendor_announcements', []);
+}
+
+function renderVendorAnnouncementsForDashboard() {
+  const feed = document.getElementById('announcementFeed');
+  if (!feed) return;
+
+  const now = Date.now();
+  const announcements = getVendorAnnouncements().filter(item => !item.expiresAt || Number(item.expiresAt) > now);
+  if (!announcements.length) {
+    feed.innerHTML = '<p class="admin-empty">No active message from admin right now.</p>';
+    return;
+  }
+
+  feed.innerHTML = announcements.slice().reverse().map(item => `
+    <div class="admin-card" style="background:var(--bg); margin-bottom: 1rem;">
+      <h3 style="margin:0 0 0.6rem;">Announcement</h3>
+      <p style="white-space:pre-wrap; margin:0 0 0.8rem; color:#333;">${escapeHtml(item.message)}</p>
+      <p class="admin-hint" style="margin:0 0 0.8rem;">Active until ${new Date(Number(item.expiresAt) || Date.now()).toLocaleString()}</p>
+      <form class="vendor-announcement-form" data-announcement-id="${escapeHtml(String(item.id))}">
+        <div class="form-row-2">
+          <div class="admin-form-group">
+            <label>Your Name</label>
+            <input type="text" name="name" placeholder="Your full name" required>
+          </div>
+          <div class="admin-form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" placeholder="Your phone number" required>
+          </div>
+        </div>
+        <button type="submit" class="admin-btn small">Submit</button>
+        <p class="admin-note vendor-announcement-note" style="color:var(--primary);"></p>
+      </form>
+    </div>
+  `).join('');
+
+  feed.querySelectorAll('.vendor-announcement-form').forEach(form => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const announcementId = form.dataset.announcementId;
+      const name = form.querySelector('input[name="name"]').value.trim();
+      const phone = form.querySelector('input[name="phone"]').value.trim();
+      const note = form.querySelector('.vendor-announcement-note');
+      if (!name || !phone) {
+        note.textContent = 'Please enter your name and phone number.';
+        return;
+      }
+      const submissions = JSON.parse(localStorage.getItem('fb_vendor_announcement_submissions') || '[]');
+      submissions.push({
+        id: `${announcementId}-${Date.now()}`,
+        announcementId,
+        vendorUsername: currentVendor?.username || 'guest',
+        vendorBusinessName: currentVendor?.businessName || '',
+        name,
+        phone,
+        submittedAt: Date.now(),
+      });
+      localStorage.setItem('fb_vendor_announcement_submissions', JSON.stringify(submissions));
+      note.textContent = 'Submitted successfully.';
+      form.reset();
+      setTimeout(() => note.textContent = '', 2500);
+    });
+  });
+}
+
 function seedNotificationsIfNeeded() {
   if (localStorage.getItem(vKey('notifications')) !== null) return;
-  const renewalDate = new Date(Date.now() + 30 * 86400000).toLocaleDateString();
   setVendorData('notifications', [
-    { id: Date.now(), type: 'subscription', text: `Your ${currentVendor.plan} subscription renews on ${renewalDate}.`, time: Date.now(), read: false },
+    { id: Date.now(), type: 'welcome', text: 'Welcome! Your Premium Featured access is included at no cost.', time: Date.now(), read: false },
   ]);
 }
 function pushNotification(type, text) {
@@ -8384,9 +8366,9 @@ function updateNotifBadge() {
 
 function renderNotifications() {
   seedNotificationsIfNeeded();
-  const prefs = getVendorData('notif_prefs', { bookingAlerts: true, subRenewal: true, customerMsgs: true, payments: true });
+  renderVendorAnnouncementsForDashboard();
+  const prefs = getVendorData('notif_prefs', { bookingAlerts: true, customerMsgs: true, payments: true });
   document.getElementById('notifBookingAlerts').checked = prefs.bookingAlerts;
-  document.getElementById('notifSubRenewal').checked = prefs.subRenewal;
   document.getElementById('notifCustomerMsgs').checked = prefs.customerMsgs;
   document.getElementById('notifPayments').checked = prefs.payments;
 
@@ -8413,7 +8395,6 @@ function renderNotifications() {
 document.getElementById('saveNotifPrefsBtn').addEventListener('click', () => {
   setVendorData('notif_prefs', {
     bookingAlerts: document.getElementById('notifBookingAlerts').checked,
-    subRenewal: document.getElementById('notifSubRenewal').checked,
     customerMsgs: document.getElementById('notifCustomerMsgs').checked,
     payments: document.getElementById('notifPayments').checked,
   });
@@ -8553,86 +8534,24 @@ document.getElementById('vendorChangePasswordForm').addEventListener('submit', a
 });
 
 // ===================================================================
-// MARKETING (upgrade subscription, sponsored/featured/homepage promos)
+// MARKETING (feature-request access for premium visibility tools)
 // ===================================================================
-const PLAN_TIERS = [
-  { name: 'Basic', price: 25, features: ['Vendor profile', 'Up to 10 images', 'Services & pricing', 'Inquiries & appointments', 'Reviews'] },
-  { name: 'Professional', price: 50, features: ['Everything in Basic', 'Unlimited photos & videos', 'Booking requests', 'Availability calendar', 'Analytics', 'Verified badge'] },
-  { name: 'Premium Featured', price: 100, features: ['Everything in Professional', 'Higher search ranking', 'Advanced analytics', 'Promotional campaigns', 'Banner exposure', 'AI pricing, auto-confirm, QR check-in, exports'] },
-];
 const MARKETING_PROMOS = [
-  { key: 'Sponsored Service', price: 100, period: 'year', desc: 'get a personal 10% discount coupon to share — earn 10% commission whenever someone books using your code.' },
-  { key: 'Featured Listing', price: 50, period: 'month', desc: 'Appears at the top of search results.' },
-  { key: 'Homepage Advertisement', price: 200, period: 'month', desc: 'A picture or video featured as a top homepage banner ad.' },
-  { key: 'Verified Badge', price: 50, period: 'year', desc: 'A verified badge on your profile for 1 year.' },
+  { key: 'Access to Blog', price: 0, period: 'request', desc: 'Request access to publish blog articles for your business.' },
+  { key: 'Higher Search Ranking', price: 0, period: 'request', desc: 'Improve your business placement in search results.' },
+  { key: 'Promotional Campaigns', price: 0, period: 'request', desc: 'Request marketing campaigns to attract more inquiries.' },
+  { key: 'Banner Exposure', price: 0, period: 'request', desc: 'Feature your service in banner placements and homepage visibility.' },
 ];
 
 function renderMarketing() {
-  document.getElementById('currentPlanLabel').textContent = currentVendor.plan;
-  const currentIndex = PLAN_TIERS.findIndex(t => t.name === currentVendor.plan);
-
-  document.getElementById('planComparisonWrap').innerHTML = PLAN_TIERS.map((t, i) => `
-    <div class="plan-tier-row ${i === currentIndex ? 'current' : ''}">
-      <span class="plan-tier-name">${escapeHtml(t.name)} ${i === currentIndex ? '(current)' : ''}</span>
-      <span class="plan-tier-price">$${t.price}/month</span>
-      <span class="plan-tier-features">${t.features.map(escapeHtml).join(', ')}</span>
-    </div>
-  `).join('');
-
-  const upgradeWrap = document.getElementById('upgradeButtonsWrap');
-  const higherTiers = PLAN_TIERS.filter((t, i) => i > currentIndex);
-  if (!higherTiers.length) {
-    upgradeWrap.innerHTML = `<p class="admin-hint" style="text-align:left;">You're on our highest plan. 🎉</p>`;
-  } else {
-    upgradeWrap.innerHTML = higherTiers.map(t => `
-      <button class="admin-btn small outline upgrade-plan-btn" data-plan="${escapeHtml(t.name)}" data-price="${t.price}" style="margin-right:0.5rem;margin-bottom:0.5rem;">
-        Upgrade to ${escapeHtml(t.name)} — $${t.price}/month
-      </button>
-    `).join('');
-    document.querySelectorAll('.upgrade-plan-btn').forEach(btn => {
-      btn.addEventListener('click', () => showUpgradeForm(btn.dataset.plan, btn.dataset.price));
-    });
-  }
+  document.getElementById('currentPlanLabel').textContent = 'Premium Featured (Included)';
+  document.getElementById('planComparisonWrap').innerHTML = '<p class="admin-hint" style="text-align:left;">All approved vendors already receive Premium Featured access at no cost. Use the request options below for the limited premium visibility features.</p>';
+  document.getElementById('upgradeButtonsWrap').innerHTML = '';
   document.getElementById('upgradeFormWrap').innerHTML = '';
 
   renderMarketingPromos();
   updateMarketingTotal();
   refreshMarketingMediaVisibility();
-}
-
-function showUpgradeForm(planName, price) {
-  document.getElementById('upgradeFormWrap').innerHTML = `
-    <div class="admin-card" style="background:var(--bg);box-shadow:none;border:1px dashed var(--secondary);margin-top:1rem;">
-      <h4>Confirm Upgrade to ${escapeHtml(planName)} — $${escapeHtml(price)}/month</h4>
-      <p class="admin-hint" style="text-align:left;">Send your payment via Whish Money, OMT, or Western Union to <strong>+961 81 256 069</strong>, then confirm below.</p>
-      <div class="form-row-2">
-        <div class="admin-form-group">
-          <label for="upgradePaymentMethod">Payment Method Used</label>
-          <select id="upgradePaymentMethod"><option>Whish Money</option><option>OMT</option><option>Western Union</option></select>
-        </div>
-        <div class="admin-form-group">
-          <label for="upgradeTransactionRef">Transaction Reference Number</label>
-          <input type="text" id="upgradeTransactionRef" placeholder="e.g. WM123456">
-        </div>
-      </div>
-      <button class="admin-btn small" id="confirmUpgradeBtn">Confirm Upgrade</button>
-    </div>`;
-  document.getElementById('confirmUpgradeBtn').addEventListener('click', () => {
-    currentVendor.plan = planName;
-    currentVendor.upgradeHistory = currentVendor.upgradeHistory || [];
-    currentVendor.upgradeHistory.push({
-      plan: planName,
-      paymentMethod: document.getElementById('upgradePaymentMethod').value,
-      transactionRef: document.getElementById('upgradeTransactionRef').value.trim(),
-      time: Date.now(),
-    });
-    saveCurrentVendorToApplications();
-    document.getElementById('vendorPlanLabel').textContent = `${currentVendor.plan} Plan`;
-    const note = document.getElementById('upgradeNote');
-    note.textContent = `Upgraded to ${planName}! New features are unlocked below.`;
-    setTimeout(() => note.textContent = '', 4000);
-    renderAll();
-  });
 }
 
 let marketingSelections = new Set();
@@ -8643,16 +8562,16 @@ function renderMarketingPromos() {
     <label class="plan-card" data-promo="${escapeHtml(p.key)}">
       <input type="checkbox" ${marketingSelections.has(p.key) ? 'checked' : ''} ${marketingBundle ? 'disabled' : ''} class="marketing-promo-check">
       <div class="plan-name">${escapeHtml(p.key)}</div>
-      <div class="plan-price">$${p.price}<span style="font-size:0.8rem;font-weight:400;color:#777;">/${p.period}</span></div>
+      <div class="plan-price">Free<span style="font-size:0.8rem;font-weight:400;color:#777;">/${p.period}</span></div>
       <p class="promo-desc" style="font-size:0.82rem;color:#555;">${escapeHtml(p.desc)}</p>
     </label>
   `).join('') + `
     <label class="plan-card promo-bundle" data-promo="__bundle__">
       <input type="checkbox" id="marketingBundleCheck" ${marketingBundle ? 'checked' : ''}>
       <div class="plan-badge">Best Value</div>
-      <div class="plan-name">All 4 Promotions</div>
-      <div class="plan-price">$250<span style="font-size:0.8rem;font-weight:400;color:#777;">/month</span></div>
-      <p class="promo-desc" style="font-size:0.82rem;color:#555;">Get all four promotions together for one flat monthly price.</p>
+      <div class="plan-name">All 4 Access Requests</div>
+      <div class="plan-price">Free<span style="font-size:0.8rem;font-weight:400;color:#777;">/month</span></div>
+      <p class="promo-desc" style="font-size:0.82rem;color:#555;">Request all four premium visibility features together at no cost.</p>
     </label>
   `;
 
@@ -8678,44 +8597,30 @@ function renderMarketingPromos() {
 }
 
 function refreshMarketingMediaVisibility() {
-  const show = marketingBundle || marketingSelections.has('Homepage Advertisement');
+  const show = marketingBundle || marketingSelections.has('Banner Exposure');
   document.getElementById('marketingHomepageAdMediaGroup').classList.toggle('hidden', !show);
 }
 
 function updateMarketingTotal() {
   const totalEl = document.getElementById('marketingPromoTotal');
-  if (marketingBundle) { totalEl.textContent = 'Total: $250/month — all 4 promotions included.'; return; }
+  if (marketingBundle) { totalEl.textContent = 'Selected: All 4 access requests — Total: Free'; return; }
   if (!marketingSelections.size) { totalEl.textContent = ''; return; }
-  let monthly = 0, yearly = 0;
-  MARKETING_PROMOS.forEach(p => {
-    if (marketingSelections.has(p.key)) { if (p.period === 'year') yearly += p.price; else monthly += p.price; }
-  });
-  const parts = [];
-  if (monthly) parts.push(`$${monthly}/month`);
-  if (yearly) parts.push(`$${yearly}/year`);
-  totalEl.textContent = `Selected: ${Array.from(marketingSelections).join(', ')} — Total: ${parts.join(' + ')}`;
+  totalEl.textContent = `Selected: ${Array.from(marketingSelections).join(', ')} — Total: Free`;
 }
-
-document.getElementById('copyMarketingNumberBtn').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText('+96181256069'); } catch (err) { /* ignore */ }
-  const btn = document.getElementById('copyMarketingNumberBtn');
-  const original = btn.textContent;
-  btn.textContent = '✓';
-  setTimeout(() => { btn.textContent = original; }, 1500);
-});
 
 document.getElementById('submitMarketingBtn').addEventListener('click', async () => {
   const note = document.getElementById('marketingNote');
-  const selected = marketingBundle ? ['Sponsored Service', 'Featured Listing', 'Homepage Advertisement', 'Verified Badge (bundle)'] : Array.from(marketingSelections);
+  const selected = marketingBundle ? ['Access to Blog', 'Higher Search Ranking', 'Promotional Campaigns', 'Banner Exposure'] : Array.from(marketingSelections);
   if (!selected.length) {
     note.style.color = '#c0392b';
     note.textContent = 'Please select at least one promotion.';
     return;
   }
+
   let homepageAdMedia = null;
   const mediaInput = document.getElementById('marketingAdMedia');
   const mediaFile = mediaInput.files[0];
-  if ((marketingBundle || marketingSelections.has('Homepage Advertisement')) && mediaFile) {
+  if ((marketingBundle || marketingSelections.has('Banner Exposure')) && mediaFile) {
     if (mediaFile.type.startsWith('video/')) {
       if (mediaFile.size > MAX_VIDEO_BYTES) { note.style.color = '#c0392b'; note.textContent = 'That video is too large (max 8MB).'; return; }
       homepageAdMedia = { type: 'video', src: await uploadMedia(mediaFile, `vendors/${currentVendor.username}/homepageAds`) };
@@ -8730,22 +8635,19 @@ document.getElementById('submitMarketingBtn').addEventListener('click', async ()
     email: currentVendor.email,
     promotions: selected,
     bundle: marketingBundle,
-    paymentMethod: document.getElementById('marketingPaymentMethod').value,
-    transactionRef: document.getElementById('marketingTransactionRef').value.trim(),
     homepageAdMedia,
     time: Date.now(),
   });
 
-  if (selected.includes('Sponsored Service') || marketingBundle) {
+  if (selected.includes('Promotional Campaigns') || marketingBundle) {
     currentVendor.sponsorStatus = 'Pending';
     saveCurrentVendorToApplications();
   }
 
   note.style.color = '';
-  note.textContent = `Thank you! Your promotion request (${selected.join(', ')}) was received. It'll be activated once your payment is confirmed.`;
+  note.textContent = `Thank you! Your feature request (${selected.join(', ')}) was received and is being reviewed by the team.`;
   marketingSelections.clear();
   marketingBundle = false;
-  document.getElementById('marketingTransactionRef').value = '';
   mediaInput.value = '';
   renderMarketingPromos();
   updateMarketingTotal();

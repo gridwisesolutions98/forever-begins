@@ -421,58 +421,10 @@ registerForm.addEventListener('submit', (e) => {
   const form = document.getElementById('vendorForm');
   if (!form) return;
   const note = document.getElementById('vendorNote');
-  // Scoped to this form only — the page-wide ".plan-card" class is also
-  // reused by the checkbox-based promo cards in "Promote Your Service",
-  // which have no radio input and would make querySelector() return null.
-  const planCards = form.querySelectorAll('.plan-card');
-  const copyBtn = document.getElementById('copyPaymentNumberBtn');
-  const paymentNumber = '+96181256069';
-  const receiptInput = document.getElementById('vReceiptPhoto');
-
-  planCards.forEach(card => {
-    const radio = card.querySelector('input[type="radio"]');
-    radio.addEventListener('change', () => {
-      planCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-    });
-  });
-
-  copyBtn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(paymentNumber);
-    } catch (err) {
-      // clipboard API unavailable — ignore, number is already visible to copy manually
-    }
-    const original = copyBtn.textContent;
-    copyBtn.textContent = '✓';
-    setTimeout(() => { copyBtn.textContent = original; }, 1500);
-  });
-
-  function resizeImage(file, maxDim = 1600, quality = 0.85) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const reader = new FileReader();
-      reader.onload = () => { img.src = reader.result; };
-      reader.onerror = reject;
-      img.onload = () => {
-        let { width, height } = img;
-        if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
-        else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
+  const plan = { value: 'Premium Featured' };
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const plan = form.querySelector('input[name="plan"]:checked');
-    if (!plan) return;
 
     const username = document.getElementById('vUsername').value.trim();
     const password = document.getElementById('vPassword').value;
@@ -488,11 +440,6 @@ registerForm.addEventListener('submit', (e) => {
       note.style.color = '#c0392b';
       note.textContent = 'Signup service unavailable right now. Please try again in a moment.';
       return;
-    }
-
-    let receiptImage = null;
-    if (receiptInput.files[0]) {
-      try { receiptImage = await resizeImage(receiptInput.files[0]); } catch (err) { /* skip receipt if unreadable */ }
     }
 
     let userCredential;
@@ -521,9 +468,9 @@ registerForm.addEventListener('submit', (e) => {
         location: document.getElementById('vLocation').value.trim(),
         mapsLink: document.getElementById('vMapsLink').value.trim(),
         plan: plan.value,
-        paymentMethod: document.getElementById('vPaymentMethod').value,
-        transactionRef: document.getElementById('vTransactionRef').value.trim(),
-        receiptImage,
+        paymentMethod: 'Premium Featured (Free)',
+        transactionRef: 'Free premium enrollment',
+        receiptImage: null,
         time: Date.now(),
       });
     } catch (err) {
@@ -543,7 +490,6 @@ registerForm.addEventListener('submit', (e) => {
     note.style.color = '';
     note.textContent = window.FBI18N.t('vendor.success', { plan: plan.value });
     form.reset();
-    planCards.forEach(c => c.classList.remove('selected'));
     setTimeout(() => note.textContent = '', 6000);
   });
 })();

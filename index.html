@@ -672,7 +672,7 @@
     <div class="container">
       <p class="eyebrow center" data-i18n="vendor.eyebrow">For Vendors</p>
       <h2 class="section-title center" data-i18n="vendor.title">List Your Business With Us</h2>
-      <p class="section-sub center" data-i18n="vendor.sub">Register your business, choose a subscription plan, and start getting matched with couples planning their wedding.</p>
+      <p class="section-sub center" data-i18n="vendor.sub">Register your business and start getting matched with couples planning their wedding — all vendors receive Premium Featured access for free.</p>
 
       <form class="vendor-form" id="vendorForm">
         <div class="vendor-form-section">
@@ -748,88 +748,11 @@
         </div>
 
         <div class="vendor-form-section">
-          <h3 data-i18n="vendor.plan_title">Choose a Subscription Plan</h3>
-          <div class="plan-grid">
-            <label class="plan-card">
-              <input type="radio" name="plan" value="Basic" required>
-              <div class="plan-name" data-i18n="vendor.plan_basic_name">Basic</div>
-              <div class="plan-price">$25<span data-i18n="vendor.per_month">/month</span></div>
-              <ul>
-                <li data-i18n="vendor.plan_basic_f1">Vendor profile</li>
-                <li data-i18n="vendor.plan_basic_f2">Upload up to 10 images</li>
-                <li data-i18n="vendor.plan_basic_f3">Services &amp; pricing</li>
-                <li data-i18n="vendor.plan_basic_f4">Receive inquiries &amp; appointments</li>
-                <li data-i18n="vendor.plan_basic_f5">Reviews</li>
-              </ul>
-            </label>
-            <label class="plan-card">
-              <input type="radio" name="plan" value="Professional" required>
-              <div class="plan-badge" data-i18n="vendor.plan_popular">Most Popular</div>
-              <div class="plan-name" data-i18n="vendor.plan_pro_name">Professional</div>
-              <div class="plan-price">$50<span data-i18n="vendor.per_month">/month</span></div>
-              <ul>
-                <li data-i18n="vendor.plan_pro_f1">Everything in Basic</li>
-                <li data-i18n="vendor.plan_pro_f2">Unlimited photos &amp; videos</li>
-                <li data-i18n="vendor.plan_pro_f3">Booking requests</li>
-                <li data-i18n="vendor.plan_pro_f4">Availability calendar</li>
-                <li data-i18n="vendor.plan_pro_f5">Analytics (views, inquiries, favorites)</li>
-                <li data-i18n="vendor.plan_pro_f6">Verified badge</li>
-              </ul>
-            </label>
-            <label class="plan-card">
-              <input type="radio" name="plan" value="Premium Featured" required>
-              <div class="plan-name" data-i18n="vendor.plan_premium_name">Premium Featured</div>
-              <div class="plan-price">$100<span data-i18n="vendor.per_month">/month</span></div>
-              <ul>
-                <li data-i18n="vendor.plan_premium_f1">Everything in Professional</li>
-                <li data-i18n="vendor.plan_premium_f2">Higher ranking in search</li>
-                <li data-i18n="vendor.plan_premium_f3">Advanced analytics</li>
-                <li data-i18n="vendor.plan_premium_f4">Promotional campaigns</li>
-                <li data-i18n="vendor.plan_premium_f5">Banner exposure</li>
-              </ul>
-            </label>
-          </div>
+          <h3 data-i18n="vendor.premium_free_title">Premium Featured</h3>
+          <p class="admin-hint" style="text-align:left;" data-i18n="vendor.premium_free_desc">All approved vendors receive Premium Featured access at no cost.</p>
         </div>
 
-        <div class="vendor-form-section">
-          <h3 data-i18n="vendor.payment_title">Payment Method</h3>
-
-          <div class="payment-instructions">
-            <p data-i18n="vendor.payment_instructions">Send your subscription payment via Whish Money, OMT, or Western Union to the number below:</p>
-            <div class="payment-number-row">
-              <span class="payment-number">+961 81 256 069</span>
-              <button type="button" class="btn btn-outline-dark" id="copyPaymentNumberBtn" data-i18n="vendor.copy_btn">Copy</button>
-            </div>
-            <div class="payment-methods-badges">
-              <span class="payment-badge" data-i18n="vendor.method_whish">Whish Money</span>
-              <span class="payment-badge" data-i18n="vendor.method_omt">OMT</span>
-              <span class="payment-badge" data-i18n="vendor.method_wu">Western Union</span>
-            </div>
-          </div>
-
-          <p class="payment-disclaimer" data-i18n="vendor.payment_disclaimer">Payments are verified manually — our team will activate your listing once your transfer is confirmed.</p>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="vPaymentMethod" data-i18n="vendor.payment_method_label">Payment Method Used</label>
-              <select id="vPaymentMethod">
-                <option value="Whish Money" data-i18n="vendor.method_whish">Whish Money</option>
-                <option value="OMT" data-i18n="vendor.method_omt">OMT</option>
-                <option value="Western Union" data-i18n="vendor.method_wu">Western Union</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="vTransactionRef" data-i18n="vendor.transaction_ref_label">Transaction Reference Number</label>
-              <input type="text" id="vTransactionRef" data-i18n-placeholder="vendor.transaction_ref_placeholder" placeholder="e.g. WM123456" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="vReceiptPhoto" data-i18n="vendor.receipt_label">Payment Receipt Screenshot (optional)</label>
-            <input type="file" id="vReceiptPhoto" accept="image/*">
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" data-i18n="vendor.submit_btn">Complete Registration &amp; Subscribe</button>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="vendor.submit_btn">Complete Registration</button>
         <p class="form-note" id="vendorNote"></p>
       </form>
     </div>
@@ -1177,7 +1100,7 @@
     <p data-i18n="donation.message">Every little bit helps. Donate $1 or more to support children battling cancer — no amount is too small.</p>
     <div class="payment-instructions">
       <div class="payment-number-row">
-        <span class="payment-number">+961 81 335 905</span>
+        <span class="payment-number">+961 81 256 069</span>
         <button type="button" class="btn btn-outline-dark" id="donationCopyBtn" data-i18n="vendor.copy_btn">Copy</button>
       </div>
       <div class="payment-methods-badges">
