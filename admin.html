@@ -64,7 +64,6 @@
       <button class="active" data-panel="overview">📊 Overview</button>
       <button data-panel="vendors">🏷️ Vendor Applications</button>
       <button data-panel="contactmessages">📬 Contact Messages <span class="badge" id="contactMessagesBadge" style="position:static;margin-left:4px;"></span></button>
-      <button data-panel="subscriptions">💳 Subscriptions</button>
       <button data-panel="homepage">⭐ Homepage Features</button>
       <button data-panel="sponsors">🎗️ Sponsors</button>
       <button data-panel="categories">🗂️ Categories</button>
@@ -101,8 +100,8 @@
         <div class="admin-table-wrap">
           <table class="admin-table">
             <thead><tr>
-              <th>Business</th><th>Category</th><th>Contact</th><th>Plan</th>
-              <th>Payment</th><th>Status</th><th>Verified</th><th>Actions</th>
+              <th>Business</th><th>Category</th><th>Contact</th><th>Status</th>
+              <th>Featured Listing</th><th>Verified Badge</th><th>Blog Access</th><th>Homepage Advertisement</th>
             </tr></thead>
             <tbody id="vendorTableBody"></tbody>
           </table>
@@ -124,28 +123,13 @@
       </div>
     </section>
 
-    <!-- Subscriptions -->
-    <section class="admin-panel" id="panel-subscriptions">
-      <div class="admin-topbar"><h2>Manage Subscriptions</h2></div>
-      <div class="admin-card">
-        <div class="admin-table-wrap">
-          <table class="admin-table">
-            <thead><tr>
-              <th>Business</th><th>Plan</th><th>Vendor Status</th><th>Subscription</th><th>Renewal</th><th>Actions</th>
-            </tr></thead>
-            <tbody id="subsTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
     <!-- Homepage Features -->
     <section class="admin-panel" id="panel-homepage">
       <div class="admin-topbar"><h2>Homepage Features</h2></div>
 
       <div class="admin-card">
         <h3>Featured Vendors &amp; Sponsored Services</h3>
-        <p style="color:#777;font-size:0.85rem;">Toggle which approved vendors appear as Featured on the homepage or Featured Listings in search. Sponsor status is managed on the Sponsors page.</p>
+        <p style="color:#777;font-size:0.85rem;">Toggle which vendors appear as Featured on the homepage or in Featured Listings in search. Sponsor status is managed on the Sponsors page.</p>
         <div class="admin-table-wrap">
           <table class="admin-table">
             <thead><tr><th>Business</th><th>Category</th><th>Featured (Homepage)</th><th>Featured Listing</th><th>Sponsor Status</th></tr></thead>
@@ -261,8 +245,33 @@
 
     <!-- Notifications -->
     <section class="admin-panel" id="panel-notifications">
-      <div class="admin-topbar"><h2>Email Notification Settings</h2></div>
+      <div class="admin-topbar"><h2>Vendor Dashboard Messages</h2></div>
+
       <div class="admin-card">
+        <h3>Publish a Message for All Vendors</h3>
+        <form id="announcementForm">
+          <input type="hidden" id="announcementId">
+          <div class="admin-form-group">
+            <label for="announcementMessage">Message</label>
+            <textarea id="announcementMessage" rows="4" placeholder="Write something for all vendors to see on their dashboard..." required></textarea>
+          </div>
+          <div class="form-row-2">
+            <div class="admin-form-group">
+              <label for="announcementDuration">Duration (days)</label>
+              <input type="number" id="announcementDuration" min="1" step="1" value="7">
+            </div>
+          </div>
+          <div class="action-btns">
+            <button type="submit" class="admin-btn" id="saveAnnouncementBtn">Publish Message</button>
+            <button type="button" class="admin-btn outline hidden" id="cancelAnnouncementEditBtn">Cancel</button>
+          </div>
+          <p class="admin-note" id="announcementNote" style="color:var(--primary);"></p>
+        </form>
+        <div id="announcementList" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Email Notification Settings</h3>
         <p style="color:#777;font-size:0.85rem;margin-bottom:1rem;">No email service is connected yet — these toggles record preferences only. Wiring real emails would need a backend/email provider (e.g. SendGrid, Postmark).</p>
         <div class="toggle-row"><label for="notifNewVendor">Notify admin on new vendor application</label><input type="checkbox" id="notifNewVendor"></div>
         <div class="toggle-row"><label for="notifNewPromo">Notify admin on new promotion request</label><input type="checkbox" id="notifNewPromo"></div>

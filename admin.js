@@ -195,7 +195,7 @@ function renderAll() {
   // data shape in localStorage) can't stop the rest of this script from
   // running, which would otherwise leave every button on the page dead.
   const renderers = [
-    renderOverview, renderVendors, renderContactMessages, renderSubscriptions, renderHomepageFeatures,
+  renderOverview, renderVendors, renderContactMessages, renderHomepageFeatures,
     renderBanners, renderSponsors, renderCategories, renderUsers, renderReviews, renderStories,
     renderSpinWins, loadNotificationSettings, loadSystemSettings,
   ];
@@ -214,13 +214,13 @@ function renderOverview() {
   const approved = vendors.filter(v => (v.status || 'Pending') === 'Approved');
   const pending = vendors.filter(v => (v.status || 'Pending') === 'Pending');
   const rejected = vendors.filter(v => v.status === 'Rejected');
-  const mrr = approved.reduce((sum, v) => sum + (PLAN_PRICES[v.plan] || 0), 0);
+  const premiumAccess = vendors.filter(v => v.featuredListing || v.verified || v.blogAccess || v.homepageAd).length;
 
   const stats = [
     { num: vendors.length, label: 'Vendor Applications' },
     { num: approved.length, label: 'Approved Vendors' },
     { num: pending.length, label: 'Pending Review' },
-    { num: `$${mrr}`, label: 'Est. Monthly Revenue' },
+    { num: premiumAccess, label: 'Admin-managed Premium Access' },
     { num: promos.length, label: 'Promotion Requests' },
     { num: Object.keys(users).length, label: 'Registered Couples' },
     { num: stories.length, label: 'Success Stories Shared' },
@@ -257,9 +257,15 @@ function ensureAdminVendorsListener() {
   if (__adminVendorsListenerAttached || !window.fbDb) return;
   __adminVendorsListenerAttached = true;
   window.fbDb.collection('vendors').onSnapshot(
-    snap => { setLS('fb_admin_all_vendors', snap.docs.map(d => d.data())); renderVendors(); renderSubscriptions(); renderHomepageFeatures(); renderSponsors(); renderOverview(); },
+    snap => { setLS('fb_admin_all_vendors', snap.docs.map(d => d.data())); renderVendors(); renderHomepageFeatures(); renderSponsors(); renderOverview(); },
     err => console.error('Admin dashboard: vendors listener error:', err)
   );
+}
+
+function normalizeFeatureStatus(value) {
+  if (value === true || value === 'Approved' || value === 'Active') return 'Approved';
+  if (value === false || value === 'Rejected' || value === 'Declined' || value === 'Removed') return 'Rejected';
+  return 'Pending';
 }
 
 function updateVendor(time, patch) {
@@ -272,7 +278,7 @@ function updateVendor(time, patch) {
   }
   Object.assign(v, patch);
   setLS('fb_admin_all_vendors', vendors);
-  renderVendors(); renderSubscriptions(); renderHomepageFeatures(); renderSponsors(); renderOverview();
+  renderVendors(); renderHomepageFeatures(); renderSponsors(); renderOverview();
 }
 
 function renderVendors() {
@@ -281,27 +287,60 @@ function renderVendors() {
   if (!vendors.length) { body.innerHTML = `<tr><td colspan="8" class="admin-empty">No vendor applications yet.</td></tr>`; return; }
   body.innerHTML = vendors.slice().reverse().map(v => {
     const status = v.status || 'Pending';
+    const featuredStatus = normalizeFeatureStatus(v.featuredListingStatus ?? v.featuredListing);
+    const blogStatus = normalizeFeatureStatus(v.blogAccessStatus ?? v.blogAccess);
+    const homepageStatus = normalizeFeatureStatus(v.homepageAdStatus ?? v.homepageAd);
     return `
     <tr data-time="${v.time}">
       <td>${escapeHtml(v.businessName)}${safeUrl(v.mapsLink) ? ` <a href="${escapeHtml(safeUrl(v.mapsLink))}" target="_blank" rel="noopener noreferrer" class="receipt-link">map</a>` : ''}<br><span style="color:#999;">@${escapeHtml(v.username || '—')}</span></td>
       <td>${escapeHtml(v.category)}</td>
       <td>${escapeHtml(v.phone)}<br>${escapeHtml(v.email)}<br><span style="color:#999;">${escapeHtml(v.location)}</span></td>
-      <td>${escapeHtml(v.plan)}</td>
-      <td>${escapeHtml(v.paymentMethod)}<br><span style="color:#999;">Ref: ${escapeHtml(v.transactionRef)}</span>${v.receiptImage ? `<br><a href="${v.receiptImage}" target="_blank" rel="noopener noreferrer" class="receipt-link">view receipt</a>` : ''}</td>
       <td><span class="status-pill ${status.toLowerCase()}">${status}</span></td>
+      <td>
+        <select class="feature-select featured-select">
+          <option value="Approved" ${featuredStatus === 'Approved' ? 'selected' : ''}>Approve</option>
+          <option value="Rejected" ${featuredStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
+          <option value="Pending" ${featuredStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+        </select>
+      </td>
       <td><input type="checkbox" class="verify-toggle" ${v.verified ? 'checked' : ''}></td>
-      <td class="action-btns">
-        <button class="admin-btn small approve-btn">Approve</button>
-        <button class="admin-btn small danger reject-btn">Reject</button>
+      <td>
+        <select class="feature-select blog-select">
+          <option value="Approved" ${blogStatus === 'Approved' ? 'selected' : ''}>Approve</option>
+          <option value="Rejected" ${blogStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
+          <option value="Pending" ${blogStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+        </select>
+      </td>
+      <td>
+        <select class="feature-select homepage-select">
+          <option value="Approved" ${homepageStatus === 'Approved' ? 'selected' : ''}>Approve</option>
+          <option value="Rejected" ${homepageStatus === 'Rejected' ? 'selected' : ''}>Reject</option>
+          <option value="Pending" ${homepageStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+        </select>
       </td>
     </tr>`;
   }).join('');
 
   body.querySelectorAll('tr').forEach(row => {
     const time = row.dataset.time;
-    row.querySelector('.approve-btn').addEventListener('click', () => updateVendor(time, { status: 'Approved' }));
-    row.querySelector('.reject-btn').addEventListener('click', () => updateVendor(time, { status: 'Rejected' }));
-    row.querySelector('.verify-toggle').addEventListener('change', (e) => updateVendor(time, { verified: e.target.checked }));
+    const featuredSelect = row.querySelector('.featured-select');
+    const blogSelect = row.querySelector('.blog-select');
+    const homepageSelect = row.querySelector('.homepage-select');
+    const verifyToggle = row.querySelector('.verify-toggle');
+
+    if (featuredSelect) featuredSelect.addEventListener('change', (e) => {
+      const approved = e.target.value === 'Approved';
+      updateVendor(time, { featuredListing: approved, featuredListingStatus: e.target.value });
+    });
+    if (blogSelect) blogSelect.addEventListener('change', (e) => {
+      const approved = e.target.value === 'Approved';
+      updateVendor(time, { blogAccess: approved, blogAccessStatus: e.target.value });
+    });
+    if (homepageSelect) homepageSelect.addEventListener('change', (e) => {
+      const approved = e.target.value === 'Approved';
+      updateVendor(time, { homepageAd: approved, homepageAdStatus: e.target.value });
+    });
+    if (verifyToggle) verifyToggle.addEventListener('change', (e) => updateVendor(time, { verified: e.target.checked, verifiedBadgeStatus: e.target.checked ? 'Approved' : 'Removed' }));
   });
 }
 
@@ -348,73 +387,11 @@ function renderContactMessages() {
   });
 }
 
-// ===== Subscriptions =====
-// Each subscription renews every 30 days from approval (or from the last
-// manual renewal). There's no real payment gateway here, so "renewal" is
-// just the admin confirming payment was received and pushing the date out.
-const SUBSCRIPTION_PERIOD_DAYS = 30;
-function subscriptionRenewalTime(v) {
-  return v.subscriptionRenewalDate ? new Date(v.subscriptionRenewalDate).getTime() : v.time + SUBSCRIPTION_PERIOD_DAYS * 86400000;
-}
-function renderSubscriptions() {
-  const vendors = getLS('fb_vendor_applications', []).filter(v => (v.status || 'Pending') === 'Approved');
-  const body = document.getElementById('subsTableBody');
-  if (!vendors.length) { body.innerHTML = `<tr><td colspan="6" class="admin-empty">No approved subscriptions yet.</td></tr>`; return; }
-  body.innerHTML = vendors.slice().reverse().map(v => {
-    const subStatus = v.subscriptionStatus || 'Active';
-    const renewalTime = subscriptionRenewalTime(v);
-    const daysLeft = Math.ceil((renewalTime - Date.now()) / 86400000);
-    const renewalDateStr = new Date(renewalTime).toLocaleDateString();
-    const renewalPillClass = daysLeft < 0 ? 'rejected' : daysLeft <= 3 ? 'pending' : 'approved';
-    const renewalLabel = daysLeft < 0 ? `⚠️ Overdue by ${Math.abs(daysLeft)}d` : daysLeft <= 3 ? `⚠️ Renews in ${daysLeft}d` : `Renews in ${daysLeft}d`;
-    return `
-    <tr data-time="${v.time}">
-      <td>${escapeHtml(v.businessName)}</td>
-      <td>${escapeHtml(v.plan)} — $${PLAN_PRICES[v.plan] || 0}/month</td>
-      <td><span class="status-pill approved">Approved</span></td>
-      <td>
-        ${v.frozen ? '<span class="status-pill rejected">🧊 Frozen</span>' : `<span class="status-pill ${subStatus.toLowerCase()}">${subStatus}</span>`}
-      </td>
-      <td>${escapeHtml(renewalDateStr)}<br><span class="status-pill ${renewalPillClass}">${renewalLabel}</span></td>
-      <td class="action-btns">
-        ${subStatus === 'Active'
-          ? `<button class="admin-btn small danger cancel-sub-btn">Cancel</button>`
-          : `<button class="admin-btn small reactivate-sub-btn">Reactivate</button>`}
-        <button class="admin-btn small outline renew-sub-btn">Renew</button>
-        ${v.frozen
-          ? `<button class="admin-btn small unfreeze-sub-btn">Unfreeze</button>`
-          : `<button class="admin-btn small danger freeze-sub-btn">Freeze</button>`}
-      </td>
-    </tr>`;
-  }).join('');
-
-  body.querySelectorAll('tr').forEach(row => {
-    const time = row.dataset.time;
-    const cancelBtn = row.querySelector('.cancel-sub-btn');
-    const reactivateBtn = row.querySelector('.reactivate-sub-btn');
-    const renewBtn = row.querySelector('.renew-sub-btn');
-    const freezeBtn = row.querySelector('.freeze-sub-btn');
-    const unfreezeBtn = row.querySelector('.unfreeze-sub-btn');
-    if (cancelBtn) cancelBtn.addEventListener('click', () => updateVendor(time, { subscriptionStatus: 'Cancelled' }));
-    if (reactivateBtn) reactivateBtn.addEventListener('click', () => updateVendor(time, { subscriptionStatus: 'Active' }));
-    if (renewBtn) renewBtn.addEventListener('click', () => {
-      const nextRenewal = new Date(Date.now() + SUBSCRIPTION_PERIOD_DAYS * 86400000);
-      updateVendor(time, { subscriptionRenewalDate: nextRenewal.toISOString().slice(0, 10), frozen: false, subscriptionStatus: 'Active' });
-    });
-    if (freezeBtn) freezeBtn.addEventListener('click', () => {
-      if (confirm('Freeze this vendor? They will be locked out of their dashboard and hidden from the public site until unfrozen.')) {
-        updateVendor(time, { frozen: true });
-      }
-    });
-    if (unfreezeBtn) unfreezeBtn.addEventListener('click', () => updateVendor(time, { frozen: false }));
-  });
-}
-
 // ===== Homepage Features =====
 function renderHomepageFeatures() {
-  const vendors = getLS('fb_vendor_applications', []).filter(v => (v.status || 'Pending') === 'Approved');
+  const vendors = getLS('fb_vendor_applications', []);
   const body = document.getElementById('featureTableBody');
-  if (!vendors.length) { body.innerHTML = `<tr><td colspan="5" class="admin-empty">No approved vendors to feature yet.</td></tr>`; return; }
+  if (!vendors.length) { body.innerHTML = `<tr><td colspan="5" class="admin-empty">No vendors yet.</td></tr>`; return; }
   body.innerHTML = vendors.slice().reverse().map(v => {
     const sponsorLabel = v.sponsored ? 'Active' : v.sponsorStatus === 'Pending' ? 'Pending' : v.sponsorStatus === 'Declined' ? 'Declined' : '—';
     const sponsorClass = v.sponsored ? 'approved' : v.sponsorStatus === 'Pending' ? 'pending' : v.sponsorStatus === 'Declined' ? 'rejected' : '';
@@ -800,6 +777,7 @@ function loadNotificationSettings() {
   document.getElementById('notifNewPromo').checked = !!s.notifyNewPromo;
   document.getElementById('notifNewUser').checked = !!s.notifyNewUser;
   document.getElementById('notifAutoConfirm').checked = !!s.autoConfirm;
+  renderVendorAnnouncementsAdmin();
 }
 document.getElementById('saveNotifBtn').addEventListener('click', () => {
   setLS('fb_admin_email_settings', {
@@ -812,6 +790,128 @@ document.getElementById('saveNotifBtn').addEventListener('click', () => {
   note.textContent = 'Preferences saved.';
   setTimeout(() => note.textContent = '', 2500);
 });
+
+function getVendorAnnouncements() {
+  return getLS('fb_vendor_announcements', []);
+}
+
+function saveVendorAnnouncements(items) {
+  setLS('fb_vendor_announcements', items);
+}
+
+function resetAnnouncementForm() {
+  const form = document.getElementById('announcementForm');
+  if (!form) return;
+  form.reset();
+  document.getElementById('announcementId').value = '';
+  document.getElementById('announcementDuration').value = '7';
+  document.getElementById('saveAnnouncementBtn').textContent = 'Publish Message';
+  const cancelBtn = document.getElementById('cancelAnnouncementEditBtn');
+  if (cancelBtn) cancelBtn.classList.add('hidden');
+}
+
+function renderVendorAnnouncementsAdmin() {
+  const list = document.getElementById('announcementList');
+  if (!list) return;
+
+  const announcements = getVendorAnnouncements();
+  const stillActive = announcements.filter(item => !item.expiresAt || Number(item.expiresAt) > Date.now());
+  if (stillActive.length !== announcements.length) {
+    saveVendorAnnouncements(announcements.filter(item => !item.expiresAt || Number(item.expiresAt) > Date.now()));
+  }
+
+  const current = getVendorAnnouncements();
+  if (!current.length) {
+    list.innerHTML = '<p class="admin-empty">No dashboard messages published yet.</p>';
+    return;
+  }
+
+  list.innerHTML = current.slice().reverse().map(item => {
+    const expired = !!item.expiresAt && Number(item.expiresAt) <= Date.now();
+    const statusText = expired ? 'Expired' : 'Active';
+    const statusClass = expired ? 'rejected' : 'approved';
+    return `
+      <div class="admin-card" data-announcement-id="${escapeHtml(String(item.id))}" style="background:var(--bg);margin-bottom:0.8rem;">
+        <div class="admin-topbar" style="margin-bottom:0.5rem;">
+          <h4 style="margin:0;">${statusText}</h4>
+          <div class="action-btns">
+            <button type="button" class="admin-btn small edit-announcement-btn">Edit</button>
+            <button type="button" class="admin-btn small danger remove-announcement-btn">Remove</button>
+          </div>
+        </div>
+        <p style="white-space:pre-wrap;margin:0.4rem 0;color:#333;">${escapeHtml(item.message)}</p>
+        <p class="admin-hint" style="margin-top:0.5rem;">Published: ${new Date(item.createdAt || Date.now()).toLocaleString()}${item.expiresAt ? ` • Expires: ${new Date(item.expiresAt).toLocaleString()}` : ''}</p>
+        <span class="status-pill ${statusClass}">${statusText}</span>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.edit-announcement-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.closest('[data-announcement-id]').dataset.announcementId;
+      const item = getVendorAnnouncements().find(a => String(a.id) === String(id));
+      if (!item) return;
+      document.getElementById('announcementId').value = String(item.id);
+      document.getElementById('announcementMessage').value = item.message || '';
+      const days = item.expiresAt ? Math.max(1, Math.ceil((Number(item.expiresAt) - Date.now()) / 86400000)) : 7;
+      document.getElementById('announcementDuration').value = String(days);
+      document.getElementById('saveAnnouncementBtn').textContent = 'Save Changes';
+      const cancelBtn = document.getElementById('cancelAnnouncementEditBtn');
+      if (cancelBtn) cancelBtn.classList.remove('hidden');
+      document.getElementById('announcementMessage').focus();
+    });
+  });
+
+  list.querySelectorAll('.remove-announcement-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.closest('[data-announcement-id]').dataset.announcementId;
+      saveVendorAnnouncements(getVendorAnnouncements().filter(a => String(a.id) !== String(id)));
+      renderVendorAnnouncementsAdmin();
+    });
+  });
+}
+
+const announcementForm = document.getElementById('announcementForm');
+if (announcementForm) {
+  announcementForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const id = document.getElementById('announcementId').value;
+    const message = document.getElementById('announcementMessage').value.trim();
+    const days = Number(document.getElementById('announcementDuration').value || 7);
+    const note = document.getElementById('announcementNote');
+    if (!message) {
+      note.textContent = 'Please write a message before publishing.';
+      return;
+    }
+
+    const announcements = getVendorAnnouncements();
+    const createdAt = Date.now();
+    const payload = {
+      id: id || `announcement-${createdAt}`,
+      message,
+      createdAt: id ? (announcements.find(a => String(a.id) === String(id))?.createdAt || createdAt) : createdAt,
+      expiresAt: createdAt + Math.max(1, Number(days || 1)) * 86400000,
+    };
+
+    if (id) {
+      const idx = announcements.findIndex(a => String(a.id) === String(id));
+      if (idx > -1) announcements[idx] = { ...announcements[idx], ...payload, id: String(id) };
+    } else {
+      announcements.push(payload);
+    }
+
+    saveVendorAnnouncements(announcements);
+    renderVendorAnnouncementsAdmin();
+    resetAnnouncementForm();
+    note.textContent = id ? 'Message updated and published to all vendor dashboards.' : 'Message published to all vendor dashboards.';
+    setTimeout(() => note.textContent = '', 3000);
+  });
+}
+
+const cancelAnnouncementEditBtn = document.getElementById('cancelAnnouncementEditBtn');
+if (cancelAnnouncementEditBtn) {
+  cancelAnnouncementEditBtn.addEventListener('click', resetAnnouncementForm);
+}
 
 // ===== System Settings =====
 function loadSystemSettings() {
